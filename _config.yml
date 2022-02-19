@@ -1,0 +1,11 @@
+name: manual-skeleton
+safe: true
+lsi: false
+
+url: http://koriym.github.io/manual-skeleton
+title: manual-skeleton
+
+markdown: kramdown
+redcarpet:
+  extensions: ["autolink", "no_intra_emphasis", "fenced_code_blocks", "autolink", "strikethrough", "superscript", "with_toc_data", "tables"]
+highlighter: rouge
