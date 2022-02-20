@@ -2,9 +2,9 @@
 layout: docs-en
 title: Contextual Biindings
 category: Manual
-permalink: /manuals/1.0/en/contextual_biindings.html
+permalink: /manuals/1.0/en/contextual_bindings.html
 ---
-## Contextual Provider Bindings
+# Contextual Provider Bindings
 
 You may want to create an object using the context when binding with Provider. For example, you want to inject different connection destinations on the same DB interface. In such a case, we bind it by specifying the context (string) with `toProvider ()`.
 

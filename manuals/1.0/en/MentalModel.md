@@ -6,7 +6,7 @@ permalink: /manuals/1.0/en/mental_model.html
 ---
 # Ray.Di Mental Model
 
-_Learn about `Index`, `Provider` and how Ray.Di is just a map_
+_Learn about `Key`, `Provider` and how Ray.Di is just a map_
 
 When you are reading about "Dependency Injection", you often see many buzzwords ("Inversion of
 control", "Hollywood principle") that make it sound confusing. But
@@ -38,22 +38,22 @@ map is a reasonable approximation for how Ray.Di behaves.
 
 ### Ray.Di keys
 
-Ray.Di uses [`Dependecy Index`] to identify a dependency that can be resolved using the
+Ray.Di uses [`Dependecy Key`] to identify a dependency that can be resolved using the
 "Ray.Di map".
 
 The `Greeter` class used in the[Getting Started](GettingStarted.md) declares two
 dependencies in its constructor and those dependencies are represented as `Key`
 in Ray.Di:
 
-*   `#[Message] string` --> `(string) $map[$messageIndex]`
-*   `#[Count] int` --> `(int) $map[$countIndex]`
+*   `#[Message] string` --> `(string) $map[$messageKey]`
+*   `#[Count] int` --> `(int) $map[$countKey]`
 
 The simplest form of a `Key` represents a type in php:
 
 ```php
 // Identifies a dependency that is an instance of string.
 /** @var string $databaseKey */
-$databaseKey = $map[$index];
+$databaseKey = $map[$key];
 ```
 
 However, applications often have dependencies that are of the same type:
@@ -186,18 +186,16 @@ Conceptually, these APIs simply provide ways to manipulate the Ray.Di map. The
 manipulations they do are pretty straightforward. Here are some example
 translations, shown using Java 8 syntax for brevity and clarity:
 
-<!-- mdformat off(Multiline table is not supported in Github) -->
 | Ray.Di DSL syntax                   | Mental model                                                                       |
 | ---------------------------------- | ---------------------------------------------------------------------------------- |
 | `bind($key)->toInstance($value)`  | `$map[$key] = $value;`  <br>(instance binding)          |
 | `bind($key)->toProvider($provider)` | `$map[$key] = fn => $value;` <br>(provider  binding) |
 | `bind(key)->to(anotherKey)`       | `$map[$key] = $map[$anotherKey];` <br>(linked binding) |
-|<!-- mdformat on -->||
 
 `DemoModule` adds two entries into the Ray.Di map:
 
-*   `#[Message] string` --> `fn() => MessageProvicer::get()`
-*   `#[Count] int` --> `fn() -> CountProvicer::get()`
+*   `#[Message] string` --> `fn() => (new MessageProvicer)->get()`
+*   `#[Count] int` --> `fn() => (new CountProvicer)->get()`
 
 ### Injection
 
