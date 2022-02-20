@@ -5,6 +5,12 @@ category: Manual
 permalink: /manuals/1.0/en/injections.html
 ---
 # Injections
+_How Ray.Di initializes your objects_
+
+The dependency injection pattern separates behaviour from dependency resolution.
+Rather than looking up dependencies directly or from factories, the pattern
+recommends that dependencies are passed in. The process of setting dependencies
+into an object is called *injection*.
 
 ## Constructor Injection
 

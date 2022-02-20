@@ -1,9 +1,10 @@
 ---
 layout: docs-en
-title:Framework Integration
+title: Framework Integration
 category: Manual
-permalink: /manuals/1.0/en/FrameworkIntegration.html
+permalink: /manuals/1.0/en/integration.html
 ---
+
 ## Frameworks integration
 
 * [BEAR.Sunday](https://github.com/koriym/BEAR.Sunday)

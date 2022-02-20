@@ -5,8 +5,9 @@ category: Manual
 permalink: /manuals/1.0/en/bindings.html
 ---
 # Bindings
+_Overview of bindings in Ray.Di_
 
-A binding is an object that corresponds to an entry in Ray.Di map. You add new entries into the Ray.Di map by creating bindings.
+A **binding** is an object that corresponds to an entry in [Ray.Di map](mental_model.html). You add new entries into the Ray.Di map by creating bindings.
 
 ## Creating Bindings
 
@@ -29,7 +30,7 @@ class TweetModule extends AbstractModule
 
 ## More Bindings
 
-In addition to the bindings you specify the injector includes [built-in bindings](BuiltinBindings.md). When a dependency is requested but not found it attempts to create a just-in-time binding. The injector also includes bindings for the providers of its other bindings.
+In addition to the bindings you specify the injector includes [built-in bindings](BuiltinBindings.md). When a dependency is requested but not found it attempts to create a just-in-time binding. The injector also includes bindings for the [providers](injecting_providers.html) of its other bindings.
 
 ## Module Install
 
