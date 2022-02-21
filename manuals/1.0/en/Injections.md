@@ -80,8 +80,6 @@ class HorizontalScaleDbProvider implements ProviderInterface
 
 This injection done by AOP is powerful and useful for injecting objects that are only determined at method execution time, as described above. However, this injection is outside the scope of the original IOC and should only be used when really necessary.
 
-
-
 ## Optional Injections
 
 Occasionally it's convenient to use a dependency when it exists and to fall back
