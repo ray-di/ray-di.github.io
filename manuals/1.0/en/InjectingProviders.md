@@ -68,9 +68,11 @@ providers, you can get a new entry whenever you need one:
 ```php
 class LogFileTransactionLog implements TransactionLogInterface
 {
-    public __construct(
-        #[TransactionLog] private Provider $logFileProvider
-    ) {}
+    private readonly Provider $logFileProvider;
+    
+    public __construct(#[TransactionLog] Provider $logFileProvider) {
+        $this->logFileProvider = $logFileProvider;
+    }
     
     public logChargeResult(ChargeResult $result): void {
         $summaryEntry = $this->logFileProvider->get();
