@@ -290,9 +290,8 @@ traversal of the graph from the object you want up through all its dependencies.
 
 A Ray.Di `Injector` object represents the entire dependency graph. To create an
 `Injector`, Ray.Di needs to validate that the entire graph works. There can't be
-any "dangling" nodes where a dependency is needed but not provided.[^3] If the
-graph is invalid for any reason, Ray.Di throws a `CreationException` that
-describes what went wrong.
+any "dangling" nodes where a dependency is needed but not provided.[^3]
+If the bound is incomplete somewhere in the graph, Ray.Di will throw an `Unbound` exception.
 
 [^3]: The reverse case is not an error: it's fine to provide something even if
 nothing ever uses it—it's just dead code in that case. That said, just
