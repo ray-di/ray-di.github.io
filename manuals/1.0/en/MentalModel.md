@@ -41,7 +41,7 @@ map is a reasonable approximation for how Ray.Di behaves.
 Ray.Di uses [`Dependecy Key`] to identify a dependency that can be resolved using the
 "Ray.Di map".
 
-The `Greeter` class used in the[Getting Started](GettingStarted.md) declares two
+The `Greeter` class used in the [Getting Started](GettingStarted.md) declares two
 dependencies in its constructor and those dependencies are represented as `Key`
 in Ray.Di:
 
@@ -58,7 +58,7 @@ $databaseKey = $map[$key];
 
 However, applications often have dependencies that are of the same type:
 
-```java
+```php
 final class MultilingualGreeter
 {
     public function __construct(
@@ -71,7 +71,7 @@ final class MultilingualGreeter
 Ray.Di uses [binding Attributes](BindingAttributes.md) to distinguish dependencies
 that are of the same type, that is to make the type more specific:
 
-```java
+```php
 final class MultilingualGreeter
 {
     public function __construct(
@@ -83,7 +83,7 @@ final class MultilingualGreeter
 
 `Key` with binding annotations can be created as:
 
-```java
+```php
 $englishGreetingKey = $map[English::class];
 $spanishGreetingKey = $map[Spanish::class];
 ```
@@ -91,7 +91,7 @@ $spanishGreetingKey = $map[Spanish::class];
 When an application calls `$injector->getInstance(MultilingualGreeter::class)` to
 create an instance of `MultilingualGreeter`. This is the equivalent of doing:
 
-```java
+```php
 // Ray.Di internally does this for you so you don't have to wire up those
 // dependencies manually.
 /** @var string $english */
@@ -179,7 +179,6 @@ Ray.Di maps are configured using Ray.Di modules. A **Ray.Di module** is a unit o
 configuration logic that adds things into the Ray.Di map. There are two ways to
 do this:
 
-*   Adding method annotations like `@Provides`
 *   Using the Ray.Di Domain Specific Language (DSL).
 
 Conceptually, these APIs simply provide ways to manipulate the Ray.Di map. The
