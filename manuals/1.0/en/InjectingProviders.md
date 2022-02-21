@@ -24,16 +24,10 @@ Provider types are marked with a qualifier to distinguish `Provider<TransactionL
 ```php
 public class RealBillingService implements BillingServiceInterface
 {
-    private readonly Provider $processorProvider;
-    private readonly Provider $transactionLogProvider;
-
     public __construct(
-        #[QureditCardProcessor] Provider $processorProvider,
-        #[TransactionLog] Provider $transactionLogProvider
-    ) {
-        $this->processorProvider = $processorProvider;
-        $this->transactionLogProvider = $transactionLogProvider;
-    }
+        #[QureditCardProcessor] private Provider $processorProvider,
+        #[TransactionLog] private Provider $transactionLogProvider
+    ) {}
 
     public chargeOrder(PizzaOrder $order, CreditCard $creditCard): Receipt
     {
@@ -74,11 +68,9 @@ providers, you can get a new entry whenever you need one:
 ```php
 class LogFileTransactionLog implements TransactionLogInterface
 {
-    private readonly Provider $logFileProvider;
-    
-    public __construct(#[TransactionLog] Provider $logFileProvider) {
-        $this->logFileProvider = $logFileProvider;
-    }
+    public __construct(
+        #[TransactionLog] private Provider $logFileProvider
+    ) {}
     
     public logChargeResult(ChargeResult $result): void {
         $summaryEntry = $this->logFileProvider->get();
@@ -103,11 +95,9 @@ when you don't always need the dependency:
 ```php
 class LogFileTransactionLog implements TransactionLogInterface
 {
-    private readonly Provider $connectionProvider;
-    
-    public function __construct(#[Connection] Provider $connectionProvider) {
-        $this->connectionProvider = $connectionProvider;
-    }
+    public function __construct(
+        #[Connection] private Provider $connectionProvider
+    ) {}
     
     public function logChargeResult(ChargeResult $result) {
         /* only write failed charges to the database */
@@ -131,19 +121,14 @@ they enable you to mix scopes safely:
 ```php
 public class ConsoleTransactionLog implements TransactionLogInterface
 {
-    private readonly AtomicInteger $failureCount;
-    private readonly Provider $userProvider;
+    public function __construct(
+        #[User] private readonly Provider $userProvider
+    ) {}
     
-    public function __construct(#[User] Provider $userProvider) {
-        $this->failureCount = new AtomicInteger();
-        $this->userProvider = $userProvider;
-    }
-    
-    public logConnectException(UnreachableException $e): void
+    public function logConnectException(UnreachableException $e): void
     {
-        $this->failureCount->incrementAndGet();
         $user = $this->userProvider->get();
-        echo "Connection failed for " . $user . ": " . $e.getMessage();
-        echo "Failure count: " . $failureCount->incrementAndGet();
+        echo "Connection failed for " . $user . ": " . $e->getMessage();
     }
+}
 ```
