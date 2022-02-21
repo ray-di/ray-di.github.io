@@ -1,9 +1,9 @@
-name: manual-skeleton
+name: Ray.Di
 safe: true
 lsi: false
 
-url: http://koriym.github.io/manual-skeleton
-title: manual-skeleton
+url: https://github.com/ray-di/Ray.Di
+title: Ray.Di
 
 markdown: kramdown
 redcarpet:
