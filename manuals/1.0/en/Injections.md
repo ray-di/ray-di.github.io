@@ -79,3 +79,35 @@ class HorizontalScaleDbProvider implements ProviderInterface
 ```
 
 This injection done by AOP is powerful and useful for injecting objects that are only determined at method execution time, as described above. However, this injection is outside the scope of the original IOC and should only be used when really necessary.
+
+
+
+## Optional Injections
+
+Occasionally it's convenient to use a dependency when it exists and to fall back
+to a default when it doesn't. Method and field injections may be optional, which
+causes Ray.Di to silently ignore them when the dependencies aren't available. To
+use optional injection, apply the `#[Inject(optional: true)`attribute:
+
+```php
+public class PayPalCreditCardProcessor implements CreditCardProcessorInterface
+{
+    private const SANDBOX_API_KEY = "development-use-only";
+    private string $apiKey = self::SANDBOX_API_KEY;
+    
+    #[Inject(optional: true)]
+    public setApiKey(#[Named('paypal-apikey') string $apiKey): void
+    {
+       $this->apiKey = $apiKey;
+    }
+}
+```
+
+Mixing optional injection and just-in-time bindings may yield surprising
+results. For example, the following field is always injected even when `Date` is
+not explicitly bound. This is because `Date` has a public no-arguments
+constructor that is eligible for just-in-time bindings.
+
+```java
+  @Inject(optional=true) Date launchDate;
+```
