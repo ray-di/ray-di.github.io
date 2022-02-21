@@ -45,8 +45,9 @@ Ray.Di does not support property injection.
 
 ## Assisted Injection
 
-It is also possible to inject dependencies directly in the invoke method parameter(s). When doing this, add the dependency to the end of the arguments and add `#[Assisted]` to the parameter(s). You need `null` default for that parameter.
+Also called method-call injection action injection, or Invocation injection.It is also possible to inject dependencies directly in the invoke method parameter(s). When doing this, add the dependency to the end of the arguments and add `#[Assisted]` to the parameter(s). You need `null` default for that parameter.
 
+_Note that this Assisted Injection is different from the one in Google Guice._
 ```php
 use Ray\Di\Di\Assisted;
 ```
@@ -76,3 +77,5 @@ class HorizontalScaleDbProvider implements ProviderInterface
     }
 }
 ```
+
+This injection done by AOP is powerful and useful for injecting objects that are only determined at method execution time, as described above. However, this injection is outside the scope of the original IOC and should only be used when really necessary.
