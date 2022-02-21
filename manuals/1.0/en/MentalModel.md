@@ -239,9 +239,8 @@ Some ways of declaring that you need something:
     ```
 
 This example is intentionally the same as the example `Foo` class from
-[Getting Started Guide](GettingStarted#what-is-dependency-injection), adding
-only the `@Inject` annotation on the constructor, which marks the constructor as
-being available for Ray.Di to use.
+[Getting Started Guide](GettingStarted#what-is-dependency-injection).
+Unlike Guice, Ray.Di does not require the `Inject` attribute to be added to the constructor.
 
 ## Dependencies form a graph
 
