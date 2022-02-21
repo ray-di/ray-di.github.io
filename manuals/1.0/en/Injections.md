@@ -102,12 +102,3 @@ public class PayPalCreditCardProcessor implements CreditCardProcessorInterface
     }
 }
 ```
-
-Mixing optional injection and just-in-time bindings may yield surprising
-results. For example, the following field is always injected even when `Date` is
-not explicitly bound. This is because `Date` has a public no-arguments
-constructor that is eligible for just-in-time bindings.
-
-```java
-  @Inject(optional=true) Date launchDate;
-```
