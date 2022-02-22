@@ -6,7 +6,7 @@ permalink: /manuals/1.0/ja/installation.html
 ---
 # Installation
 
-Ray.Diのインストールは、[Composer](https://github.com/composer/composer)から行うことを推奨します。
+Ray.Diのインストールは、[Composer](https://github.com/composer/composer)から行います
 
 ```bash
 composer require ray/di ^2.0
