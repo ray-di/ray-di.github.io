@@ -307,6 +307,12 @@ footer li {
     }
 }
 
+.logotype {
+    font-size: xxx-large;
+    font-family: "Arial", sans-serif;
+    font-weight: 600;
+}
+
 .language-list {
     display: inline-flex;
     flex-direction: row;
