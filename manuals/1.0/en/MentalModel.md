@@ -41,7 +41,7 @@ map is a reasonable approximation for how Ray.Di behaves.
 Ray.Di uses [`Dependecy Key`] to identify a dependency that can be resolved using the
 "Ray.Di map".
 
-The `Greeter` class used in the[Getting Started](GettingStarted.md) declares two
+The `Greeter` class used in the [Getting Started](GettingStarted.md) declares two
 dependencies in its constructor and those dependencies are represented as `Key`
 in Ray.Di:
 
@@ -58,7 +58,7 @@ $databaseKey = $map[$key];
 
 However, applications often have dependencies that are of the same type:
 
-```java
+```php
 final class MultilingualGreeter
 {
     public function __construct(
@@ -71,7 +71,7 @@ final class MultilingualGreeter
 Ray.Di uses [binding Attributes](BindingAttributes.md) to distinguish dependencies
 that are of the same type, that is to make the type more specific:
 
-```java
+```php
 final class MultilingualGreeter
 {
     public function __construct(
@@ -83,7 +83,7 @@ final class MultilingualGreeter
 
 `Key` with binding annotations can be created as:
 
-```java
+```php
 $englishGreetingKey = $map[English::class];
 $spanishGreetingKey = $map[Spanish::class];
 ```
@@ -91,7 +91,7 @@ $spanishGreetingKey = $map[Spanish::class];
 When an application calls `$injector->getInstance(MultilingualGreeter::class)` to
 create an instance of `MultilingualGreeter`. This is the equivalent of doing:
 
-```java
+```php
 // Ray.Di internally does this for you so you don't have to wire up those
 // dependencies manually.
 /** @var string $english */
@@ -179,7 +179,6 @@ Ray.Di maps are configured using Ray.Di modules. A **Ray.Di module** is a unit o
 configuration logic that adds things into the Ray.Di map. There are two ways to
 do this:
 
-*   Adding method annotations like `@Provides`
 *   Using the Ray.Di Domain Specific Language (DSL).
 
 Conceptually, these APIs simply provide ways to manipulate the Ray.Di map. The
@@ -240,9 +239,8 @@ Some ways of declaring that you need something:
     ```
 
 This example is intentionally the same as the example `Foo` class from
-[Getting Started Guide](GettingStarted#what-is-dependency-injection), adding
-only the `@Inject` annotation on the constructor, which marks the constructor as
-being available for Ray.Di to use.
+[Getting Started Guide](GettingStarted#what-is-dependency-injection).
+Unlike Guice, Ray.Di does not require the `Inject` attribute to be added to the constructor.
 
 ## Dependencies form a graph
 
@@ -292,9 +290,8 @@ traversal of the graph from the object you want up through all its dependencies.
 
 A Ray.Di `Injector` object represents the entire dependency graph. To create an
 `Injector`, Ray.Di needs to validate that the entire graph works. There can't be
-any "dangling" nodes where a dependency is needed but not provided.[^3] If the
-graph is invalid for any reason, Ray.Di throws a `CreationException` that
-describes what went wrong.
+any "dangling" nodes where a dependency is needed but not provided.[^3]
+If the bound is incomplete somewhere in the graph, Ray.Di will throw an `Unbound` exception.
 
 [^3]: The reverse case is not an error: it's fine to provide something even if
 nothing ever uses it—it's just dead code in that case. That said, just
