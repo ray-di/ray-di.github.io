@@ -2,7 +2,7 @@
 layout: docs-en
 title: Installation
 category: Manual
-permalink: /manuals/1.0/en/Installation.html
+permalink: /manuals/1.0/en/installation.html
 ---
 # Installation
 
