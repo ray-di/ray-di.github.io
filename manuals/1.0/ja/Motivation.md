@@ -1,8 +1,9 @@
 ---
-layout: docs-en
+layout: docs-ja
+layout: docs-ja
 title: Motivation
 category: Manual
-permalink: /manuals/1.0/en/motivation.html
+permalink: /manuals/1.0/ja/motivation.html
 ---
 # Motivation
 

@@ -1,6 +1,6 @@
 ---
 layout: docs-ja
-title: Installation
+title: インストール
 category: Manual
 permalink: /manuals/1.0/ja/installation.html
 ---
