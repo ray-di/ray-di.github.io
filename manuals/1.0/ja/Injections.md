@@ -1,8 +1,8 @@
 ---
-layout: docs-en
+layout: docs-ja
 title: Injections
 category: Manual
-permalink: /manuals/1.0/en/injections.html
+permalink: /manuals/1.0/ja/injections.html
 ---
 # Injections
 _How Ray.Di initializes your objects_
@@ -45,9 +45,8 @@ Ray.Di does not support property injection.
 
 ## Assisted Injection
 
-Also called method-call injection action injection, or Invocation injection.It is also possible to inject dependencies directly in the invoke method parameter(s). When doing this, add the dependency to the end of the arguments and add `#[Assisted]` to the parameter(s). You need `null` default for that parameter.
+It is also possible to inject dependencies directly in the invoke method parameter(s). When doing this, add the dependency to the end of the arguments and add `#[Assisted]` to the parameter(s). You need `null` default for that parameter.
 
-_Note that this Assisted Injection is different from the one in Google Guice._
 ```php
 use Ray\Di\Di\Assisted;
 ```
@@ -74,29 +73,6 @@ class HorizontalScaleDbProvider implements ProviderInterface
         [$id] = $methodInvocation->getArguments()->getArrayCopy();
         
         return UserDb::withId($id); // $id for database choice.
-    }
-}
-```
-
-This injection done by AOP is powerful and useful for injecting objects that are only determined at method execution time, as described above. However, this injection is outside the scope of the original IOC and should only be used when really necessary.
-
-## Optional Injections
-
-Occasionally it's convenient to use a dependency when it exists and to fall back
-to a default when it doesn't. Method and field injections may be optional, which
-causes Ray.Di to silently ignore them when the dependencies aren't available. To
-use optional injection, apply the `#[Inject(optional: true)`attribute:
-
-```php
-public class PayPalCreditCardProcessor implements CreditCardProcessorInterface
-{
-    private const SANDBOX_API_KEY = "development-use-only";
-    private string $apiKey = self::SANDBOX_API_KEY;
-    
-    #[Inject(optional: true)]
-    public setApiKey(#[Named('paypal-apikey') string $apiKey): void
-    {
-       $this->apiKey = $apiKey;
     }
 }
 ```
