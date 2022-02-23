@@ -98,9 +98,9 @@ public class RealBillingService implements BillingServiceInterface
             return $result->wasSuccessful()
                 ? Receipt::forSuccessfulCharge($order->getAmount())
                 : Receipt::forDeclinedCharge($result->getDeclineMessage());
-         } catch (UnreachableException $e) {
-             $transactionLog->logConnectException($e);
-             return Receipt::forSystemFailure($e.getMessage());
+        } catch (UnreachableException $e) {
+            $transactionLog->logConnectException($e);
+            return Receipt::forSystemFailure($e.getMessage());
         }
     }
 }
@@ -254,14 +254,14 @@ public class RealBillingService implements BillingServiceInterface
     public function chargeOrder(PizzaOrder $order, CreditCard $creditCard): Receipt
     {
         try {
-          $result = $this->processor->charge($creditCard, $order->getAmount());
-          $this->transactionLog->logChargeResult($result);
+            $result = $this->processor->charge($creditCard, $order->getAmount());
+            $this->transactionLog->logChargeResult($result);
         
-          return $result->wasSuccessful()
-              ? Receipt::forSuccessfulCharge($order->getAmount())
-              : Receipt::forDeclinedCharge($result->getDeclineMessage());
-         } catch (UnreachableException $e) {
-             $this->transactionLog->logConnectException($e);
+            return $result->wasSuccessful()
+                ? Receipt::forSuccessfulCharge($order->getAmount())
+                : Receipt::forDeclinedCharge($result->getDeclineMessage());
+        } catch (UnreachableException $e) {
+            $this->transactionLog->logConnectException($e);
             
             return Receipt::forSystemFailure($e->getMessage());
         }
