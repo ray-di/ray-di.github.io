@@ -1,8 +1,8 @@
 ---
-layout: docs-en
-title: Getting Started
+layout: docs-ja
+title: はじめに
 category: Manual
-permalink: /manuals/1.0/en/getting_started.html
+permalink: /manuals/1.0/ja/getting_started.html
 ---
 # GettingStarted
 
@@ -124,7 +124,9 @@ class DemoModule extends AbstractModule
 }
 ```
 
-実際のアプリケーションでは、オブジェクトの依存関係グラフはもっと複雑になりますが、Ray.Diはすべての推移的依存関係を自動的に作成し、複雑なオブジェクトを簡単に作成することができます。
+実際のアプリケーションでは、オブジェクトの依存関係グラフはもっと複雑になりますが、Ray.Diはすべての推移的依存関係[^transtive_dependencies]を自動的に作成し、複雑なオブジェクトを簡単に作成することができます。
+
+[^transtive_dependencies]: 推移的依存関係とは、プログラムが直接参照するコンポーネントによって誘発される依存関係のことです。例えば、log()関数の呼び出しは、通常、ログメッセージをファイルに書き込むためのI/Oを管理するライブラリへの"推移的依存関係"を誘発します。☞ [Transitive_dependency](https://en.wikipedia.org/wiki/Transitive_dependency)
 
 ### Ray.Diインジェクター
 
@@ -248,3 +250,5 @@ $greeter->sayHello();
 ## 次に
 
 シンプルな [メンタルモデル](mental_model.html)でRay.Diをもっと深く理解する方法を探索してください。
+
+---

@@ -126,7 +126,7 @@ class DemoModule extends AbstractModule
 }
 ```
 
-In a real application, the dependency graph for objects will be much more complicated and Ray.Di makes creating complex object easy by creating all the transitive dependencies automatically.
+In a real application, the dependency graph for objects will be much more complicated and Ray.Di makes creating complex object easy by creating all the [transitive dependencies](https://en.wikipedia.org/wiki/Transitive_dependency) automatically.
 
 ### Ray.Di injectors
 
