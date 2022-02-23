@@ -181,7 +181,7 @@ public class RealBillingService implements BillingServiceInterface
 }
 ```
 
-ファクトリーは必要ありませんし、テストケースを単純化するために`setUp` と `tearDown` が使えます。
+ファクトリーは必要ありませんし、`setUp` と `tearDown` の定型的なコードを削除することで、テストケースを簡素化することができます。
 
 ```php
 public class RealBillingServiceTest extends TestCase
