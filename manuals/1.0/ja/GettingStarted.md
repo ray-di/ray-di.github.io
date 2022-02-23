@@ -6,18 +6,17 @@ permalink: /manuals/1.0/en/getting_started.html
 ---
 # GettingStarted
 
-_How to start doing dependency injection with Ray.Di._
+_Ray.Di.を使ったDIの始め方_
 
 ## はじめに
 
-Ray.Diは、あなたのアプリケーションで依存性注入（DI）パターンを簡単に使用できるようにするフレームワークです。このスタートガイドでは、Ray.Di を使ってアプリケーションに依存性注入を取り入れる方法を、簡単な例で説明します。
+Ray.Diは、あなたのアプリケーションで依存性注入（DI）パターンを簡単に使用できるようにするフレームワークです。このスタートガイドでは、Ray.Di を使ってアプリケーションに依存性注入を取り入れる方法を簡単な例で説明します。
 
 ### 依存性注入とは何ですか？
 
-[Dependency injection](https://en.wikipedia.org/wiki/Dependency_injection)は、クラスが依存関係を引数として宣言するデザインパターンです。
-を直接作成するのではありません。例えば、あるサービスを呼び出したいクライアントは、サービスを構築する方法を知る必要はありません。むしろ、外部のコードがクライアントにサービスを提供する責任を負うのです。
+[依存性の注入 (dependency injection)](https://ja.wikipedia.org/wiki/依存性の注入)は、クラスが依存関係を直接作成するのではなく、引数として宣言するデザインパターンです。あるサービスを呼び出したいクライアントはサービスを構築する方法を知る必要はなく、外部のコードがクライアントにサービスを提供する役割を担います。
 
-依存性注入を使用しないコードの簡単な例を示します。
+依存性注入を使用しないコードの例を簡単な示します。
 
 ```php
 class Foo
@@ -50,15 +49,15 @@ class Foo {
 }
 ```
 
-上記の `Foo` クラスは、`Database` がどのように作成されたかを知らないので、任意の `Database` オブジェクトを使用することができます。例えば、インメモリデータベースを使用する `Database` の実装のテスト版をテストで作成すると、テストの密閉性と高速性を高めることができる。
+上記の `Foo` クラスは、`Database` がどのように作成されたかを知らないので、任意の `Database` オブジェクトを使用することができます。例えば、テスト用にインメモリデータベースを使用する `Database` の実装を作成すると、テストの密閉性と高速性を高めることができます。
 
-Motivation](Motivation.md) ページでは、アプリケーションが依存性注入パターンを使用すべき理由について、より詳しく説明しています。
+[モチベーション](Motivation.md) ページでは、アプリケーションが依存性注入パターンを使用すべき理由について、より詳しく説明しています。
 
-## コアとなるRay.Diのコンセプト
+## Ray.Diのコアコンセプト
 
 ### コンストラクタ
 
-PHPクラスのコンストラクタは、[コンストラクタ注入](Injections.md#constructor-injection)という処理によってRay.Diから呼び出すことができ、その際にコンストラクタの引数はRay.Diによって作成・提供されることになります。(Guiceとは異なり、Ray.Diはコンストラクタに「Inject」アノテーションを必要としません)。
+PHPクラスのコンストラクタは、[コンストラクタ注入](Injections.md#constructor-injection)という処理によってRay.Diから呼び出すことができ、その際にコンストラクタの引数はRay.Diによって作成・提供されることになります。(Guiceとは異なり、Ray.Diはコンストラクタに`Inject`アノテーションを必要としません)
 
 以下は、コンストラクタ注入を使用するクラスの例です。
 
@@ -83,16 +82,16 @@ class Greeter
 }
 ```
 
-上記の例では、アプリケーションが Ray.Di に `Greeter` のインスタンスを作成するように要求したときに呼び出されるコンストラクタが `Greeter` クラスに含まれています。Ray.Diは必要な2つの引数を作成し、それからコンストラクタを呼び出します。Greeter` クラスのコンストラクタの引数は依存関係にあり、アプリケーションは `Module` を使用して Ray.Di に依存関係を満たす方法を伝えます。
+上記の例の`Greeter` にはコンストラクタがあり、Ray.Diが`Greeter`のインスタンスを作成する時に呼び出されます。Ray.Diはそのために必要な2つの引数を作成し、それからコンストラクタを呼び出します。`Greeter`クラスのコンストラクタの引数は依存関係にあり、アプリケーションは `Module` を使用して Ray.Di に依存関係を解決する方法を伝えます。
 
 ### Ray.Di モジュール
 
-アプリケーションには、他のオブジェクトへの依存を宣言するオブジェクトが含まれ、それらの依存関係はグラフを形成します。例えば、上記の `Greeter` クラスは 2 つの依存関係を持っています (コンストラクタで宣言されています)。
+アプリケーションには、他のオブジェクトへの依存を宣言するオブジェクトが含まれ、それらの依存関係でグラフを形成します。例えば、上記の `Greeter` クラスは 2 つの依存関係を持っているのがコンストラクタで宣言されています。
 
-* 印刷されるメッセージのための `string` 値
-* メッセージを印刷する回数を示す `int` 値
+* プリントされるメッセージのための `string` 値
+* メッセージをプリントする回数を示す `int` 値
 
-Ray.Diモジュールでは、これらの依存関係を満たす方法をアプリケーションで指定することができます。例えば、以下の `DemoModule` は `Greeter` クラスに必要なすべての依存関係を設定する。
+Ray.Diモジュールでは、これらの依存関係を満たす方法をアプリケーションで指定することができます。例えば、以下の `DemoModule` は `Greeter` クラスに必要なすべての依存関係を設定しています。
 
 ```php
 class CountProvider implements ProviderInterface
@@ -125,11 +124,11 @@ class DemoModule extends AbstractModule
 }
 ```
 
-In a real application, the dependency graph for objects will be much more complicated and Ray.Di makes すべての相互依存関係を自動的に作成することで、複雑なオブジェクトを簡単に作成できます。
+実際のアプリケーションでは、オブジェクトの依存関係グラフはもっと複雑になりますが、Ray.Diはすべての推移的依存関係を自動的に作成し、複雑なオブジェクトを簡単に作成することができます。
 
 ### Ray.Diインジェクター
 
-アプリケーションをブートストラップするために、1つ以上のモジュールを含む Ray.Di `Injector` を作成する必要があります。例えば、ウェブサーバースクリプトは以下のようなものであろう。
+アプリケーションをブートストラップするために、1つ以上のモジュールを含む Ray.Di `Injector` を作成する必要があります。例えば、ウェブサーバースクリプトは以下のようなものでしょう。
 
 ```php
 final class MyWebServer {
@@ -165,15 +164,11 @@ final class MyWebServer {
 (new MyWebServer)();
 ```
 
-The injector internally holds the dependency graphs described in your application. When you request an instance of a given type, the injector figures out what objects to construct, resolves their dependencies, and wires everything together. To specify how dependencies are resolved, configure your injector with
-[bindings](Bindings).
+インジェクターは、アプリケーションで記述された依存関係グラフを内部で保持します。指定した型のインスタンスを要求すると、インジェクタはどのオブジェクトを作成すべきかを判断し、依存関係を解決してすべてを結びつけます。依存関係の解決方法を指定するために、[束縛](bindings.html)を使用してインジェクタを設定します。
 
-[`Injector`]: https://github.com/ray-di/Ray.Di/blob/2.x/src/di/InjectorInterface.php
+## シンプルなRay.Diアプリケーション
 
-## A simple Ray.Di application
-
-The following is a simple Ray.Di application with all the necessary pieces put
-together:
+以下は、必要なものをまとめたシンプルなRay.Diアプリケーションです。
 
 ```php
 <?php
@@ -248,8 +243,8 @@ $greeter = $injector->getInstance(Greeter::class);
 $greeter->sayHello();
 ```
 
-`RayDiDemo` アプリケーションは、`Greeter` クラスのインスタンスを構築することができる Ray.Di を使用して小さな依存関係グラフを構築しています。大規模なアプリケーションは通常、複雑なオブジェクトを構築することができる多くの `Module` を持っています。
+`RayDiDemo` アプリケーションは、`Greeter` クラスのインスタンスを構築することができる Ray.Di を使用して小さな依存関係グラフを構築しています。通常、大規模なアプリケーションは複雑なオブジェクトを構築することができる多くの `Module` を持っています。
 
-## 次はどうする？
+## 次に
 
-Ray.Diを簡単な[メンタルモデル]で概念化する方法(mental_model.html)はこちらをご覧ください。
+シンプルな [メンタルモデル](mental_model.html)でRay.Diをもっと深く理解する方法を探索してください。
