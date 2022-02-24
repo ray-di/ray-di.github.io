@@ -12,12 +12,9 @@ permalink: /manuals/1.0/ja/motivation.html
 interface BillingServiceInterface
 {
     /**
-    * Attempts to charge the order to the credit card. Both successful and
-    * failed transactions will be recorded.
+    * オーダーをクレジットカードにチャージしようとします。成功した取引と失敗した取引の両方が記録されます。
     *
-    * @return Receipt a receipt of the transaction. If the charge was successful,
-    *      the receipt will be successful. Otherwise, the receipt will contain a
-    *      decline note describing why the charge failed.
+    * @return Receipt 取引の領収書。チャージが失敗した場合は、理由を説明する断り書きがレシートに記載されます。
     */
     public function chargeOrder(PizzaOrder order, CreditCard creditCard): Receipt;
 }
