@@ -240,7 +240,7 @@ class DsnProvider implements Provider
 }  
 ```
 
-依存関係は **有向グラフ[^direct-graph]** を形成し、インジェクションは、必要なオブジェクトからそのすべての依存関係を介してグラフの深さ優先探索を実行することによって動作します。
+依存関係は **有向グラフ[^direct-graph]** を形成し、インジェクションは、必要なオブジェクトからそのすべての依存関係を介してグラフの深さ[優先探索](https://ja.wikipedia.org/wiki/深さ優先探索)を実行することによって動作します。
 
 [^direct-graph]: 頂点と向きを持つ辺（矢印）により構成された[グラフ](https://ja.wikibooks.org/wiki/グラフ理論)です。
 
