@@ -68,8 +68,6 @@ class Greeter
 {
     // Greeter declares that it needs a string message and an integer
     // representing the number of time the message to be printed.
-    // The @Inject annotation marks this constructor as eligible to be used by
-    // Ray.Di.
     public function __construfct(
         #[Message] readonly string $message,
         #[Count] readonly int $count
