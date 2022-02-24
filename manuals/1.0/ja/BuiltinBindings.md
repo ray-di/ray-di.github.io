@@ -19,5 +19,5 @@ sparingly.
 
 ## Providers
 
-For every type Guice knows about, it can also inject a Provider of that type.
+For every type Ray.Di knows about, it can also inject a Provider of that type.
 [Injecting Providers](injecting_provider.html) describes this in detail.

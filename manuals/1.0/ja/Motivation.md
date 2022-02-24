@@ -257,9 +257,9 @@ $billingService = new RealBillingService($processor, $transactionLog);
 ## Dependency Injection with Ray.Di
 
 The dependency injection pattern leads to code that's modular and testable, and
-Guice makes it easy to write. To use Guice in our billing example, we first need
+Ray.Di makes it easy to write. To use Ray.Di in our billing example, we first need
 to tell it how to map our interfaces to their implementations. This
-configuration is done in a Guice module, which is any Java class that implements
+configuration is done in a Ray.Di module, which is any Java class that implements
 the `Module` interface:
 
 ```php
