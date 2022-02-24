@@ -38,15 +38,15 @@ map is a reasonable approximation for how Ray.Di behaves.
 
 ### Ray.Di keys
 
-Ray.Di uses [`Dependecy Key`] to identify a dependency that can be resolved using the
+Ray.Di uses `Key` to identify a dependency that can be resolved using the
 "Ray.Di map".
 
 The `Greeter` class used in the [Getting Started](GettingStarted.md) declares two
 dependencies in its constructor and those dependencies are represented as `Key`
 in Ray.Di:
 
-*   `#[Message] string` --> `(string) $map[$messageKey]`
-*   `#[Count] int` --> `(int) $map[$countKey]`
+*   `#[Message] string` --> `$map[$messageKey]`
+*   `#[Count] int` --> `$map[$countKey]`
 
 The simplest form of a `Key` represents a type in php:
 
@@ -101,15 +101,13 @@ create an instance of `MultilingualGreeter`. This is the equivalent of doing:
 ```php
 // Ray.Di internally does this for you so you don't have to wire up those
 // dependencies manually.
-/** @var Message $english */
 $english = $injector->getInstance(Message::class, English::class));
-/** @var Message $spanish */
 $spanish = $injector->getInstance(Message::class, Spanish::class));
 $greeter = new MultilingualGreeter($english, $spanish);
 ```
 
 To summarize: **Ray.Di `Key` is a type combined with an optional binding
-annotation used to identify dependencies.**
+attribute used to identify dependencies.**
 
 ### Ray.Di `Provider`s
 
