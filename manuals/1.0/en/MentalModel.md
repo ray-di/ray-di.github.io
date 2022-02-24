@@ -59,33 +59,40 @@ $databaseKey = $map[$key];
 However, applications often have dependencies that are of the same type:
 
 ```php
-final class MultilingualGreeter
+class Message
 {
     public function __construct(
-      private readonly string $englishGreeting,
-      private readonly string $spanishGreeting
+    	  public readonly string $text
+    ){}
+}
+
+class MultilingualGreeter
+{
+    public function __construct(
+      private readonly Message $englishGreeting,
+      private readonly Message $spanishGreeting
     ) {}
 }
 ```
 
-Ray.Di uses [binding Attributes](BindingAttributes.md) to distinguish dependencies
+Ray.Di uses [binding attributes](BindingAttributes.md) to distinguish dependencies
 that are of the same type, that is to make the type more specific:
 
 ```php
-final class MultilingualGreeter
+class MultilingualGreeter
 {
     public function __construct(
-      #[English] private readonly string $englishGreeting,
-      #[Spanish] private readonly string $spanishGreeting
+      #[English] private readonly Message $englishGreeting,
+      #[Spanish] private readonly Message $spanishGreeting
     ) {}
 }
 ```
 
-`Key` with binding annotations can be created as:
+`Key` with binding attribute can be created as:
 
 ```php
-$englishGreetingKey = $map[English::class];
-$spanishGreetingKey = $map[Spanish::class];
+$englishGreetingKey = $map[Message::class . English::class];
+$spanishGreetingKey = $map[Message::class . Spanish::class];
 ```
 
 When an application calls `$injector->getInstance(MultilingualGreeter::class)` to
@@ -94,11 +101,10 @@ create an instance of `MultilingualGreeter`. This is the equivalent of doing:
 ```php
 // Ray.Di internally does this for you so you don't have to wire up those
 // dependencies manually.
-/** @var string $english */
-$english = $injector->getInstance('', English::class));
-/** @var string $spanish */
-$spanish = $injector->getInstance('', Spanish::class));
-/** @var MultilingualGreeter $greeter */
+/** @var Message $english */
+$english = $injector->getInstance(Message::class, English::class));
+/** @var Message $spanish */
+$spanish = $injector->getInstance(Message::class, Spanish::class));
 $greeter = new MultilingualGreeter($english, $spanish);
 ```
 
@@ -145,7 +151,7 @@ class messageProvider implements ProviderInterface
 {
     public function get(): string
     {
-        return 'hello world';
+        return new 'hello world';
     }
 }
 

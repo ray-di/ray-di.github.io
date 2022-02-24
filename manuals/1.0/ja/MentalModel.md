@@ -28,7 +28,7 @@ Ray.Diは[`Key`]を使って、Ray.Diマップから解決できる依存関係�
 
 [はじめに](getting_started.html) で使用されている `Greeter` クラスは、コンストラクタで2つの依存関係を宣言していて、それらの依存関係は Ray.Di では `Key` で表現されています。
 
-*   `#[Message] string` --> `(string) $map[$messageKey]`
+*   `#[Message] Message` --> `(string) $map[$messageKey]`
 *   `#[Count] int` --> `(int) $map[$countKey]`
 
 最も単純な形の `Key` は、PHP の型で表されます。
@@ -42,11 +42,18 @@ $databaseKey = $map[$key];
 しかし、アプリケーションには、同じ種類の依存関係があることが多くあります。
 
 ```php
-final class MultilingualGreeter
+class Message
 {
     public function __construct(
-      private readonly string $englishGreeting,
-      private readonly string $spanishGreeting
+    	  public readonly string $text
+    ){}
+}
+
+class MultilingualGreeter
+{
+    public function __construct(
+      private readonly Message $englishGreeting,
+      private readonly Message $spanishGreeting
     ) {}
 }
 ```
@@ -54,11 +61,11 @@ final class MultilingualGreeter
 Ray.Diでは、同じタイプの依存関係を区別するために、[アトリビュート束縛](binding_attributes.htnl) を使用しています。
 
 ```php
-final class MultilingualGreeter
+class MultilingualGreeter
 {
     public function __construct(
-      #[English] private readonly string $englishGreeting,
-      #[Spanish] private readonly string $spanishGreeting
+      #[English] private readonly Message $englishGreeting,
+      #[Spanish] private readonly Message $spanishGreeting
     ) {}
 }
 ```
@@ -66,25 +73,23 @@ final class MultilingualGreeter
 バインディングアノテーションを持つ `Key` は、次のように作成することができます。
 
 ```php
-$englishGreetingKey = $map[English::class];
-$spanishGreetingKey = $map[Spanish::class];
+$englishGreetingKey = $map[Message::class . English::class];
+$spanishGreetingKey = $map[Message::class . Spanish::class];
 ```
 
 アプリケーションが `$injector->getInstance(MultilingualGreeter::class)` を呼び出したとき、
 `MultilingualGreeter`のインスタンスを生成しますが、以下と同じ事を行っています。
 
 ```php
-// Ray.Di internally does this for you so you don't have to wire up those
-// dependencies manually.
-/** @var string $english */
-$english = $injector->getInstance('', English::class));
-/** @var string $spanish */
-$spanish = $injector->getInstance('', Spanish::class));
-/** @var MultilingualGreeter $greeter */
+// Ray.Diは内部でこれを行うので、手動でこれらの依存関係を配線する必要はありません。
+/** @var Message $english */
+$english = $injector->getInstance(Message::class, English::class));
+/** @var Message $spanish */
+$spanish = $injector->getInstance(Message::class, Spanish::class));
 $greeter = new MultilingualGreeter($english, $spanish);
 ```
 
-要約すると、**Ray.Diの `Key` は、PHPの型とオプションの依存関係を識別するためのアトリビュートを合わせたものです**。
+つまり**Ray.Diの `Key` はPHPの型と依存関係を識別するためのアトリビュート（オプション）を合わせたものです**。
 
 ### Ray.Diプロバイダ
 
