@@ -21,12 +21,12 @@ Ray.Diは、あなたのアプリケーションで依存性注入（DI）パタ
 ```php
 class Foo
 {
-    private Database $database;  // We need a Database to do some work
+    private Database $database;  // 仕事を完了させるためにはデータベースが必要です。
     
     public function __construct()
     {
-        // Ugh. How could I test this? What if I ever want to use a different
-        // database in another application?
+        // うっ。どうやってテストすればいいんでしょうか？
+        // 他のアプリケーションで別のデータベースを使いたい場合はどうすればいいのでしょうか？
         $this->database = new Database('/path/to/my/data');
     }
 }
@@ -38,12 +38,12 @@ class Foo
 
 ```php
 class Foo {
-    private Database $database;  // We need a Database to do some work
+    private Database $database;  //　仕事を完了させるためにはデータベースが必要です。
     
     public function __construct(Database $database)
     {
-        // The database comes from somewhere else. Where? That's not my job, that's
-        // the job of whoever constructs me: they can choose which database to use.
+        // データベースは別のところから来ている。どこかって？それは私の仕事ではありません。
+        // どのデータベースを使うかは、私を構築する人の仕事です。
         $this->database = $database;
     }
 }
@@ -64,10 +64,7 @@ PHPクラスのコンストラクタは、[コンストラクタ注入](Injectio
 ```php
 class Greeter
 {
-    // Greeter declares that it needs a string message and an integer
-    // representing the number of time the message to be printed.
-    // The @Inject annotation marks this constructor as eligible to be used by
-    // Ray.Di.
+    // Greeterは、文字列メッセージと、メッセージを表示する回数を表す整数が必要であると宣言しています。
     public function __construfct(
         #[Message] readonly string $message,
         #[Count] readonly int $count
