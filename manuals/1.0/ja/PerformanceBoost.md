@@ -4,11 +4,15 @@ title: Performance boost
 category: Manual
 permalink: /manuals/1.0/ja/performance_boost.html
 ---
-## Performance boost ##
+# パフォーマンス
 
-### Script injector
+全ての依存の束縛を知っているインジェクターはその束縛から単純なPHPのファクトリーコードをコンパイルして最高のパフォーマンスを提供します。 また束縛に無名関数を使わないインジェクターはシリアライズ可能で、パフォーマンスを向上することが出来ます。
 
-`ScriptInjector` generates raw factory code for better performance and to clarify how the instance is created.
+いずれにしてもプロダクションでリクエストの度にコンテナを初期化する必要はありません。
+
+## スクリプトインジェクター
+
+`ScriptInjector` は、パフォーマンスを向上させ、インスタンスの生成方法を明確にするために、生のファクトリーコードを生成します。
 
 ```php
 
@@ -25,12 +29,11 @@ try {
     $instance = $injector->getInstance(ListerInterface::class);
 }
 ```
-Once an instance has been created, You can view the generated factory files in `$tmpDir`
+インスタンスが生成されると、生成されたファクトリファイルを `$tmpDir` に確認できます。
 
-### Cache injector
+## キャッシュインジェクター
 
-The injector is serializable.
-It also boosts the performance.
+インジェクターはシリアライズ可能で、パフォーマンスを向上します。
 
 ```php
 
@@ -44,10 +47,11 @@ $lister = $injector->getInstance(ListerInterface::class);
 
 ```
 
-### CachedInjectorFactory
+## CachedInjectorFactory
 
-The `CachedInejctorFactory` can be used in a hybrid of the two injectors to achieve the best performance in both development and production.
+CachedInejctorFactory` は、2つのインジェクタをハイブリッドで使用することで、開発時と運用時の両方で最高のパフォーマンスを発揮することができます。
 
-The injector is able to inject singleton objects **beyond the request**, greatly increasing the speed of testing. Successive PDO connections also do not run out of connection resources in the test.
+インジェクターはシングルトンオブジェクトを **リクエストを跨ぎ** 注入することができます。
+その結果テストの速度は大幅に向上しす。テスト中に連続したPDO接続によって接続リソースが枯渇することもありません。
 
-See [CachedInjectorFactory](https://github.com/ray-di/Ray.Compiler/issues/75) for more information.
+詳しくは、[CachedInjectorFactory](https://github.com/ray-di/Ray.Compiler/issues/75)をご覧ください。
