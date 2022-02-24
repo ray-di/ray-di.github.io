@@ -21,7 +21,7 @@ Ray.Diは、あなたのアプリケーションで依存性注入（DI）パタ
 ```php
 class Foo
 {
-    private Database $database;  // 仕事を完了させるためにはデータベースが必要です。
+    private Database $database;  // 仕事を完了させるためにはデータベースが必要
     
     public function __construct()
     {
@@ -38,7 +38,7 @@ class Foo
 
 ```php
 class Foo {
-    private Database $database;  //　仕事を完了させるためにはデータベースが必要です。
+    private Database $database;  //　仕事を完了させるためにはデータベースが必要
     
     public function __construct(Database $database)
     {
@@ -108,8 +108,7 @@ class MessageProvider implements ProviderInterface
 }
 
 /**
- * Ray.Di module that provides bindings for message and count used in
- * {@link Greeter}.
+ * メッセージとカウントの束縛を提供するRayDiモジュール
  */
 class DemoModule extends AbstractModule
 {
@@ -145,8 +144,7 @@ final class MyWebServer {
     
     public function __invoke(): void
     {
-        // Creates an injector that has all the necessary dependencies needed to
-        // build a functional server.
+        // サーバーを構築するために必要なすべての依存関係を持つインジェクタを作成します。
         $injector = new Injector([
             new RequestLoggingModule(),
             new RequestHandlerModule(),
@@ -154,8 +152,8 @@ final class MyWebServer {
             new DatabaseModule()
         ]);
     
-        // Bootstrap the application by creating an instance of the server then
-        // start the server to handle incoming requests.
+        // サーバーのインスタンスを作成してアプリケーションをブートストラップし
+        // 受信したリクエストを処理するためにサーバーを開始します。
         $injector->getInstance(MyWebServer::class)->start();
     }
 }
@@ -228,17 +226,17 @@ class Greeter
 }
 
 /*
- * Injector's constructor takes one modules.
- * Most applications will call this method exactly once in bootstrap.
+ * インジェクタのコンストラクタは、モジュールを受け取ります。
+ * ほとんどのアプリケーションは、起動時にこのメソッドを一度だけ呼び出します。
  */
 $injector = new Injector(new DemoModule);
 
 /*
- * Now that we've got the injector, we can build objects.
+ * 入手したインジェクタで、オブジェクトを作成します。
  */
 $greeter = $injector->getInstance(Greeter::class);
 
-// Prints "hello world" 3 times to the console.
+// コンソールに "hello world "を3回表示。
 $greeter->sayHello();
 ```
 
