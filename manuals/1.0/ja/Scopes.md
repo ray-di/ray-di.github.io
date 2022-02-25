@@ -1,12 +1,12 @@
 ---
 layout: docs-ja
-title: Scopes
+title: スコープ
 category: Manual
 permalink: /manuals/1.0/ja/scopes.html
 ---
 # Scopes
 
-By default, Ray returns a new instance each time it supplies a value. This behaviour is configurable via scopes.
+デフォルトでは、Ray.Diは値を供給するたびに新しいインスタンスを返します。この動作は、スコープで設定可能です。
 
 ```php
 use Ray\Di\Scope;
