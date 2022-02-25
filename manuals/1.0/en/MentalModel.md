@@ -149,7 +149,7 @@ class messageProvider implements ProviderInterface
 {
     public function get(): Message
     {
-        return new 'hello world';
+        return new Message('hello world');
     }
 }
 
