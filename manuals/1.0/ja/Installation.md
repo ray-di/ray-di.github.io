@@ -6,17 +6,17 @@ permalink: /manuals/1.0/ja/installation.html
 ---
 # Installation
 
-The recommended way to install Ray.Di is through [Composer](https://github.com/composer/composer).
+Ray.Diのインストールは、[Composer](https://github.com/composer/composer)から行います
 
 ```bash
 composer require ray/di ^2.0
 ```
 
-The GitHub repository is at [ray-di/Ray.Di](https://github.com/ray-di/Ray.Di)
+GitHubのリポジトリは[ray-di/Ray.Di](https://github.com/ray-di/Ray.Di)です。
 
 ## Testing Ray.Di
 
-Here's how to install Ray.Di from source and run the unit tests and demos.
+Ray.Diをソースからインストールし、ユニットテストとデモを実行する方法を説明します。
 
 ```bash
 git clone https://github.com/ray-di/Ray.Di.git
