@@ -4,9 +4,13 @@ title: Performance boost
 category: Manual
 permalink: /manuals/1.0/en/performance_boost.html
 ---
-## Performance boost ##
+# Performance boost
 
-### Script injector
+Injectors that know all dependency bindings can compile simple PHP factory code from those bindings and provide the best performance. Injectors that don't use anonymous functions for bindings can be serialized, which can improve performance.
+
+In any case, there is no need to initialize the container for every request in production.
+
+## Script injector
 
 `ScriptInjector` generates raw factory code for better performance and to clarify how the instance is created.
 
@@ -27,7 +31,7 @@ try {
 ```
 Once an instance has been created, You can view the generated factory files in `$tmpDir`
 
-### Cache injector
+## Cache injector
 
 The injector is serializable.
 It also boosts the performance.
@@ -44,7 +48,7 @@ $lister = $injector->getInstance(ListerInterface::class);
 
 ```
 
-### CachedInjectorFactory
+## CachedInjectorFactory
 
 The `CachedInejctorFactory` can be used in a hybrid of the two injectors to achieve the best performance in both development and production.
 
