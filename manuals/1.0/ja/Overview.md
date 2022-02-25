@@ -4,10 +4,10 @@ title: Overview
 category: Manual
 permalink: /manuals/1.0/ja/index.html
 ---
-# Overview
+# 概要
 
-There are many advantages to using dependency injection, but doing so manually often leads to a large amount of boilerplate code to be written. Ray.Di is a framework that makes it possible to write code that uses dependency injection without the hassle of writing much of that boilerplate code,as further detailed in this page on [Motivation](motivation.html).
+ディペンデンシーインジェクション（依存性注入）には多くの利点がありますが、手作業でそれを行うと、しばしば大量の定型的なコードを書かなければならなくなります。Ray.Diは、[モチベーション](motivation.html)のページで詳しく説明されているように、面倒な定型文を書かずに依存性注入を使用したコードを書くことを可能にするためのフレームワークです。
 
-Put simply, Ray.Di alleviates the need for factories and the use of `new` in your PHP code. You will still need to write factories in some cases, but your code will not depend directly on them. Your code will be easier to change, unit test and reuse in other contexts.
+簡単に言うと、Ray.DiはファクトリーやPHPコードでの`new`の使用を不要にするものです。ファクトリーを書く必要がある場合もありますが、コードが直接ファクトリーに依存することはありません。あなたのコードは、変更、ユニットテスト、他の文脈での再利用がより簡単になります。
 
-_The most of the documents on this site are taken from Google Guice._
+注: このサイトのほとんどのドキュメントは [Google Guice](https://github.com/google/guice/wiki)から引用しています。
