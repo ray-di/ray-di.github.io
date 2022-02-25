@@ -208,7 +208,7 @@ Ray.Diのマップは、Ray.Diモジュールを使って設定されます。**
 それ自体に依存性があるものを注入する場合、Ray.Diは再帰的に依存関係を注入します。上記のように `Foo` のインスタンスをインジェクトするために、Ray.Di は以下のような `ProviderInterface` の実装を作成する考えることができます。
 
 ```php
-class FooProvider implements Provider
+class FooProvider implements ProviderInterface
 {
     public function get(): Foo
     {
