@@ -1,75 +1,70 @@
 ---
 layout: docs-ja
-title: Getting Started
+title: はじめに
 category: Manual
 permalink: /manuals/1.0/ja/getting_started.html
 ---
 # GettingStarted
 
-_How to start doing dependency injection with Ray.Di._
+_Ray.Di.を使ったDIの始め方_
 
-## Getting Started
+## はじめに
 
-Ray.Di is a framework that makes it easier for your application to use the dependency injection (DI) pattern. This getting started guide will walk you through a simple example of how you can use Ray.Di to incorporate dependency injection into your application.
+Ray.Diは、あなたのアプリケーションで依存性注入（DI）パターンを簡単に使用できるようにするフレームワークです。このスタートガイドでは、Ray.Di を使ってアプリケーションに依存性注入を取り入れる方法を簡単な例で説明します。
 
-### What is dependency injection?
+### 依存性の注入とは何ですか？
 
-[Dependency injection](https://en.wikipedia.org/wiki/Dependency_injection) is a design pattern wherein classes declare their dependencies as arguments instead
-of creating those dependencies directly. For example, a client that wishes to call a service should not have to know how to construct the service, rather, some external code is responsible for providing the service to the client.
+[依存性の注入 (dependency injection)](https://ja.wikipedia.org/wiki/依存性の注入)は、クラスが依存関係を直接作成するのではなく、引数として宣言するデザインパターンです。あるサービスを呼び出したいクライアントはサービスを構築する方法を知る必要はなく、外部のコードがクライアントにサービスを提供する役割を担います。
 
-Here's a simple example of code that *does not* use dependency injection:
+依存性注入を使用しないコードの例を簡単な示します。
 
 ```php
 class Foo
 {
-    private Database $database;  // We need a Database to do some work
+    private Database $database;  // 仕事を完了させるためにはデータベースが必要
     
     public function __construct()
     {
-        // Ugh. How could I test this? What if I ever want to use a different
-        // database in another application?
+        // うっ。どうやってテストすればいいんでしょうか？
+        // 他のアプリケーションで別のデータベースを使いたい場合はどうすればいいのでしょうか？
         $this->database = new Database('/path/to/my/data');
     }
 }
 ```
 
-The `Foo` class above creates a fixed `Database` object directly. This prevents this class from being used with other `Database` objects and does not allow the real database to be swapped out for a testing database in tests. Instead of writing untestable or inflexible code, you can use dependency injection pattern
-to address all these issues.
+上記の `Foo` クラスは、固定の `Database` オブジェクトを直接作成します。このため、このクラスを他の `Database` オブジェクトと一緒に使うことはできません。また、テスト時に実際のデータベースをテスト用のデータベースと交換することもできません。テストできないコードや柔軟性に欠けるコードを書く代わりに、依存性注入パターンを使用することで、これらの問題すべてに対処することができます。
 
-Here's the same example, this time using dependency injection:
+以下は同じ例で、今回は依存性注入を使用しています。
 
 ```php
 class Foo {
-    private Database $database;  // We need a Database to do some work
+    private Database $database;  //　仕事を完了させるためにはデータベースが必要
     
     public function __construct(Database $database)
     {
-        // The database comes from somewhere else. Where? That's not my job, that's
-        // the job of whoever constructs me: they can choose which database to use.
+        // データベースは別のところから来ている。どこかって？それは私の仕事ではありません。
+        // どのデータベースを使うかは、私を構築する人の仕事です。
         $this->database = $database;
     }
 }
 ```
 
-The `Foo` class above can be used with any `Database` objects since `Foo` has no knowledge of how the `Database` is created. For example, you can create a test version of `Database` implementation that uses an in-memory database in tests to make the test hermetic and fast.
+上記の `Foo` クラスは、`Database` がどのように作成されたかを知らないので、任意の `Database` オブジェクトを使用することができます。例えば、テスト用にインメモリデータベースを使用する `Database` の実装を作成すると、テストの密閉性と高速性を高めることができます。
 
-The [Motivation](Motivation.md) page explains why applications should use the dependency injection pattern in more detail.
+[モチベーション](Motivation.md) ページでは、アプリケーションが依存性注入パターンを使用すべき理由について、より詳しく説明しています。
 
-## Core Ray.Di concepts
+## Ray.Diのコアコンセプト
 
-### constructor
+### コンストラクタ
 
-PHP class constructors can be called by Ray.Di through a process called [constructor injection](Injections.md#constructor-injection), during which the constructors' arguments will be created and provided by Ray.Di. (Unlike Guice, Ray.Di does not require the "Inject" annotation in its constructor.)
+PHPクラスのコンストラクタは、[コンストラクタ注入](Injections.md#constructor-injection)という処理によってRay.Diから呼び出すことができ、その際にコンストラクタの引数はRay.Diによって作成・提供されることになります。(Guiceとは異なり、Ray.Diはコンストラクタに`Inject`アノテーションを必要としません)
 
-Here is an example of a class that uses constructor injection:
+以下は、コンストラクタ注入を使用するクラスの例です。
 
 ```php
 class Greeter
 {
-    // Greeter declares that it needs a string message and an integer
-    // representing the number of time the message to be printed.
-    // The @Inject annotation marks this constructor as eligible to be used by
-    // Ray.Di.
+    // Greeterは、文字列メッセージと、メッセージを表示する回数を表す整数が必要であると宣言しています。
     public function __construfct(
         #[Message] readonly string $message,
         #[Count] readonly int $count
@@ -84,16 +79,16 @@ class Greeter
 }
 ```
 
-In the example above, the `Greeter` class has a constructor that is called whenapplication asks Ray.Di to create an instance of `Greeter`. Ray.Di will create the two arguments required, then invoke the constructor. The `Greeter` class's constructor arguments are its dependencies and applications use `Module` to tell Ray.Di how to satisfy those dependencies.
+上記の例の`Greeter` にはコンストラクタがあり、Ray.Diが`Greeter`のインスタンスを作成する時に呼び出されます。Ray.Diはそのために必要な2つの引数を作成し、それからコンストラクタを呼び出します。`Greeter`クラスのコンストラクタの引数は依存関係にあり、アプリケーションは `Module` を使用して Ray.Di に依存関係を解決する方法を伝えます。
 
-### Ray.Di modules
+### Ray.Di モジュール
 
-Applications contain objects that declare dependencies on other objects, and those dependencies form graphs. For example, the above `Greeter` class has two dependencies (declared in its constructor):
+アプリケーションには、他のオブジェクトへの依存を宣言するオブジェクトが含まれ、それらの依存関係でグラフを形成します。例えば、上記の `Greeter` クラスは 2 つの依存関係を持っているのがコンストラクタで宣言されています。
 
-*   A `string` value for the message to be printed
-*   An `int` value for the number of times to print the message
+* プリントされるメッセージのための `string` 値
+* メッセージをプリントする回数を示す `int` 値
 
-Ray.Di modules allow applications to specify how to satisfy those dependencies. For example, the following `DemoModule` configures all the necessary dependencies for `Greeter` class:
+Ray.Diモジュールでは、これらの依存関係を満たす方法をアプリケーションで指定することができます。例えば、以下の `DemoModule` は `Greeter` クラスに必要なすべての依存関係を設定しています。
 
 ```php
 class CountProvider implements ProviderInterface
@@ -113,8 +108,7 @@ class MessageProvider implements ProviderInterface
 }
 
 /**
- * Ray.Di module that provides bindings for message and count used in
- * {@link Greeter}.
+ * メッセージとカウントの束縛を提供するRayDiモジュール
  */
 class DemoModule extends AbstractModule
 {
@@ -126,11 +120,13 @@ class DemoModule extends AbstractModule
 }
 ```
 
-In a real application, the dependency graph for objects will be much more complicated and Ray.Di makes creating complex object easy by creating all the transitive dependencies automatically.
+実際のアプリケーションでは、オブジェクトの依存関係グラフはもっと複雑になりますが、Ray.Diはすべての推移的依存関係[^transtive_dependencies]を自動的に作成し、複雑なオブジェクトを簡単に作成することができます。
 
-### Ray.Di injectors
+[^transtive_dependencies]: 推移的依存関係とは、プログラムが直接参照するコンポーネントによって誘発される依存関係のことです。例えば、log()関数の呼び出しは、通常、ログメッセージをファイルに書き込むためのI/Oを管理するライブラリへの"推移的依存関係"を誘発します。☞ [Transitive_dependency](https://en.wikipedia.org/wiki/Transitive_dependency)
 
-To bootstrap your application, you'll need to create a Ray.Di `Injector` withone or more modules in it. For example, a web server script might that looks like this:
+### Ray.Diインジェクター
+
+アプリケーションをブートストラップするために、1つ以上のモジュールを含む Ray.Di `Injector` を作成する必要があります。例えば、ウェブサーバースクリプトは以下のようなものでしょう。
 
 ```php
 final class MyWebServer {
@@ -148,8 +144,7 @@ final class MyWebServer {
     
     public function __invoke(): void
     {
-        // Creates an injector that has all the necessary dependencies needed to
-        // build a functional server.
+        // サーバーを構築するために必要なすべての依存関係を持つインジェクタを作成します。
         $injector = new Injector([
             new RequestLoggingModule(),
             new RequestHandlerModule(),
@@ -157,8 +152,8 @@ final class MyWebServer {
             new DatabaseModule()
         ]);
     
-        // Bootstrap the application by creating an instance of the server then
-        // start the server to handle incoming requests.
+        // サーバーのインスタンスを作成してアプリケーションをブートストラップし
+        // 受信したリクエストを処理するためにサーバーを開始します。
         $injector->getInstance(MyWebServer::class)->start();
     }
 }
@@ -166,15 +161,11 @@ final class MyWebServer {
 (new MyWebServer)();
 ```
 
-The injector internally holds the dependency graphs described in your application. When you request an instance of a given type, the injector figures out what objects to construct, resolves their dependencies, and wires everything together. To specify how dependencies are resolved, configure your injector with
-[bindings](Bindings).
+インジェクターは、アプリケーションで記述された依存関係グラフを内部で保持します。指定した型のインスタンスを要求すると、インジェクタはどのオブジェクトを作成すべきかを判断し、依存関係を解決してすべてを結びつけます。依存関係の解決方法を指定するために、[束縛](bindings.html)を使用してインジェクタを設定します。
 
-[`Injector`]: https://github.com/ray-di/Ray.Di/blob/2.x/src/di/InjectorInterface.php
+## シンプルなRay.Diアプリケーション
 
-## A simple Ray.Di application
-
-The following is a simple Ray.Di application with all the necessary pieces put
-together:
+以下は、必要なものをまとめたシンプルなRay.Diアプリケーションです。
 
 ```php
 <?php
@@ -235,24 +226,24 @@ class Greeter
 }
 
 /*
- * Injector's constructor takes one modules.
- * Most applications will call this method exactly once in bootstrap.
+ * インジェクタのコンストラクタは、モジュールを受け取ります。
+ * ほとんどのアプリケーションは、起動時にこのメソッドを一度だけ呼び出します。
  */
 $injector = new Injector(new DemoModule);
 
 /*
- * Now that we've got the injector, we can build objects.
+ * 入手したインジェクタで、オブジェクトを作成します。
  */
 $greeter = $injector->getInstance(Greeter::class);
 
-// Prints "hello world" 3 times to the console.
+// コンソールに "hello world "を3回表示。
 $greeter->sayHello();
 ```
 
-The `RayDiDemo` application constructed a small dependency graph using Ray.Di
-that is capable of building instances of `Greeter` class. Large applications
-usually have many `Module`s that can build complex objects.
+`RayDiDemo` アプリケーションは、`Greeter` クラスのインスタンスを構築することができる Ray.Di を使用して小さな依存関係グラフを構築しています。通常、大規模なアプリケーションは複雑なオブジェクトを構築することができる多くの `Module` を持っています。
 
-## What's next?
+## 次に
 
-Read more on how to conceptualize Ray.Di with a simple [mental model](mental_model.html).
+シンプルな [メンタルモデル](mental_model.html)でRay.Diをもっと深く理解する方法を探索してください。
+
+---

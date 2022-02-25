@@ -68,8 +68,6 @@ class Greeter
 {
     // Greeter declares that it needs a string message and an integer
     // representing the number of time the message to be printed.
-    // The @Inject annotation marks this constructor as eligible to be used by
-    // Ray.Di.
     public function __construfct(
         #[Message] readonly string $message,
         #[Count] readonly int $count
@@ -126,7 +124,7 @@ class DemoModule extends AbstractModule
 }
 ```
 
-In a real application, the dependency graph for objects will be much more complicated and Ray.Di makes creating complex object easy by creating all the transitive dependencies automatically.
+In a real application, the dependency graph for objects will be much more complicated and Ray.Di makes creating complex object easy by creating all the [transitive dependencies](https://en.wikipedia.org/wiki/Transitive_dependency) automatically.
 
 ### Ray.Di injectors
 
