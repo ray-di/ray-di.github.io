@@ -91,7 +91,7 @@ $greeter = new MultilingualGreeter($english, $spanish);
 
 ### Ray.Diプロバイダ
 
-Ray.Diでは依存関係を満たすオブジェクトを生成するファクトリーのために、"Ray.Diマップ"で[`Provider`](https://google.github.io/Ray.Di/api-docs/latest/javadoc/com/google/inject/Provider.html)を使用します。
+Ray.Diでは依存関係を満たすオブジェクトを生成するファクトリーのために、"Ray.Diマップ"で[`ProviderInterface`](https://github.com/ray-di/Ray.Di/blob/2.x/src/di/ProviderInterface.php)を使用します。
 
 `Provider` は単一のメソッドを持つインターフェースです。
 
