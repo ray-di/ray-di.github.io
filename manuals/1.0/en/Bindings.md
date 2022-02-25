@@ -13,7 +13,7 @@ A **binding** is an object that corresponds to an entry in [Ray.Di map](mental_m
 
 To create bindings, extend `AbstractModule` and override its `configure` method. In the method body, call `bind()` to specify each binding. These methods are type checked in compile can report errors if you use the wrong types. Once you've created your modules, pass them as arguments to `Injector` to build an injector.
 
-Use modules to create [linked bindings](linked_bindings.html), [instance bindings](instance_bindings.html), [provider bindings](provider_bindings.html), [constructor bindings](constructor_bindings.html) and [untargetted bindings](untargetted_bindings.html).
+Use modules to create [linked bindings](linked_bindings.html), [instance bindings](instance_bindings.html), [provider bindings](provider_bindings.html), [constructor bindings](constructor_bindings.html) and [untargeted bindings](untargeted_bindings.html).
 
 ```php
 class TweetModule extends AbstractModule
