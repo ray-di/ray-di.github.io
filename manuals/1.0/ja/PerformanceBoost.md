@@ -52,6 +52,6 @@ $lister = $injector->getInstance(ListerInterface::class);
 `CachedInejctorFactory` は、2つのインジェクタをハイブリッドで使用することで、開発時と運用時の両方で最高のパフォーマンスを発揮することができます。
 
 インジェクターはシングルトンオブジェクトを **リクエストを跨ぎ** 注入することができます。
-その結果テストの速度は大幅に向上しす。テスト中に連続したPDO接続によって接続リソースが枯渇することもありません。
+その結果テストの速度は大幅に向上します。テスト中に連続したPDO接続によって接続リソースが枯渇することもありません。
 
 詳しくは、[CachedInjectorFactory](https://github.com/ray-di/Ray.Compiler/issues/75)をご覧ください。
