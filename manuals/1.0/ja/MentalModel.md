@@ -134,8 +134,8 @@ class DemoModule extends AbstractModule
 }
 ```
 
-*   `MessageProvicer::get()`メソッドが呼び出され 'hello world’を返します。
-*   `CountProvicer::get()` メソッドが呼び出され3を返します。
+*   `MessageProvider`の`get()`メソッドが呼び出され 'hello world’を返します。
+*   `CountProvider`の`get()` メソッドが呼び出され3を返します。
 
 ## Ray.Diの使用
 
