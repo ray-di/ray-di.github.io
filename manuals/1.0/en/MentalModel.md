@@ -147,7 +147,7 @@ class countProvicer implements ProviderInterface
 
 class messageProvider implements ProviderInterface
 {
-    public function get(): string
+    public function get(): Message
     {
         return new 'hello world';
     }
