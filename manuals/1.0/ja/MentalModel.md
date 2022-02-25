@@ -96,7 +96,7 @@ Ray.Diでは依存関係を満たすオブジェクトを生成するファク�
 `Provider` は単一のメソッドを持つインターフェースです。
 
 ```php
-interface Provider
+interface ProviderInterface
 {
   /** インスタンスを用意する */
   public function get();
