@@ -13,7 +13,7 @@ _Ray.Diにおける束縛の概要_
 
 束縛を作成するには、`AbstractModule` を継承して、その `configure` メソッドをオーバーライドします。メソッド本体では、`bind()` を呼び出して各束縛を指定します。これらのメソッドはコンパイル時に型チェックを行い、間違った型を使用した場合はエラーを報告します。モジュールを作成したら、それを `Injector` に引数として渡して、インジェクタを構築します。
 
-モジュールを使って、[リンク束縛](linked_bindings.html)、 [インスタンス束縛](instance_bindings.html)、 [プロバイダ束縛](provider_bindings.html)、 [コンストラクタ束縛](constructor_bindings.html)、 [ターゲット外束縛](untargeted_bindings.html)を作成してください。
+モジュールを使って、[リンク束縛](linked_bindings.html)、 [インスタンス束縛](instance_bindings.html)、 [プロバイダ束縛](provider_bindings.html)、 [コンストラクタ束縛](constructor_bindings.html)、 [アンターゲット束縛](untargeted_bindings.html)を作成してください。
 
 ```php
 class TweetModule extends AbstractModule
