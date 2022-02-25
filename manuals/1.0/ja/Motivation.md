@@ -224,7 +224,7 @@ $billingService = new RealBillingService($processor, $transactionLog);
 
 ## Ray.Diによる依存性の注入
 
-依存性注入パターンは、モジュール化されたテスト可能なコードを導き、Ray.Diで簡単にコードを書けるようにします。課金の例でRay.Diを使うには、まずインターフェイスとその実装をどのように対応付けるかを指示する必要があります。設定は`Module` インターフェースを実装したRay.Diモジュールクラスで行われます。
+依存性の注入パターンは、モジュール化されたテスト可能なコードを導き、Ray.Diで簡単にコードを書けるようにします。課金の例でRay.Diを使うには、まずインターフェイスとその実装をどのように対応付けるかを指示する必要があります。設定は`Module`インターフェースを実装したRay.Diモジュールクラスで行われます。
 
 ```php
 public class BillingModule extends AbstractModule
