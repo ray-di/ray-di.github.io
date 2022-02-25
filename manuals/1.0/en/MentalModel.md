@@ -38,15 +38,15 @@ map is a reasonable approximation for how Ray.Di behaves.
 
 ### Ray.Di keys
 
-Ray.Di uses [`Dependecy Key`] to identify a dependency that can be resolved using the
+Ray.Di uses `Key` to identify a dependency that can be resolved using the
 "Ray.Di map".
 
 The `Greeter` class used in the [Getting Started](GettingStarted.md) declares two
 dependencies in its constructor and those dependencies are represented as `Key`
 in Ray.Di:
 
-*   `#[Message] string` --> `(string) $map[$messageKey]`
-*   `#[Count] int` --> `(int) $map[$countKey]`
+*   `#[Message] string` --> `$map[$messageKey]`
+*   `#[Count] int` --> `$map[$countKey]`
 
 The simplest form of a `Key` represents a type in php:
 
@@ -59,33 +59,40 @@ $databaseKey = $map[$key];
 However, applications often have dependencies that are of the same type:
 
 ```php
-final class MultilingualGreeter
+class Message
 {
     public function __construct(
-      private readonly string $englishGreeting,
-      private readonly string $spanishGreeting
+    	  public readonly string $text
+    ){}
+}
+
+class MultilingualGreeter
+{
+    public function __construct(
+      private readonly Message $englishGreeting,
+      private readonly Message $spanishGreeting
     ) {}
 }
 ```
 
-Ray.Di uses [binding Attributes](BindingAttributes.md) to distinguish dependencies
+Ray.Di uses [binding attributes](BindingAttributes.md) to distinguish dependencies
 that are of the same type, that is to make the type more specific:
 
 ```php
-final class MultilingualGreeter
+class MultilingualGreeter
 {
     public function __construct(
-      #[English] private readonly string $englishGreeting,
-      #[Spanish] private readonly string $spanishGreeting
+      #[English] private readonly Message $englishGreeting,
+      #[Spanish] private readonly Message $spanishGreeting
     ) {}
 }
 ```
 
-`Key` with binding annotations can be created as:
+`Key` with binding attribute can be created as:
 
 ```php
-$englishGreetingKey = $map[English::class];
-$spanishGreetingKey = $map[Spanish::class];
+$englishGreetingKey = $map[Message::class . English::class];
+$spanishGreetingKey = $map[Message::class . Spanish::class];
 ```
 
 When an application calls `$injector->getInstance(MultilingualGreeter::class)` to
@@ -94,16 +101,13 @@ create an instance of `MultilingualGreeter`. This is the equivalent of doing:
 ```php
 // Ray.Di internally does this for you so you don't have to wire up those
 // dependencies manually.
-/** @var string $english */
-$english = $injector->getInstance('', English::class));
-/** @var string $spanish */
-$spanish = $injector->getInstance('', Spanish::class));
-/** @var MultilingualGreeter $greeter */
+$english = $injector->getInstance(Message::class, English::class));
+$spanish = $injector->getInstance(Message::class, Spanish::class));
 $greeter = new MultilingualGreeter($english, $spanish);
 ```
 
 To summarize: **Ray.Di `Key` is a type combined with an optional binding
-annotation used to identify dependencies.**
+attribute used to identify dependencies.**
 
 ### Ray.Di `Provider`s
 
@@ -143,9 +147,9 @@ class countProvicer implements ProviderInterface
 
 class messageProvider implements ProviderInterface
 {
-    public function get(): string
+    public function get(): Message
     {
-        return 'hello world';
+        return new Message('hello world');
     }
 }
 

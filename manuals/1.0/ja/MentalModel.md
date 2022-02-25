@@ -4,51 +4,34 @@ title: Mental Model
 category: Manual
 permalink: /manuals/1.0/ja/mental_model.html
 ---
-# Ray.Di Mental Model
+# Ray.Di メンタルモデル
 
-_Learn about `Key`, `Provider` and how Ray.Di is just a map_
+_`Key`や`Provider`について、そしてRay.Diがどうのようにして単なるマップと考えられるかについて_
 
-When you are reading about "Dependency Injection", you often see many buzzwords ("Inversion of
-control", "Hollywood principle") that make it sound confusing. But
-underneath the jargon of dependency injection, the concepts aren't very
-complicated. In fact, you might have written something very similar already!
-This page walks through a simplified model of Ray.Di implementation, which
-should make it easier to think about how it works.
+依存性の注入（Dependency Injection）について調べていると、多くのバズワード（"制御の反転"、"ハリウッド原則"、"インジェクション"）を目にし混乱することがあります。しかし、依存性注入という専門用語に対してコンセプトはそれほど複雑ではありません。実際、あなたはすでによく似たことを書いているかもしれません。
+このページでは、Ray.Diの実装の簡略化されたモデルについて説明しどのように働くかの理解を助けます。
 
+## Ray.Diはマップ
 
+基本的にRay.Diは、アプリケーションが使用するオブジェクトの作成と取得を支援します。アプリケーションが必要とするこれらのオブジェクトは **依存や依存性(dependencies)** と呼ばれます。
 
-## Ray.Di is a map
+Ray.Diはマップ[^raydi-map]であると考えることができます。アプリケーションのコードが必要な依存関係を宣言すると、Ray.Diはそのマップからそれらを取得します。"Ray.Diマップ"の各エントリーは、2つの部分から構成されています。
 
-Fundamentally, Ray.Di helps you create and retrieve objects for your application
-to use. These objects that your application needs are called **dependencies**.
+*   **Ray.Di キー**: マップから特定の値を取得するために使用されるマップのキー
+*   **プロバイダ**: アプリケーションのオブジェクトを作成するために使用されるマップの値
 
-You can think of Ray.Di as being a map[^Ray.Di-map]. Your application code
-declares the dependencies it needs, and Ray.Di fetches them for you from its map.
-Each entry in the "Ray.Di map" has two parts:
+[^raydi-map]: [PHPの配列](https://www.php.net/manual/ja/language.types.array.php)はマップです。また、Ray.Diの実際の実装ははるかに複雑ですが、マップはRay.Diがどのように動作するかおおよそを表しています。
 
-*   **Ray.Di key**: a key in the map which is used to fetch a particular value
-    from the map.
-*   **Provider**: a value in the map which is used to create objects for your
-    application.
+### Ray.Diキー
 
-Ray.Di keys and Providers are explained below.
+Ray.Diは`Key`を使って、Ray.Diマップから依存関係を解決します。
 
-[^Ray.Di-map]: The actual implementation of Ray.Di is far more complicated, but a
-map is a reasonable approximation for how Ray.Di behaves.
+[はじめに](getting_started.html) で使用されている `Greeter` クラスは、コンストラクタで2つの依存関係を宣言していて、それらの依存関係は Ray.Di では `Key` として表されます。
 
-### Ray.Di keys
+*   `#[Message] string` --> `$map[$messageKey]`
+*   `#[Count] int` --> `$map[$countKey]`
 
-Ray.Di uses [`Dependecy Key`] to identify a dependency that can be resolved using the
-"Ray.Di map".
-
-The `Greeter` class used in the[Getting Started](GettingStarted.md) declares two
-dependencies in its constructor and those dependencies are represented as `Key`
-in Ray.Di:
-
-*   `#[Message] string` --> `(string) $map[$messageKey]`
-*   `#[Count] int` --> `(int) $map[$countKey]`
-
-The simplest form of a `Key` represents a type in php:
+最も単純な形の `Key` は、PHP の型で表されます。
 
 ```php
 // Identifies a dependency that is an instance of string.
@@ -56,81 +39,73 @@ The simplest form of a `Key` represents a type in php:
 $databaseKey = $map[$key];
 ```
 
-However, applications often have dependencies that are of the same type:
+しかし、アプリケーションには同じ型の依存関係があることがあります。
 
-```java
-final class MultilingualGreeter
+```php
+class Message
 {
     public function __construct(
-      private readonly string $englishGreeting,
-      private readonly string $spanishGreeting
+    	  public readonly string $text
+    ){}
+}
+
+class MultilingualGreeter
+{
+    public function __construct(
+      private readonly Message $englishGreeting,
+      private readonly Message $spanishGreeting
     ) {}
 }
 ```
 
-Ray.Di uses [binding Attributes](BindingAttributes.md) to distinguish dependencies
-that are of the same type, that is to make the type more specific:
+Ray.Diでは、同じタイプの依存関係を区別するために、[アトリビュート束縛](binding_attributes.htnl) を使用しています。
 
-```java
-final class MultilingualGreeter
+```php
+class MultilingualGreeter
 {
     public function __construct(
-      #[English] private readonly string $englishGreeting,
-      #[Spanish] private readonly string $spanishGreeting
+      #[English] private readonly Message $englishGreeting,
+      #[Spanish] private readonly Message $spanishGreeting
     ) {}
 }
 ```
 
-`Key` with binding annotations can be created as:
+バインディングアノテーションを持つ `Key` は、次のように作成することができます。
 
-```java
-$englishGreetingKey = $map[English::class];
-$spanishGreetingKey = $map[Spanish::class];
+```php
+$englishGreetingKey = $map[Message::class . English::class];
+$spanishGreetingKey = $map[Message::class . Spanish::class];
 ```
 
-When an application calls `$injector->getInstance(MultilingualGreeter::class)` to
-create an instance of `MultilingualGreeter`. This is the equivalent of doing:
+アプリケーションが `$injector->getInstance(MultilingualGreeter::class)` を呼び出したとき、
+`MultilingualGreeter`のインスタンスを生成しますが、以下と同じ事を行っています。
 
-```java
-// Ray.Di internally does this for you so you don't have to wire up those
-// dependencies manually.
-/** @var string $english */
-$english = $injector->getInstance('', English::class));
-/** @var string $spanish */
-$spanish = $injector->getInstance('', Spanish::class));
-/** @var MultilingualGreeter $greeter */
+```php
+// Ray.Diは内部でこれを行うので、手動でこれらの依存関係を解決する必要はありません。
+$english = $injector->getInstance(Message::class, English::class));
+$spanish = $injector->getInstance(Message::class, Spanish::class));
 $greeter = new MultilingualGreeter($english, $spanish);
 ```
 
-To summarize: **Ray.Di `Key` is a type combined with an optional binding
-annotation used to identify dependencies.**
+つまり**Ray.Diの `Key` はPHPの型と依存関係を識別するためのアトリビュート（オプション）を合わせたものです**。
 
-### Ray.Di `Provider`s
+### Ray.Diプロバイダ
 
-Ray.Di uses
-[`Provider`](https://google.github.io/Ray.Di/api-docs/latest/javadoc/com/google/inject/Provider.html)
-to represent factories in the "Ray.Di map" that are capable of creating objects
-to satisfy dependencies.
+Ray.Diでは依存関係を満たすオブジェクトを生成するファクトリーのために、"Ray.Diマップ"で[`ProviderInterface`](https://github.com/ray-di/Ray.Di/blob/2.x/src/di/ProviderInterface.php)を使用します。
 
-`Provider` is an interface with a single method:
+`Provider` は単一のメソッドを持つインターフェースです。
 
 ```php
-interface Provider
+interface ProviderInterface
 {
-  /** Provides an instance/
+  /** インスタンスを用意する */
   public function get();
 }
 ```
 
-Each class that implements `Provider` is a bit of code that knows how to give
-you an instance of `T`. It could call `new T()`, it could construct `T` in some
-other way, or it could return you a precomputed instance from a cache.
+`ProviderInterface` を実装している各クラスは、 インスタンスを生成する方法を知っている簡単なコードです。`new`を呼び出したり、他の方法で依存を構築したり、キャッシュから事前に計算されたインスタンスを返したりすることができます。値の型は限定されずmixedです。
 
-Most applications do not implement `Provider` interface directly, they use
-`Module` to configure Ray.Di injector and Ray.Di injector internally creates
-`Provider`s for all the object it knows how to create.
-
-For example, the following Ray.Di module creates two `Provider`s:
+以下は 2 つの `ProviderInterface` の実装例です。
 
 ```php
 class countProvicer implements ProviderInterface
@@ -159,71 +134,56 @@ class DemoModule extends AbstractModule
 }
 ```
 
-*   `MessageProvicer` that calls the `get()` method and returns "hello
-    world"
-*   `CountProvicer` that calls the `get()` method and returns `3`
+*   `MessageProvider`の`get()`メソッドが呼び出され 'hello world’を返します。
+*   `CountProvider`の`get()` メソッドが呼び出され3を返します。
 
-## Using Ray.Di
+## Ray.Diの使用
 
-There are two parts to using Ray.Di:
+Ray.Diの利用には2つのパートがあります。
 
-1.  **Configuration**: your application adds things into the "Ray.Di map".
-1.  **Injection**: your application asks Ray.Di to create and retrieve objects
-    from the map.
+1.  **コンフィギュレーション**：アプリケーションが"Ray.Diマップ"に何か追加します。
+1.  **インジェクション**：アプリケーションがRay.Diにマップからのオブジェクトの作成と取得を依頼します。
 
-Configuration and injection are explained below.
+以下に説明します。
 
-### Configuration
+### コンフィギュレーション
 
-Ray.Di maps are configured using Ray.Di modules. A **Ray.Di module** is a unit of
-configuration logic that adds things into the Ray.Di map. There are two ways to
-do this:
+Ray.Diのマップは、Ray.Diモジュールを使って設定されます。**Ray.Diモジュール**は、Ray.Diマップに何かを追加する設定ロジックユニットです。Ray.Di ドメイン固有言語（DSL）を使用して設定を行います。
 
-*   Adding method annotations like `@Provides`
-*   Using the Ray.Di Domain Specific Language (DSL).
+これらのAPIは単にRay.Dマップを操作する方法を提供するものです。これらのAPIが行う操作は簡単で、以下は簡潔なPHPのシンタックスを使用した説明です。
 
-Conceptually, these APIs simply provide ways to manipulate the Ray.Di map. The
-manipulations they do are pretty straightforward. Here are some example
-translations, shown using Java 8 syntax for brevity and clarity:
-
-| Ray.Di DSL syntax                   | Mental model                                                                       |
+| Ray.Di DSL シンタックス                   | メンタルモデル                                                                       |
 | ---------------------------------- | ---------------------------------------------------------------------------------- |
-| `bind($key)->toInstance($value)`  | `$map[$key] = $value;`  <br>(instance binding)          |
-| `bind($key)->toProvider($provider)` | `$map[$key] = fn => $value;` <br>(provider  binding) |
-| `bind(key)->to(anotherKey)`       | `$map[$key] = $map[$anotherKey];` <br>(linked binding) |
+| `bind($key)->toInstance($value)`  | `$map[$key] = $value;`  <br>(インスタンス束縛)          |
+| `bind($key)->toProvider($provider)` | `$map[$key] = fn => $value;` <br>(プロバイダ束縛) |
+| `bind(key)->to(anotherKey)`       | `$map[$key] = $map[$anotherKey];` <br>(リンク束縛) |
 
-`DemoModule` adds two entries into the Ray.Di map:
+`DemoModule` は Ray.Di マップに2つのエントリーを追加します。
 
-*   `#[Message] string` --> `fn() => (new MessageProvicer)->get()`
-*   `#[Count] int` --> `fn() => (new CountProvicer)->get()`
+*   `#[Message] string` --> `(new MessageProvider())->get()`
+*   `#[Count] int` --> `(new CountProvider())->get()`
 
-### Injection
+### インジェクション
 
-You don't *pull* things out of a map, you *declare* that you need them. This is
-the essence of dependency injection. If you need something, you don't go out and
-get it from somewhere, or even ask a class to return you something. Instead, you
-simply declare that you can't do your work without it, and rely on Ray.Di to give
-you what you need.
+マップから物事を **プル** するのではなく、それらが必要であることを **宣言** します。これが依存性注入の本質です。何かが必要なとき、どこかからそれを取りに行ったり、クラスから何かを返してもらったりすることはありません。その代わりにあなたは単にそれなしでは仕事ができないと宣言し、必要とするものを与えるのがRay.Diの役割です。
 
-This model is backwards from how most people think about code: it's a more
-*declarative* model rather than an *imperative* one. This is why dependency
-injection is often described as a kind of *inversion of control* (IoC).
+このモデルは、多くの人がコードについて考える方法とは逆で、「命令的」ではなく「宣言的」なモデルと言えます。依存性注入がしばしば一種の**[制御の反転](https://ja.wikipedia.org/wiki/制御の反転)** (IoC)と表されるのはこのためです。
 
-Some ways of declaring that you need something:
+何かを必要とすることを宣言するにはいくつか方法があります。
 
-1. An argument to a constructor:
+1. コンストラクタの引数:
 
     ```php
     class Foo
     {
-      // We need a database, from somewhere
+      // どこからかデータベースが必要
       public function __construct(
             private Database $database
        ) {}
     }
     ```
 
-2. An argument to a `DatabaseProvider::get()` method:
+2. `Provider`コンストラクタの引数
 
     ```php
     class DatabaseProvider implements ProviderInterface
@@ -239,20 +199,16 @@ Some ways of declaring that you need something:
     }
     ```
 
-This example is intentionally the same as the example `Foo` class from
-[Getting Started Guide](GettingStarted#what-is-dependency-injection), adding
-only the `@Inject` annotation on the constructor, which marks the constructor as
-being available for Ray.Di to use.
+この例は、[はじめに](getting_started.html)のサンプルFooクラスと同じです。
 
-## Dependencies form a graph
+注：Ray.Di は Guice とは異なり、コンストラクタに _Inject_は必要はありません。
 
-When injecting a thing that has dependencies of its own, Ray.Di recursively
-injects the dependencies. You can imagine that in order to inject an instance of
-`Foo` as shown above, Ray.Di creates `Provider` implementations that look like
-these:
+## 依存関係がグラフを形成
+
+それ自体に依存性があるものを注入する場合、Ray.Diは再帰的に依存関係を注入します。上記のような `Foo` のインスタンスをインジェクトするために、Ray.Di は以下のような `ProviderInterface` の実装を作成することが考えられます。
 
 ```php
-class FooProvider implements Provider
+class FooProvider implements ProviderInterface
 {
     public function get(): Foo
     {
@@ -287,23 +243,17 @@ class DsnProvider implements Provider
 }  
 ```
 
-Dependencies form a *directed graph*, and injection works by doing a depth-first
-traversal of the graph from the object you want up through all its dependencies.
+依存関係は **有向グラフ[^direct-graph]** を形成し、インジェクションは、必要なオブジェクトからそのすべての依存関係を介してグラフの[深さ優先探索](https://ja.wikipedia.org/wiki/深さ優先探索)を実行することによって動作します。
 
-A Ray.Di `Injector` object represents the entire dependency graph. To create an
-`Injector`, Ray.Di needs to validate that the entire graph works. There can't be
-any "dangling" nodes where a dependency is needed but not provided.[^3] If the
-graph is invalid for any reason, Ray.Di throws a `CreationException` that
-describes what went wrong.
+[^direct-graph]: 頂点と向きを持つ辺（矢印）により構成された[グラフ](https://ja.wikibooks.org/wiki/グラフ理論)です。
 
-[^3]: The reverse case is not an error: it's fine to provide something even if
-nothing ever uses it—it's just dead code in that case. That said, just
-like any dead code, it's best to delete providers if nobody uses them
-anymore.
+Ray.Di の `Injector` オブジェクトは、依存関係グラフ全体を表します。`インジェクター`を作成するために、Ray.Diはグラフ全体が動作することを検証する必要があります。依存関係が必要なのに提供されていない「ぶら下がり」ノードがあってはいけません[^3] もしグラフのどこかで束縛が不完全だと、Ray.Di は `Unbound` 例外を投げます。
 
-## What's next?
+[^3]: その逆もまた然りで、何も使わなくても、何かを提供することは問題ありません。とはいえ、デッドコードと同じように、どこからも使われなくなったプロバイダーは削除するのが一番です。
 
-Learn how to use [`Scopes`](Scopes) to manage the lifecycle of objects created
-by Ray.Di and the many different ways to
-[add entries into the Ray.Di map](Bindings).
+## 次に
+
+Ray.Di が作成したオブジェクトのライフサイクルを管理するための [Scopes](scopes.html) の使い方と、さまざまな[Ray.Di マップにエントリを追加](bindings.html)する方法について学びましょう。
+
+---
 
