@@ -30,7 +30,7 @@ class TweetModule extends AbstractModule
 
 ## その他の束縛
 
-指定した束縛の他に、インジェクターは [ビルトイン束縛](BuiltinBindings.md) を含んでいます。要求された依存関係が見つからない場合、ジャストインタイムで束縛しようとします。また、インジェクタは他の [プロバイダ注入](injecting_providers.html) の束縛も含んでいます。
+指定した束縛の他にインジェクターは [ビルトイン束縛](builtin_bindings.html) を含んでいて、他の [プロバイダ注入](injecting_providers.html) の束縛も含んでいます。
 
 ## モジュールのインストール
 
