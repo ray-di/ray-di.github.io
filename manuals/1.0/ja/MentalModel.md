@@ -6,7 +6,7 @@ permalink: /manuals/1.0/ja/mental_model.html
 ---
 # Ray.Di メンタルモデル
 
-_`Key`や`Provider`について、そしてRay.Diがどうのようにして単なるマップと考えられるかについて_
+_`Key`や`Provider`、それにRay.Diがどうのようにして単なるマップと考えられるかについて_
 
 依存性の注入（Dependency Injection）について調べていると、多くのバズワード（"制御の反転"、"ハリウッド原則"、"インジェクション"）を目にし混乱することがあります。しかし、依存性注入という専門用語に対してコンセプトはそれほど複雑ではありません。実際、あなたはすでによく似たことを書いているかもしれません。
 このページでは、Ray.Diの実装の簡略化されたモデルについて説明しどのように働くかの理解を助けます。
@@ -34,7 +34,7 @@ Ray.Diは`Key`を使って、Ray.Diマップから依存関係を解決します
 最も単純な形の `Key` は、PHP の型で表されます。
 
 ```php
-// Identifies a dependency that is an instance of string.
+// 依存(文字列)を特定
 /** @var string $databaseKey */
 $databaseKey = $map[$key];
 ```
