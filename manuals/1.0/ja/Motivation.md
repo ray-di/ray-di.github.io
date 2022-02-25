@@ -150,7 +150,7 @@ public class RealBillingServiceTest extends TestCase
 
 ## 依存性の注入(Dependency Injection)
 
-ファクトリーと同様、依存性注入も単なるデザインパターンに過ぎません。核となる原則は、依存関係の解決から振る舞いを **分離する** ことです。この例では、 `RealBillingService` は `TransactionLog` と `CreditCardProcessor` を探す責任はありません。代わりに、コンストラクタのパラメータとして渡されます。
+ファクトリーと同様、依存性の注入も単なるデザインパターンに過ぎません。核となる原則は、依存関係の解決から振る舞いを **分離する** ことです。この例では、 `RealBillingService` は `TransactionLog` と `CreditCardProcessor` を探す責任はありません。代わりに、コンストラクタのパラメータとして渡されます。
 
 ```php
 public class RealBillingService implements BillingServiceInterface
