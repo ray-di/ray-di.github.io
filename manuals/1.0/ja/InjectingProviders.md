@@ -9,7 +9,7 @@ permalink: /manuals/1.0/ja/injecting_providers.html
 With normal dependency injection, each type gets exactly *one instance* of each
 of its dependent types. The `RealBillingService` gets one `CreditCardProcessor`
 and one `TransactionLog`. Sometimes you want more than one instance of your
-dependent types. When this flexibility is necessary, Guice binds a provider.
+dependent types. When this flexibility is necessary, Ray.Di binds a provider.
 Providers produce a value when the `get()` method is invoked:
 
 ```php
