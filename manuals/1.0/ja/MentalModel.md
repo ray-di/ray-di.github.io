@@ -34,7 +34,7 @@ Ray.Diは`Key`を使って、Ray.Diマップから依存関係を解決します
 最も単純な形の `Key` は、PHP の型で表されます。
 
 ```php
-// Identifies a dependency that is an instance of string.
+// 文字列のインスタンスである依存関係を特定する
 /** @var string $databaseKey */
 $databaseKey = $map[$key];
 ```
