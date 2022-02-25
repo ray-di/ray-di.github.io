@@ -1,39 +1,31 @@
 ---
 layout: docs-ja
-layout: docs-ja
-title: Motivation
+title: モチベーション
 category: Manual
 permalink: /manuals/1.0/ja/motivation.html
 ---
-# Motivation
+# モチベーション
 
-Wiring everything together is a tedious part of application development. There
-are several approaches to connect data, service, and presentation classes to one
-another. To contrast these approaches, we'll write the billing code for a pizza
-ordering website:
+アプリケーションの開発で、すべてをまとめ上げるのは面倒な作業です。データクラス、サービスクラス、プレゼンテーションクラスを互いに接続するには、いくつかのアプローチがあります。これらのアプローチを対比させるために、ピザの注文サイトの課金コードを書いてみましょう。
 
 ```php
 interface BillingServiceInterface
 {
     /**
-    * Attempts to charge the order to the credit card. Both successful and
-    * failed transactions will be recorded.
+    * オーダーをクレジットカードにチャージしようとします。成功した取引と失敗した取引の両方が記録されます。
     *
-    * @return Receipt a receipt of the transaction. If the charge was successful,
-    *      the receipt will be successful. Otherwise, the receipt will contain a
-    *      decline note describing why the charge failed.
+    * @return Receipt 取引の領収書。チャージが失敗した場合は、理由を説明する断り書きがレシートに記載されます。
     */
     public function chargeOrder(PizzaOrder order, CreditCard creditCard): Receipt;
 }
 ```
 
-Along with the implementation, we'll write unit tests for our code. In the tests
-we need a `FakeCreditCardProcessor` to avoid charging a real credit card!
+実装と並行して、コードの単体テストを書きます。
+テストでは、本物のクレジットカードへの課金を避けるために、`FakeCreditCardProcessor`が必要です。
 
-## Direct constructor calls
+## コンストラクタの直接呼び出し
 
-Here's what the code looks like when we just `new` up the credit card processor
-and transaction logger:
+以下は、クレジットカードプロセッサーとトランザクションロガーを `new` したときのコードです。
 
 ```php
 public class RealBillingService implements BillingServiceInterface
@@ -59,16 +51,11 @@ public class RealBillingService implements BillingServiceInterface
 }
 ```
 
-This code poses problems for modularity and testability. The direct,
-compile-time dependency on the real credit card processor means that testing the
-code will charge a credit card! It's also awkward to test what happens when the
-charge is declined or when the service is unavailable.
+このコードは、モジュール性とテスト容易性の点で問題があります。実際のクレジットカード・プロセッサーに直接依存すると、このコードをテストするとクレジットカードに課金されてしまいます！また、チャージが拒否されたときやサービスが利用できないときに何が起こるかをテストするのは厄介です。
 
-## Factories
+## ファクトリー
 
-A factory class decouples the client and implementing class. A simple factory
-uses static methods to get and set mock implementations for interfaces. A
-factory is implemented with some boilerplate code:
+ファクトリークラスは、クライアントと実装クラスを切り離します。単純なファクトリーでは、静的メソッドを使用してインターフェースのモック実装を取得したり設定したりします。ファクトリーはいくつかの定型的なコードで実装されます。
 
 ```php
 public class CreditCardProcessorFactory
@@ -91,7 +78,7 @@ public class CreditCardProcessorFactory
 }
 ```
 
-In our client code, we just replace the `new` calls with factory lookups:
+クライアントコードでは、`new`の呼び出しをファクトリーの呼び出しに置き換えるだけです。
 
 ```php
 public class RealBillingService implements BillingServiceInterface
@@ -116,7 +103,7 @@ public class RealBillingService implements BillingServiceInterface
 }
 ```
 
-The factory makes it possible to write a proper unit test:
+ファクトリーを利用することで、適切なユニットテストを書くことが可能になります。
 
 ```php
 public class RealBillingServiceTest extends TestCase 
@@ -155,28 +142,15 @@ public class RealBillingServiceTest extends TestCase
 }
 ```
 
-This code is clumsy. A global variable holds the mock implementation, so we need
-to be careful about setting it up and tearing it down. Should the `tearDown`
-fail, the global variable continues to point at our test instance. This could
-cause problems for other tests. It also prevents us from running multiple tests
-in parallel.
+しかしこのコードはあまり良くありません。グローバル変数にはモックの実装が格納されているので、その設定と削除には注意が必要です。もし `tearDown` が失敗したら、グローバル変数は私たちのテストインスタンスを指し続けることになります。これは、他のテストに問題を引き起こす可能性がありますし、複数のテストを並行して実行することもできなくなります。
 
-But the biggest problem is that the dependencies are *hidden in the code*. If we
-add a dependency on a `CreditCardFraudTracker`, we have to re-run the tests to
-find out which ones will break. Should we forget to initialize a factory for a
-production service, we don't find out until a charge is attempted. As the
-application grows, babysitting factories becomes a growing drain on
-productivity.
+しかし、最大の問題は依存関係がコードの中に **隠されていること** です。もし私たちが `CreditCardFraudTracker` への依存関係を追加したら、どのテストが壊れるか見つけるためにテストを再実行しなければなりません。もし、プロダクションサービスのファクトリーを初期化するのを忘れた場合、課金が行われるまでそのことに気がつきません。アプリケーションが大きくなるにつれて、ファクトリーの子守は生産性をどんどん低下させることになります。
 
-Quality problems will be caught by QA or acceptance tests. That may be
-sufficient, but we can certainly do better.
+品質の問題は、QAや受け入れテストによって発見されることは発見されるでしょう。しかし、もっといい方法があるはずです。
 
-## Dependency Injection
+## 依存性の注入(Dependency Injection)
 
-Like the factory, dependency injection is just a design pattern. The core
-principle is to *separate behaviour from dependency resolution*. In our example,
-the `RealBillingService` is not responsible for looking up the `TransactionLog`
-and `CreditCardProcessor`. Instead, they're passed in as constructor parameters:
+ファクトリーと同様、依存性の注入も単なるデザインパターンに過ぎません。核となる原則は、依存関係の解決から振る舞いを **分離する** ことです。この例では、 `RealBillingService` は `TransactionLog` と `CreditCardProcessor` を探す責任はありません。代わりに、コンストラクタのパラメータとして渡されます。
 
 ```php
 public class RealBillingService implements BillingServiceInterface
@@ -204,8 +178,7 @@ public class RealBillingService implements BillingServiceInterface
 }
 ```
 
-We don't need any factories, and we can simplify the testcase by removing the
-`setUp` and `tearDown` boilerplate:
+ファクトリーは必要ありませんし、`setUp` と `tearDown` の定型的なコードを削除することで、テストケースを簡素化することができます。
 
 ```php
 public class RealBillingServiceTest extends TestCase
@@ -237,14 +210,9 @@ public class RealBillingServiceTest extends TestCase
 }
 ```
 
-Now, whenever we add or remove dependencies, the compiler will remind us what
-tests need to be fixed. The dependency is *exposed in the API signature*.
+これで、依存関係を追加したり削除したりするたびに、コンパイラはどのテストを修正する必要があるかを思い出させてくれるようになりました。依存関係はAPIシグネチャで**公開**されます。（コンストラクタに何が必要かが表されています）
 
-Unfortunately, now the clients of `BillingService` need to lookup its
-dependencies. We can fix some of these by applying the pattern again! Classes
-that depend on it can accept a `BillingService` in their constructor. For
-top-level classes, it's useful to have a framework. Otherwise you'll need to
-construct dependencies recursively when you need to use a service:
+`BillingService` のクライアントはその依存関係を調べるないといけないようになってしまいましたが、このパターンをもう一度適用することで修正することができます!  これで必要とするクラスはコンストラクタで `BillingService` サービスを受け入れることができます。トップレベルのクラスでは、フレームワークがあると便利です。そうでなければ、サービスを使う必要があるときに、再帰的に依存関係を構築する必要があります。
 
 ```php
 <?php
@@ -254,13 +222,9 @@ $billingService = new RealBillingService($processor, $transactionLog);
 // ...
 ```
 
-## Dependency Injection with Ray.Di
+## Ray.Diによる依存性の注入
 
-The dependency injection pattern leads to code that's modular and testable, and
-Ray.Di makes it easy to write. To use Ray.Di in our billing example, we first need
-to tell it how to map our interfaces to their implementations. This
-configuration is done in a Ray.Di module, which is any Java class that implements
-the `Module` interface:
+依存性の注入パターンは、モジュール化されたテスト可能なコードを導き、Ray.Diで簡単にコードを書けるようにします。課金の例でRay.Diを使うには、まずインターフェイスとその実装をどのように対応付けるかを指示する必要があります。設定は`Module`インターフェースを実装したRay.Diモジュールクラスで行われます。
 
 ```php
 public class BillingModule extends AbstractModule
@@ -274,7 +238,7 @@ public class BillingModule extends AbstractModule
 }
 ```
 
-Ray.Di will inspect the  constructor, and lookup values for each parameter.
+Ray.Diはコンストラクタを検査し、各引数の値を検索します。
 
 ```php
 public class RealBillingService implements BillingServiceInterface
@@ -287,23 +251,22 @@ public class RealBillingService implements BillingServiceInterface
     public function chargeOrder(PizzaOrder $order, CreditCard $creditCard): Receipt
     {
         try {
-          $result = $this->processor->charge($creditCard, $order->getAmount());
-          $this->transactionLog->logChargeResult($result);
+            $result = $this->processor->charge($creditCard, $order->getAmount());
+            $this->transactionLog->logChargeResult($result);
         
-          return $result->wasSuccessful()
-              ? Receipt::forSuccessfulCharge($order->getAmount())
-              : Receipt::forDeclinedCharge($result->getDeclineMessage());
-         } catch (UnreachableException $e) {
+            return $result->wasSuccessful()
+                ? Receipt::forSuccessfulCharge($order->getAmount())
+                : Receipt::forDeclinedCharge($result->getDeclineMessage());
+        } catch (UnreachableException $e) {
             $this->transactionLog->logConnectException($e);
-
+            
             return Receipt::forSystemFailure($e->getMessage());
         }
     }
 }
 ```
 
-Finally, we can put it all together. The `Injector` can be used to get an
-instance of any of the bound classes.
+最後にすべてをまとめられ、`Injector`がバインドされたクラスのインスタンスを取得します。
 
 ```php
 <?php
@@ -313,4 +276,4 @@ $billingService = $injector->getInstance(BillingServiceInterface::class);
 
 ```
 
-[Getting started](getting_started.html) explains how this all works.
+[はじめに](getting_started.html) では、この仕組みを説明します。
