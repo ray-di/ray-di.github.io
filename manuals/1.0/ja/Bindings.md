@@ -1,19 +1,19 @@
 ---
 layout: docs-ja
-title: Bindings
+title: バインディング
 category: Manual
 permalink: /manuals/1.0/ja/bindings.html
 ---
 # Bindings
-_Overview of bindings in Ray.Di_
+_Ray.Diにおけるバインディングの概要_
 
-A **binding** is an object that corresponds to an entry in [Ray.Di map](mental_model.html). You add new entries into the Ray.Di map by creating bindings.
+**バインディング**とは、[Ray.Di map](mental_model.html) のエントリに対応するオブジェクトのことです。バインディングを作成することで、Ray.Diマップに新しいエントリーを追加します。
 
-## Creating Bindings
+## バインディングの作成
 
-To create bindings, extend `AbstractModule` and override its `configure` method. In the method body, call `bind()` to specify each binding. These methods are type checked in compile can report errors if you use the wrong types. Once you've created your modules, pass them as arguments to `Injector` to build an injector.
+バインディングを作成するには、`AbstractModule` を継承して、その `configure` メソッドをオーバーライドします。メソッド本体では、`bind()` を呼び出して各バインディングを指定します。これらのメソッドはコンパイル時に型チェックを行い、間違った型を使用した場合はエラーを報告します。モジュールを作成したら、それを `Injector` に引数として渡して、インジェクタを構築します。
 
-Use modules to create [linked bindings](linked_bindings.html), [instance bindings](instance_bindings.html), [provider bindings](provider_bindings.html), [constructor bindings](constructor_bindings.html) and [untargetted bindings](untargetted_bindings.html).
+モジュールを使って、[リンクバインディング](linked_bindings.html)、 [インスタンスバインディング](instance_bindings.html)、 [プロバイダバインディング](provider_bindings.html)、 [コンストラクタバインディング](constructor_bindings.html)、 [ターゲット外バインディング](untargetted_bindings.html)を作成してください。
 
 ```php
 class TweetModule extends AbstractModule
@@ -28,16 +28,16 @@ class TweetModule extends AbstractModule
 }
 ```
 
-## More Bindings
+## その他のバインディング
 
-In addition to the bindings you specify the injector includes [built-in bindings](BuiltinBindings.md). When a dependency is requested but not found it attempts to create a just-in-time binding. The injector also includes bindings for the [providers](injecting_providers.html) of its other bindings.
+指定したバインディングの他に、インジェクターは [ビルトインバインディング] (BuiltinBindings.md) を含んでいます。依存関係が要求されたが見つからない場合、ジャストインタイムバインディングを作成しようとします。また、インジェクタは他のバインディングの [プロバイダ](injecting_providers.html) のバインディングも含んでいます。
 
-## Module Install
+## モジュールのインストール
 
-A module can install other modules to configure more bindings.
+モジュールは、他のモジュールをインストールすることで、より多くのバインディングを設定することができます。
 
-* Earlier bindings have priority even if the same binding is made later.
-* `override` bindings in that module have priority.
+* 同じバインディングが後から作られたとしても、先に作られたバインディングが優先されます。
+* そのモジュールの `override` バインディングが優先されます。
 
 ```php
 protected function configure()
