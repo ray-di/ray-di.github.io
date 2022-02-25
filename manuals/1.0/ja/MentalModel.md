@@ -160,7 +160,7 @@ Ray.Diのマップは、Ray.Diモジュールを使って設定されます。**
 
 `DemoModule` は Ray.Di マップに2つのエントリーを追加します。
 
-*   `#[Message] string` --> `(new MessageProvicer())->get()`
+*   `#[Message] string` --> `(new MessageProvider())->get()`
 *   `#[Count] int` --> `(new CountProvider())->get()`
 
 ### インジェクション
