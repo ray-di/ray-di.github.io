@@ -105,7 +105,7 @@ interface ProviderInterface
 
 `ProviderInterface` を実装している各クラスは、 インスタンスを生成する方法を知っている簡単なコードです。`new`を呼び出したり、他の方法で依存を構築したり、キャッシュから事前に計算されたインスタンスを返したりすることができます。値の型は限定されずmixedです。
 
-以下は 2 つの `Provider` の例です。
+以下は 2 つの `ProviderInterface` の実装例です。
 
 ```php
 class countProvicer implements ProviderInterface
