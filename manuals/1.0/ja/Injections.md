@@ -82,10 +82,8 @@ class HorizontalScaleDbProvider implements ProviderInterface
 
 ## オプションのインジェクション
 
-時には、ある依存が存在するときにはそれを使い、またある依存が存在しないときにはデフォルトを使うのが便利なことがあります。
-メソッドやフィールドのインジェクションはオプションにすることができます。
-Ray.Diは、依存が利用できない場合、それらを黙って無視するようになります。そのための
-オプションインジェクションを使用するには、 `#[Inject(optional: true)`属性を加えます。```
+依存関係が存在する場合はそれを使用し、存在しない場合はデフォルトにフォールバックするのが便利な場合があります。セッターインジェクションはオプションで、依存関係が利用できないとき、Ray.Diはそれらを黙って無視するようになります。
+オプションインジェクションを使用するには、 `#[Inject(optional: true)`属性を加えます。
 
 ```php
 public class PayPalCreditCardProcessor implements CreditCardProcessorInterface
