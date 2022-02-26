@@ -59,7 +59,7 @@ public function doSomething(string $id, #[Assisted] DbInterface $db = null)
 }
 ```
 
-また、メソッド呼び出しの際に、他の動的パラメータに依存する依存関係を指定することができます。`MethodInvocationProvider` は [MethodInvocation](https://github.com/ray-di/Ray.Aop/blob/2.x/src/MethodInvocation.php) オブジェクトを提供します。
+また、メソッド呼び出しの際に、他の動的パラメータに依存する依存関係を指定できます。`MethodInvocationProvider` は [MethodInvocation](https://github.com/ray-di/Ray.Aop/blob/2.x/src/MethodInvocation.php) オブジェクトを提供します。
 
 ```php
 class HorizontalScaleDbProvider implements ProviderInterface
