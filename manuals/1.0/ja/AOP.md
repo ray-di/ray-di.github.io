@@ -4,11 +4,11 @@ title: AOP
 category: Manual
 permalink: /manuals/1.0/ja/aop.html
 ---
-# アスペクト指向プログラミング
+# Aspect Oriented Programing
 
-依存性注入を補完するために、Ray.Diはメソッドインターセプションをサポートしています。この機能により、一致するメソッドが呼び出されるたびに実行されるコードを書くことができます。これは、トランザクション、セキュリティ、ロギングなど、横断的な関心事（「アスペクト」）に適している。インターセプターは問題をオブジェクトではなくアスペクトに分割するため、その使用はアスペクト指向プログラミング（AOP）と呼ばれています。
+To compliment dependency injection, Ray.Di supports method interception. This feature enables you to write code that is executed each time a matching method is invoked. It's suited for cross cutting concerns ("aspects"), such as transactions, security and logging. Because interceptors divide a problem into aspects rather than objects, their use is called Aspect Oriented Programming (AOP).
 
-選択したメソッドを平日限定とするために、属性を定義しています。
+To mark select methods as weekdays-only, we define an attribute.
 
 ```php
 #[Attribute(Attribute::TARGET_METHOD)]
@@ -17,7 +17,7 @@ final class NotOnWeekends
 }
 ```
 
-...そして、それを傍受する必要のあるメソッドに適用します。
+...and apply it to the methods that need to be intercepted:
 
 ```php
 class BillingService implements BillingServiceInterface
@@ -27,7 +27,7 @@ class BillingService implements BillingServiceInterface
     {
 ```
 
-次に、`MethodInterceptor` インターフェースを実装し、インターセプターを定義します。メソッドを呼び出す必要がある場合は、 `$invocation->proceed()` を呼び出して行います。
+Next, we define the interceptor by implementing the `MethodInterceptor` interface. When we need to call through to the underlying method, we do so by calling `$invocation->proceed()`:
 
 ```php
 
@@ -49,7 +49,7 @@ class WeekendBlocker implements MethodInterceptor
 }
 ```
 
-最後に、すべての設定を行います。この場合、どのクラスにもマッチしますが、`#[NotOnWeekends]` 属性を持つメソッドにのみマッチします。
+Finally, we configure everything. In this case we match any class, but only the methods with our `#[NotOnWeekends]` attribute:
 
 ```php
 
@@ -77,7 +77,7 @@ try {
     exit(1);
 }
 ```
-それをすべてまとめると、（土曜日まで待つとして）メソッドがインターセプトされ、注文が拒否されたことがわかります。
+Putting it all together, (and waiting until Saturday), we see the method is intercepted and our order is rejected:
 
 ```php
 RuntimeException: chargeOrder not allowed on weekends! in /apps/pizza/WeekendBlocker.php on line 14
@@ -90,7 +90,7 @@ Call Stack:
     0.0056     318784   5. Ray\Aop\Sample\WeekendBlocker->invoke() /libs/Ray.Aop/src/ReflectiveMethodInvocation.php:65
 ```
 
-インターセプターを無効にするには、NullInterceptorをバインドします。
+To disable the interceptor, bind NullInterceptor.
 
 ```php
 use Ray\Aop\NullInterceptor;
