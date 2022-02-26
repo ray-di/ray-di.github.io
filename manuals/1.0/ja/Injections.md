@@ -4,17 +4,17 @@ title: Injections
 category: Manual
 permalink: /manuals/1.0/ja/injections.html
 ---
-# Injections
-_How Ray.Di initializes your objects_
+# インジェクション
+_Ray.Diはどのようにオブジェクトを初期化するか？_
 
-The dependency injection pattern separates behaviour from dependency resolution.
-Rather than looking up dependencies directly or from factories, the pattern
-recommends that dependencies are passed in. The process of setting dependencies
-into an object is called *injection*.
+依存性注入パターンは、依存性の解決から振る舞いを分離します。
+このパターンでは、依存関係を直接調べたり、ファクトリーから調べたりするよりも、むしろ
+は、依存関係を渡すことを推奨しています。依存関係を設定するプロセス
+をオブジェクトに注入することを *インジェクション* と呼びます。
 
-## Constructor Injection
+## コンストラクタ・インジェクション
 
-Constructor injection combines instantiation with injection. This constructor should accept class dependencies as parameters. Most constructors will then assign the parameters to properties. You do not need `#[Inject]` attribute in constructor.
+コンストラクタ注入は、インスタンス生成と注入を組み合わせたものです。このコンストラクタは、クラスの依存関係をパラメータとして受け取る必要があります。ほとんどのコンストラクタは、パラメータをプロパティに代入します。コンストラクタに `#[Inject]` 属性は必要ありません。
 
 ```php
 public function __construct(DbInterface $db)
@@ -23,9 +23,9 @@ public function __construct(DbInterface $db)
 }
 ```
 
-## Setter Injection
+## セッター・インジェクション
 
-Ray.Di can inject methods that have the `#[Inject]` attribute. Dependencies take the form of parameters, which the injector resolves before invoking the method. Injected methods may have any number of parameters, and the method name does not impact injection.
+Ray.Diは `#[Inject]` 属性を持つメソッドをインジェクトすることができます。依存関係はパラメータの形で表され、インジェクターはメソッドを呼び出す前にそれを解決します。注入されるメソッドは任意の数のパラメータを持つことができ、メソッド名は注入に影響を与えません。
 
 ```php
 use Ray\Di\Di\Inject;
@@ -39,15 +39,15 @@ public function setDb(DbInterface $db)
 }
 ```
 
-## Property Injection
+## プロパティ・インジェクション
 
-Ray.Di does not support property injection.
+Ray.Diはプロパティ・インジェクションをサポートしていません。
 
-## Assisted Injection
+## アシストインジェクション
 
-Also called method-call injection action injection, or Invocation injection.It is also possible to inject dependencies directly in the invoke method parameter(s). When doing this, add the dependency to the end of the arguments and add `#[Assisted]` to the parameter(s). You need `null` default for that parameter.
+メソッドコールインジェクション、アクションインジェクション、インボケーションインジェクションとも呼ばれます。この場合、引数の最後に依存関係を追加し、パラメータに `#[Assisted]` を追加してください。そのパラメータには、デフォルトで `null` が必要です。
 
-_Note that this Assisted Injection is different from the one in Google Guice._
+_この Assisted Injection は、Google Guice のものとは異なることに注意してください。_
 ```php
 use Ray\Di\Di\Assisted;
 ```
@@ -58,8 +58,7 @@ public function doSomething(string $id, #[Assisted] DbInterface $db = null)
     $this->db = $db;
 }
 ```
-
-You can also provide dependency which depends on other dynamic parameter in method invocation. `MethodInvocationProvider` provides [MethodInvocation](https://github.com/ray-di/Ray.Aop/blob/2.x/src/MethodInvocation.php) object.
+また、メソッド呼び出しの際に、他の動的パラメータに依存する依存関係を指定することができます。`MethodInvocationProvider` は [MethodInvocation](https://github.com/ray-di/Ray.Aop/blob/2.x/src/MethodInvocation.php) オブジェクトを提供する。
 
 ```php
 class HorizontalScaleDbProvider implements ProviderInterface
@@ -78,14 +77,14 @@ class HorizontalScaleDbProvider implements ProviderInterface
 }
 ```
 
-This injection done by AOP is powerful and useful for injecting objects that are only determined at method execution time, as described above. However, this injection is outside the scope of the original IOC and should only be used when really necessary.
+このAOPで行うインジェクションは強力で、上記のようにメソッド実行時にしか確定しないオブジェクトをインジェクションするのに便利です。しかし、このインジェクションは本来のIOCの範囲外であり、本当に必要なときだけ使うべきである。
 
-## Optional Injections
+## オプションのインジェクション
 
-Occasionally it's convenient to use a dependency when it exists and to fall back
-to a default when it doesn't. Method and field injections may be optional, which
-causes Ray.Di to silently ignore them when the dependencies aren't available. To
-use optional injection, apply the `#[Inject(optional: true)`attribute:
+時には、ある依存関係が存在するときにそれを使い、またある依存関係が存在しないときにそれを使うのが便利なことがあります。
+をデフォルトで使用します。メソッドやフィールドのインジェクションはオプションにすることができます。
+Ray.Diは、依存関係が利用できない場合、それらを黙って無視するようになります。そのため
+オプションインジェクションを使用するには、 `#[Inject(optional: true)`attribute を適用します。
 
 ```php
 class PayPalCreditCardProcessor implements CreditCardProcessorInterface
