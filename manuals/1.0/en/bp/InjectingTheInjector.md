@@ -1,6 +1,6 @@
 ---
 layout: docs-en
-title: Avoid conditional logic in modules
+title: Injecting the injector
 category: Manual
 permalink: /manuals/1.0/en/bp/injecting_the_injector.html
 ---
