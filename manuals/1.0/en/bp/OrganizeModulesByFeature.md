@@ -1,3 +1,9 @@
+---
+layout: docs-en
+title: Organize Modules By Feature
+category: Manual
+permalink: /manuals/1.0/en/bp/organize_modules_by_feature.html
+---
 # Organize modules by feature, not by class type
 
 Group bindings into features. Ideally it should be possible to enable/disable an

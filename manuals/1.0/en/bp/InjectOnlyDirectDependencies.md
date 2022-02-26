@@ -1,3 +1,9 @@
+---
+layout: docs-en
+title: Inject only direct dependencies
+category: Manual
+permalink: /manuals/1.0/en/bp/inject_only_direct_dependencies.html
+---
 # Inject only direct dependencies
 
 Avoid injecting an object only as a means to get at another object. For example,

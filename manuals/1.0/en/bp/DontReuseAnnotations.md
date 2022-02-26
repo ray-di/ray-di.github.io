@@ -1,3 +1,9 @@
+---
+layout: docs-en
+title: Don't reuse binding annotations
+category: Manual
+permalink: /manuals/1.0/en/bp/dont_reuse_annotations.html
+---
 # Don't reuse binding annotations (aka `@Qualifiers`)
 
 Sometimes, of course, it makes sense to bind some highly-related bindings with

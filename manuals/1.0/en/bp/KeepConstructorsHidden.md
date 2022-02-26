@@ -1,3 +1,9 @@
+---
+layout: docs-en
+title: Keep constructors hidden
+category: Manual
+permalink: /manuals/1.0/en/bp/keep_constructors_hidden.html
+---
 ### Keep constructors on Guice-instantiated classes as hidden as possible.
 
 Consider this simple interface:

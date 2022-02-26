@@ -1,3 +1,9 @@
+---
+layout: docs-en
+title: Avoid conditional logic in modules
+category: Manual
+permalink: /manuals/1.0/en/bp/injecting_the_injector.html
+---
 # Use the Injector as little as possible (preferably only once)
 
 Guice has a [built-in](BuiltInBindings) binding for the `Injector` but it should

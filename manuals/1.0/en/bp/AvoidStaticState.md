@@ -1,3 +1,9 @@
+---
+layout: docs-en
+title: Avoid static state
+category: Manual
+permalink: /manuals/1.0/en/bp/avoid_static_state.html
+---
 # Avoid static state
 
 Static state and testability are enemies. Your tests should be fast and free of

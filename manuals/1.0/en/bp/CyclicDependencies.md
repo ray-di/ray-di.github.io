@@ -1,3 +1,9 @@
+---
+layout: docs-en
+title: Avoid Circular Dependencies
+category: Manual
+permalink: /manuals/1.0/en/bp/cyclic_dependencies.html
+---
 # Avoid Circular Dependencies
 
 ## What are circular dependencies?

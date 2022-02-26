@@ -1,3 +1,9 @@
+---
+layout: docs-en
+title: Modules should be fast and side-effect free
+category: Manual
+permalink: /manuals/1.0/en/bp/modules_should_be_fast_and_side_effect_free.html
+---
 # Modules should be fast and side-effect free
 
 Rather than using an external XML file for configuration, Guice modules are

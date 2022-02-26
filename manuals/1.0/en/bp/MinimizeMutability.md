@@ -1,3 +1,9 @@
+---
+layout: docs-en
+title: Minimize mutability
+category: Manual
+permalink: /manuals/1.0/en/bp/minimize_mutability.html
+---
 # Minimize mutability
 
 Wherever possible, use constructor injection to create immutable objects.

@@ -1,3 +1,9 @@
+---
+layout: docs-en
+title: Avoid conditional logic in modules
+category: Manual
+permalink: /manuals/1.0/en/bp/avoid_conditional_logic_in_modules.html
+---
 # Avoid conditional logic in modules
 
 It’s tempting to create modules that have moving parts and can be configured to
