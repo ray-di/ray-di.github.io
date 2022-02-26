@@ -1,3 +1,9 @@
+---
+layout: docs-en
+title: Best Practices
+category: Manual
+permalink: /manuals/1.0/en/best_practice.html
+---
 # Ray.Di Best Practices
 
 *   [Minimize mutability](bp/minimize_mutability.html)
