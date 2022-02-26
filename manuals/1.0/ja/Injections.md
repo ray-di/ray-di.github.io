@@ -39,7 +39,7 @@ public function setDb(DbInterface $db)
 }
 ```
 
-## プロパティ・インジェクション
+## プロパティインジェクション
 
 Ray.Diはプロパティインジェクションをサポートしていません。
 
