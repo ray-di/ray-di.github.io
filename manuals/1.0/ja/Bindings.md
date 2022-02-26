@@ -1,19 +1,19 @@
 ---
 layout: docs-ja
-title: Bindings
+title: 束縛
 category: Manual
 permalink: /manuals/1.0/ja/bindings.html
 ---
 # Bindings
-_Overview of bindings in Ray.Di_
+_Ray.Diにおける束縛の概要_
 
-A **binding** is an object that corresponds to an entry in [Ray.Di map](mental_model.html). You add new entries into the Ray.Di map by creating bindings.
+**束縛**とは、[Ray.Di map](mental_model.html) のエントリに対応するオブジェクトのことです。束縛を作成することで、Ray.Diマップに新しいエントリーを追加できます。
 
-## Creating Bindings
+## 束縛の作成
 
-To create bindings, extend `AbstractModule` and override its `configure` method. In the method body, call `bind()` to specify each binding. These methods are type checked in compile can report errors if you use the wrong types. Once you've created your modules, pass them as arguments to `Injector` to build an injector.
+束縛を作成するには、`AbstractModule` を継承して `configure` メソッドをオーバーライドします。メソッド本体では、`bind()` を呼び出してそれぞれの束縛を指定します。これらのメソッドはコンパイル時に型チェックを行い、間違った型を使用した場合はエラーを報告します。モジュールを作成したら、それを `Injector` に引数として渡し、インジェクタを構築します。
 
-Use modules to create [linked bindings](linked_bindings.html), [instance bindings](instance_bindings.html), [provider bindings](provider_bindings.html), [constructor bindings](constructor_bindings.html) and [untargetted bindings](untargetted_bindings.html).
+モジュールを使って、[リンク束縛](linked_bindings.html)、 [インスタンス束縛](instance_bindings.html)、 [プロバイダ束縛](provider_bindings.html)、 [コンストラクタ束縛](constructor_bindings.html)、 [アンターゲット束縛](untargeted_bindings.html)を作成しましょう。
 
 ```php
 class TweetModule extends AbstractModule
@@ -28,16 +28,16 @@ class TweetModule extends AbstractModule
 }
 ```
 
-## More Bindings
+## その他の束縛
 
-In addition to the bindings you specify the injector includes [built-in bindings](BuiltinBindings.md). When a dependency is requested but not found it attempts to create a just-in-time binding. The injector also includes bindings for the [providers](injecting_providers.html) of its other bindings.
+インジェクターは指定した束縛の他に [ビルトイン束縛](builtin_bindings.html) と [プロバイダ注入](injecting_providers.html) の束縛も含みます。
 
-## Module Install
+## モジュールのインストール
 
-A module can install other modules to configure more bindings.
+モジュールは、他のモジュールをインストールすることで、より多くの束縛を設定できます。
 
-* Earlier bindings have priority even if the same binding is made later.
-* `override` bindings in that module have priority.
+* 同じ束縛が後から作られた場合、先に作られた束縛が優先されます。
+* そのモジュールの `override` 束縛が優先されます。
 
 ```php
 protected function configure()
