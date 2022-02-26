@@ -35,7 +35,7 @@ Here's what the code looks like when we just `new` up the credit card processor
 and transaction logger:
 
 ```php
-public class RealBillingService implements BillingServiceInterface
+class RealBillingService implements BillingServiceInterface
 {
     public function chargeOrder(PizzaOrder $order, CreditCard $creditCard): Receipt
     {
@@ -70,7 +70,7 @@ uses static methods to get and set mock implementations for interfaces. A
 factory is implemented with some boilerplate code:
 
 ```php
-public class CreditCardProcessorFactory
+class CreditCardProcessorFactory
 {
     private static CreditCardProcessor $instance;
     
@@ -93,7 +93,7 @@ public class CreditCardProcessorFactory
 In our client code, we just replace the `new` calls with factory lookups:
 
 ```php
-public class RealBillingService implements BillingServiceInterface
+class RealBillingService implements BillingServiceInterface
 {
     public function chargeOrder(PizzaOrder $order, CreditCard $creditCard): Receipt
     {
@@ -118,7 +118,7 @@ public class RealBillingService implements BillingServiceInterface
 The factory makes it possible to write a proper unit test:
 
 ```php
-public class RealBillingServiceTest extends TestCase 
+class RealBillingServiceTest extends TestCase 
 {
     private PizzaOrder $order;
     private CreditCard $creditCard;
@@ -178,7 +178,7 @@ the `RealBillingService` is not responsible for looking up the `TransactionLog`
 and `CreditCardProcessor`. Instead, they're passed in as constructor parameters:
 
 ```php
-public class RealBillingService implements BillingServiceInterface
+class RealBillingService implements BillingServiceInterface
 {
     public function __construct(
         private readonly CreditCardProcessor $processor,
@@ -207,7 +207,7 @@ We don't need any factories, and we can simplify the testcase by removing the
 `setUp` and `tearDown` boilerplate:
 
 ```php
-public class RealBillingServiceTest extends TestCase
+class RealBillingServiceTest extends TestCase
 {
     private PizzaOrder $order;
     private CreditCard $creditCard;
@@ -262,7 +262,7 @@ configuration is done in a Ray.Di module, which is any Java class that implement
 the `Module` interface:
 
 ```php
-public class BillingModule extends AbstractModule
+class BillingModule extends AbstractModule
 {
     protected function configure(): void
     {
@@ -276,7 +276,7 @@ public class BillingModule extends AbstractModule
 Ray.Di will inspect the  constructor, and lookup values for each parameter.
 
 ```php
-public class RealBillingService implements BillingServiceInterface
+class RealBillingService implements BillingServiceInterface
 {
     public function __construct(
         private readonly CreditCardProcessor $processor,
