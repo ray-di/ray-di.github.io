@@ -2,7 +2,7 @@
 layout: docs-en
 title: Best Practices
 category: Manual
-permalink: /manuals/1.0/en/best_practice.html
+permalink: /manuals/1.0/en/best_practices.html
 ---
 # Ray.Di Best Practices
 
