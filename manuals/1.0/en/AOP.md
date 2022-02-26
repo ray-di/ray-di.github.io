@@ -5,22 +5,20 @@ category: Manual
 permalink: /manuals/1.0/en/aop.html
 ---
 # Aspect Oriented Programing
-_Intercepting methods with Guice_
+_Intercepting methods with Ray.Di_
 
-To complement dependency injection, Guice supports *method interception*. This feature enables you to write code that is executed each time a _matching_ method is invoked. It's suited for cross cutting concerns ("aspects"), such as transactions, security and logging. Because interceptors divide a problem into aspects rather than objects, their use is called Aspect Oriented Programming (AOP).
+To complement dependency injection, Ray.Di supports *method interception*. This feature enables you to write code that is executed each time a _matching_ method is invoked. It's suited for cross cutting concerns ("aspects"), such as transactions, security and logging. Because interceptors divide a problem into aspects rather than objects, their use is called Aspect Oriented Programming (AOP).
 
-Most developers won't write method interceptors directly; but they may see their use in integration libraries like [Warp Persist](http://www.wideplay.com/guicewebextensions2). Those that do will need to select the matching methods, create an interceptor, and configure it all in a module.
+[Matcher](https://github.com/ray-di/Ray.Aop/blob/2.x/src/MatcherInterface.php) is a simple interface that either accepts or rejects a value. For Ray.Di AOP, you need two matchers: one that defines which classes participate, and another for the methods of those classes. 
 
-[Matcher](http://google.github.io/guice/api-docs/latest/javadoc/com/google/inject/matcher/Matcher.html) is a simple interface that either accepts or rejects a value. For Guice AOP, you need two matchers: one that defines which classes participate, and another for the methods of those classes. To make this easy, there's a [factory class](http://google.github.io/guice/api-docs/latest/javadoc/com/google/inject/matcher/Matchers.html) to satisfy the common scenarios.
-
-[MethodInterceptors](http://aopalliance.sourceforge.net/doc/org/aopalliance/intercept/MethodInterceptor.html) are executed whenever a matching method is invoked. They have the opportunity to
+[MethodInterceptors](https://github.com/ray-di/Ray.Aop/blob/2.x/src/MethodInterceptor.php) are executed whenever a matching method is invoked. They have the opportunity to
 inspect the call: the method, its arguments, and the receiving instance. They can perform their cross-cutting logic and then delegate to the underlying method. Finally, they may inspect the return value or exception and return. Since interceptors may be applied to many methods and will receive many calls, their implementation should be efficient and unintrusive.
 
 ## Example: Forbidding method calls on weekends
 
-To illustrate how method interceptors work with Guice, we'll forbid calls to our pizza billing system on weekends. The delivery guys only work Monday thru Friday so we'll prevent pizza from being ordered when it can't be delivered! This example is structurally similar to use of AOP for authorization.
+To illustrate how method interceptors work with Ray.Di, we'll forbid calls to our pizza billing system on weekends. The delivery guys only work Monday thru Friday so we'll prevent pizza from being ordered when it can't be delivered! This example is structurally similar to use of AOP for authorization.
 
-To mark select methods as weekdays-only, we define an annotation:
+To mark select methods as weekdays-only, we define an attribute:
 
 ```php
 #[Attribute(Attribute::TARGET_METHOD)]
@@ -118,23 +116,17 @@ protected function configure()
 ## Limitations
 
 Behind the scenes, method interception is implemented by generating bytecode at
-runtime. Guice dynamically creates a subclass that applies interceptors by
-overriding methods. If you are on a platform that doesn't support bytecode
-generation (such as Android), you should use
-[Guice without AOP support](OptionalAOP).
+runtime. Ray.Di dynamically creates a subclass that applies interceptors by
+overriding methods. 
 
 This approach imposes limits on what classes and methods can be intercepted:
 
-*   Classes must be public or package-private.
 *   Classes must be non-final
-*   Methods must be public, package-private or protected
+*   Methods must be public or protected
 *   Methods must be non-final
-*   Instances must be created by Guice by an `@Inject`-annotated or no-argument
-    constructor. It is not possible to use method interception on instances that
-    aren't constructed by Guice.
+*   Instances must be created by Ray.Di. 
 
 ## AOP Alliance
 
-The method interceptor API implemented by Guice is a part of a public
-specification called [AOP Alliance](http://aopalliance.sourceforge.net/). This
-makes it possible to use the same interceptors across a variety of frameworks.
+The method interceptor API implemented by Ray.Di is mostly same as  a public
+specification called [AOP Alliance in Java](http://aopalliance.sourceforge.net/). 
