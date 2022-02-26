@@ -28,7 +28,7 @@ interface BillingServiceInterface
 以下は、クレジットカードプロセッサーとトランザクションロガーを `new` したときのコードです。
 
 ```php
-public class RealBillingService implements BillingServiceInterface
+class RealBillingService implements BillingServiceInterface
 {
     public function chargeOrder(PizzaOrder $order, CreditCard $creditCard): Receipt
     {
@@ -58,7 +58,7 @@ public class RealBillingService implements BillingServiceInterface
 ファクトリークラスは、クライアントと実装クラスを切り離します。単純なファクトリーでは、静的メソッドを使用してインターフェースのモック実装を取得したり設定したりします。ファクトリーはいくつかの定型的なコードで実装されます。
 
 ```php
-public class CreditCardProcessorFactory
+class CreditCardProcessorFactory
 {
     private static CreditCardProcessor $instance;
     
@@ -81,7 +81,7 @@ public class CreditCardProcessorFactory
 クライアントコードでは、`new`の呼び出しをファクトリーの呼び出しに置き換えるだけです。
 
 ```php
-public class RealBillingService implements BillingServiceInterface
+class RealBillingService implements BillingServiceInterface
 {
     public function chargeOrder(PizzaOrder $order, CreditCard $creditCard): Receipt
     {
@@ -106,7 +106,7 @@ public class RealBillingService implements BillingServiceInterface
 ファクトリーを利用することで、適切なユニットテストを書くことが可能になります。
 
 ```php
-public class RealBillingServiceTest extends TestCase 
+class RealBillingServiceTest extends TestCase 
 {
     private PizzaOrder $order;
     private CreditCard $creditCard;
@@ -153,7 +153,7 @@ public class RealBillingServiceTest extends TestCase
 ファクトリーと同様、依存性の注入も単なるデザインパターンに過ぎません。核となる原則は、依存関係の解決から振る舞いを **分離する** ことです。この例では、 `RealBillingService` は `TransactionLog` と `CreditCardProcessor` を探す責任はありません。代わりに、コンストラクタのパラメータとして渡されます。
 
 ```php
-public class RealBillingService implements BillingServiceInterface
+class RealBillingService implements BillingServiceInterface
 {
     public function __construct(
         private readonly CreditCardProcessor $processor,
@@ -181,7 +181,7 @@ public class RealBillingService implements BillingServiceInterface
 ファクトリーは必要ありませんし、`setUp` と `tearDown` の定型的なコードを削除することで、テストケースを簡素化することができます。
 
 ```php
-public class RealBillingServiceTest extends TestCase
+class RealBillingServiceTest extends TestCase
 {
     private PizzaOrder $order;
     private CreditCard $creditCard;
@@ -227,7 +227,7 @@ $billingService = new RealBillingService($processor, $transactionLog);
 依存性の注入パターンは、モジュール化されたテスト可能なコードを導き、Ray.Diで簡単にコードを書けるようにします。課金の例でRay.Diを使うには、まずインターフェイスとその実装をどのように対応付けるかを指示する必要があります。設定は`Module`インターフェースを実装したRay.Diモジュールクラスで行われます。
 
 ```php
-public class BillingModule extends AbstractModule
+class BillingModule extends AbstractModule
 {
     protected function configure(): void
     {
@@ -241,7 +241,7 @@ public class BillingModule extends AbstractModule
 Ray.Diはコンストラクタを検査し、各引数の値を検索します。
 
 ```php
-public class RealBillingService implements BillingServiceInterface
+class RealBillingService implements BillingServiceInterface
 {
     public function __construct(
         private readonly CreditCardProcessor $processor,

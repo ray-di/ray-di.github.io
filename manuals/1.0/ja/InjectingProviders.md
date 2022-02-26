@@ -22,7 +22,7 @@ interface Provider
 Provider types are marked with a qualifier to distinguish `Provider<TransactionLog>` from `Provider<CreditCardProcessor>`. Wherever you inject a value, you can inject a provider for that value.
 
 ```php
-public class RealBillingService implements BillingServiceInterface
+class RealBillingService implements BillingServiceInterface
 {
     public __construct(
         #[QureditCardProcessor] private Provider $processorProvider,
@@ -121,7 +121,7 @@ Instead, you should use a Provider. Since Providers produce values on-demand,
 they enable you to mix scopes safely:
 
 ```php
-public class ConsoleTransactionLog implements TransactionLogInterface
+class ConsoleTransactionLog implements TransactionLogInterface
 {
     public function __construct(
         #[User] private readonly Provider $userProvider

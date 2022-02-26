@@ -88,7 +88,7 @@ causes Ray.Di to silently ignore them when the dependencies aren't available. To
 use optional injection, apply the `#[Inject(optional: true)`attribute:
 
 ```php
-public class PayPalCreditCardProcessor implements CreditCardProcessorInterface
+class PayPalCreditCardProcessor implements CreditCardProcessorInterface
 {
     private const SANDBOX_API_KEY = "development-use-only";
     private string $apiKey = self::SANDBOX_API_KEY;
