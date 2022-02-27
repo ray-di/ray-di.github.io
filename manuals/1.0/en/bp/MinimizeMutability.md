@@ -1,6 +1,6 @@
 ---
 layout: docs-en
-title: Minimize mutability
+title: MinimizeMutability
 category: Manual
 permalink: /manuals/1.0/en/bp/minimize_mutability.html
 ---
