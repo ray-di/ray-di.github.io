@@ -36,8 +36,3 @@ discusses other benefits of immutability.
 *Method injection* is most useful when you need to initialize an instance that
 is not constructed by Guice. Extensions like [AssistedInject](AssistedInject)
 and Multibinder use method injection to initialize bound objects.
-
-*Field injection* has the most compact syntax, so it shows up frequently on
-slides and in examples. It is neither encapsulated nor testable. Never inject
-[final fields](https://github.com/google/guice/issues/245); the JVM doesn't
-guarantee that the injected value will be visible to all threads.
