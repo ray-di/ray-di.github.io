@@ -29,17 +29,18 @@ Rather than doing work in the module itself, define an interface that can do the
 work at the proper level of abstraction. In our applications we use this
 interface:
 
-```java
-public interface Service {
-  /**
-   * Starts the service. This method blocks until the service has completely started.
-   */
-  void start() throws Exception;
-
-  /**
-   * Stops the service. This method blocks until the service has completely shut down.
-   */
-  void stop();
+```php
+interface ServiceInterface
+{
+    /**
+    * Starts the service. This method blocks until the service has completely started.
+    */
+    public function start(): void;
+    
+    /**
+    * Stops the service. This method blocks until the service has completely shut down.
+    */
+    public function stop(): void;
 }
 ```
 
@@ -47,22 +48,22 @@ After creating the Injector, we finish bootstrapping our application by starting
 its services. We also add shutdown hooks to cleanly release resources when the
 application is stopped.
 
-```java
-  public static void main(String[] args) throws Exception {
-    Injector injector = Guice.createInjector(
-        new DatabaseModule(),
-        new WebserverModule(),
-        ...
+```php
+class Main
+{
+    public function __invoke()
+        $injector = new Injector([
+            new DatabaseModule(),
+            new WebserverModule(),
+            // ..
+        ]);
+        $databaseConnectionPool = $injector->getInstance(DatabaseService.class, Service.class);
+        $databaseConnectionPool->start();
+        $this->addShutdownHook($databaseConnectionPool);
+
+        $webserver = $injector->getInstance(WebserverService.class, Service.class);
+        $webserver->start();
+        $this->addShutdownHook($webserver);
     );
-
-    Service databaseConnectionPool = injector.getInstance(
-        Key.get(Service.class, DatabaseService.class));
-    databaseConnectionPool.start();
-    addShutdownHook(databaseConnectionPool);
-
-    Service webserver = injector.getInstance(
-        Key.get(Service.class, WebserverService.class));
-    webserver.start();
-    addShutdownHook(webserver);
-  }
+}
 ```
