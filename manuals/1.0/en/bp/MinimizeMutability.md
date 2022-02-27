@@ -23,7 +23,7 @@ All fields of this class are readonly and initialized by a constructor.
 [Effective Java](http://www.amazon.com/Effective-Java-Edition-Joshua-Bloch/dp/0321356683)
 discusses other benefits of immutability.
 
-## Injecting methods and fields
+## Injecting methods
 
 *Constructor injection* has some limitations:
 
