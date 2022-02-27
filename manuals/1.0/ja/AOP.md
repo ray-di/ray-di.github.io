@@ -99,7 +99,7 @@ Call Stack:
     0.0056     318784   5. Ray\Aop\Sample\WeekendBlocker->invoke() /libs/Ray.Aop/src/ReflectiveMethodInvocation.php:65
 ```
 
-インターセプターを無効にするには、NullInterceptorをバインドします。
+インターセプターを無効にするには、NullInterceptorを束縛します。
 
 ```php
 use Ray\Aop\NullInterceptor;
