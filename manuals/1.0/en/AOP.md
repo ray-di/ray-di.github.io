@@ -114,7 +114,6 @@ protected function configure()
 }
 ```
 
-
 ## Limitations
 
 Behind the scenes, method interception is implemented by generating bytecode at
