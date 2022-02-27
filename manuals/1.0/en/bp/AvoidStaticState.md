@@ -1,6 +1,6 @@
 ---
 layout: docs-en
-title: Avoid static state
+title: AvoidStaticState
 category: Manual
 permalink: /manuals/1.0/en/bp/avoid_static_state.html
 ---
