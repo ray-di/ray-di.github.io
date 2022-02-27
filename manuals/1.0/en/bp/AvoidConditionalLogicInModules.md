@@ -1,6 +1,6 @@
 ---
 layout: docs-en
-title: Avoid conditional logic in modules
+title: AvoidConditionalLogicInModules
 category: Manual
 permalink: /manuals/1.0/en/bp/avoid_conditional_logic_in_modules.html
 ---
