@@ -1,6 +1,6 @@
 ---
 layout: docs-en
-title: Injecting the injector
+title: InjectingTheInjector
 category: Manual
 permalink: /manuals/1.0/en/bp/injecting_the_injector.html
 ---
@@ -13,10 +13,10 @@ Don't pass injectors into other injected objects through the constructor (which
 is also called "injecting the injector"). You should declare your dependencies
 statically.
 
-Injecting the injector makes it impossible for Guice to know ahead-of-time that
-your Dependency Graph is complete, because it lets folks get instances directly
-from the injector. So long as nothing injects the injector, then Guice will 100%
-fail at `Guice.createInjector` time if any dependency isn't configured
+Injecting the injector makes it impossible for Ray.Di to know ahead-of-time that
+your Dependency Ray.Di is complete, because it lets folks get instances directly
+from the injector. So long as nothing injects the injector, then Ray.Di will 100%
+fail at `new Injector` time if any dependency isn't configured
 correctly. However, if something injects the injector, then Guice might fail at
-runtime (when the code lazily calls `injector.getInstance`) with missing
+runtime (when the code lazily calls `getInstance()`) with missing
 bindings error.
