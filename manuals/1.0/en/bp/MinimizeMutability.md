@@ -20,16 +20,13 @@ class RealPaymentService implements PaymentServiceInterface
 ```
 
 All fields of this class are readonly and initialized by a constructor.
-[Effective Java](http://www.amazon.com/Effective-Java-Edition-Joshua-Bloch/dp/0321356683)
-discusses other benefits of immutability.
 
 ## Injecting methods
 
 *Constructor injection* has some limitations:
 
 *   Injected constructors may not be optional.
-*   It cannot be used unless objects are created by Guice. This is a dealbreaker
-    for certain frameworks.
+*   It cannot be used unless objects are created by Ray.Di.
 *   Subclasses must call `parent()` with all dependencies. This makes constructor
     injection cumbersome, especially as the injected base class changes.
 
