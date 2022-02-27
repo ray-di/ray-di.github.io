@@ -10,21 +10,13 @@ Wherever possible, use constructor injection to create immutable objects.
 Immutable objects are simple, shareable, and can be composed. Follow this
 pattern to define your injectable types:
 
-```java
-public class RealPaymentService implements PaymentService {
-
-   private final PaymentQueue paymentQueue;
-   private final Notifier notifier;
-
-   @Inject
-   RealPaymentRequestService(
-       PaymentQueue paymentQueue,
-       Notifier notifier) {
-     this.paymentQueue = paymentQueue;
-     this.notifier = notifier;
-   }
-
-   ...
+```php
+class RealPaymentService implements PaymentServiceInterface
+{
+    public function __construct(
+        private readnonly PaymentQueue $paymentQueue,
+        private readnonly Notifier $notifier;
+    ){}
 ```
 
 All fields of this class are final and initialized by a single
