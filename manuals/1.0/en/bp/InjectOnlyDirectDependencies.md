@@ -6,8 +6,7 @@ permalink: /manuals/1.0/en/bp/inject_only_direct_dependencies.html
 ---
 # Inject only direct dependencies
 
-Avoid injecting an object only as a means to get at another object. For example,
-don't inject a `Customer` as a means to get at an `Account`:
+Avoid injecting an object only as a means to get at another object. For example, don't inject a `Customer` as a means to get at an `Account`:
 
 ```php
 class ShowBudgets
@@ -20,10 +19,7 @@ class ShowBudgets
     }
 ```
 
-Instead, inject the dependency directly. This makes testing easier; the test
-case doesn't need to concern itself with the customer. Use an `@Provides` method
-in your `Module` to create the binding for `Account` that uses the binding for
-`Customer`:
+Instead, inject the dependency directly. This makes testing easier; the test case doesn't need to concern itself with the customer. Use an `Provider` class to create the binding for `Account` that uses the binding for `Customer`:
 
 ```php
 class CustomersModule extends AbstractModule
