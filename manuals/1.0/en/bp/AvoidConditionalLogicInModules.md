@@ -9,24 +9,21 @@ permalink: /manuals/1.0/en/bp/avoid_conditional_logic_in_modules.html
 It’s tempting to create modules that have moving parts and can be configured to
 operate differently for different environments:
 
-```java
-public class FooModule extends AbstractModule {
-  private final String fooServer;
+```php
+class FooModule extends AbstractModule
+{
+  public function __construct(?string $fooServer)
+  {
+    private readonly ?string $fooServer
+  }{}
 
-  public FooModule() {
-    this(null);
-  }
-
-  public FooModule(@Nullable String fooServer) {
-    this.fooServer = fooServer;
-  }
-
-  @Override protected void configure() {
-    if (fooServer != null) {
-      bind(String.class).annotatedWith(ServerName.class).toInstance(fooServer);
-      bind(FooService.class).to(RemoteFooService.class);
+  protected function configure(): void
+  {
+    if ($this->fooServer != null) {
+        $this->bind(String::class)->annotatedWith(ServerName::class)->toInstance($this->fooServer);
+        $this->bind(FooService::class)->to(RemoteFooService::class);
     } else {
-      bind(FooService.class).to(InMemoryFooService.class);
+        $this->bind(FooService::class)->to(InMemoryFooService::class);
     }
   }
 }
@@ -46,5 +43,5 @@ also prevents production classes from having a compile-time dependency on test
 code.
 
 Another, related, issue with the example above: sometimes there's a binding for
-`@ServerName String`, and sometimes that binding is not there. You should avoid
+`#[ServerName]`, and sometimes that binding is not there. You should avoid
 sometimes binding a key, and other times not.
