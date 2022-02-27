@@ -34,5 +34,4 @@ discusses other benefits of immutability.
     injection cumbersome, especially as the injected base class changes.
 
 *Method injection* is most useful when you need to initialize an instance that
-is not constructed by Guice. Extensions like [AssistedInject](AssistedInject)
-and Multibinder use method injection to initialize bound objects.
+is not constructed by Ray.Di.
