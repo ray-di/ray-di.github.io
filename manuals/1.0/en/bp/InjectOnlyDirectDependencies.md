@@ -1,6 +1,6 @@
 ---
 layout: docs-en
-title: Inject only direct dependencies
+title: InjectOnlyDirectDependencies
 category: Manual
 permalink: /manuals/1.0/en/bp/inject_only_direct_dependencies.html
 ---
@@ -9,14 +9,15 @@ permalink: /manuals/1.0/en/bp/inject_only_direct_dependencies.html
 Avoid injecting an object only as a means to get at another object. For example,
 don't inject a `Customer` as a means to get at an `Account`:
 
-```java
-public class ShowBudgets {
-   private final Account account;
+```php
+class ShowBudgets
+{
+    private readonly Account $account;
 
-   @Inject
-   ShowBudgets(Customer customer) {
-     account = customer.getPurchasingAccount();
-   }
+    public function __construct(Customer $customer)
+    {
+        $this->account = $customer->getPurchasingAccount();
+    }
 ```
 
 Instead, inject the dependency directly. This makes testing easier; the test
@@ -24,26 +25,34 @@ case doesn't need to concern itself with the customer. Use an `@Provides` method
 in your `Module` to create the binding for `Account` that uses the binding for
 `Customer`:
 
-```java
-public class CustomersModule extends AbstractModule {
-  @Override public void configure() {
-    ...
-  }
+```php
+class CustomersModule extends AbstractModule
+{
+    protected function configure()
+    {
+        $this->bind(Acount::class)->toProvider(PurchasingAccountProvider::class);
+    }
+}
 
-  @Provides
-  Account providePurchasingAccount(Customer customer) {
-    return customer.getPurchasingAccount();
-  }
+class PurchasingAccountProvider implements ProviderInterface
+{
+    public function __construct(
+        private readonly Customer $customer
+    ) {}
+    
+    public function get(): Account
+    {
+        return $this->customer->getPurchasingAccount();
+    }
+}
 ```
 
 By injecting the dependency directly, our code is simpler.
 
-```java
-public class ShowBudgets {
-   private final Account account;
-
-   @Inject
-   ShowBudgets(Account account) {
-     this.account = account;
-   }
+```php
+class ShowBudgets
+{
+    public function __construct(
+        private readonly Account $account
+   ) {}
 ```
