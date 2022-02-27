@@ -109,7 +109,7 @@ class RealBillingService implements BillingServiceInterface
                 : Receipt::forDeclinedCharge($result->getDeclineMessage());
         } catch (UnreachableException $e) {
             $transactionLog->logConnectException($e);
-            return Receipt::forSystemFailure($e.getMessage());
+            return Receipt::forSystemFailure($e->getMessage());
         }
     }
 }
@@ -122,7 +122,7 @@ class RealBillingServiceTest extends TestCase
 {
     private PizzaOrder $order;
     private CreditCard $creditCard;
-    private InMemoryTransactionLog $transactionLog
+    private InMemoryTransactionLog $transactionLog;
     private FakeCreditCardProcessor $processor;
     
     public function setUp(): void
@@ -258,7 +258,7 @@ $billingService = new RealBillingService($processor, $transactionLog);
 The dependency injection pattern leads to code that's modular and testable, and
 Ray.Di makes it easy to write. To use Ray.Di in our billing example, we first need
 to tell it how to map our interfaces to their implementations. This
-configuration is done in a Ray.Di module, which is any Java class that implements
+configuration is done in a Ray.Di module, which is any PHP class that implements
 the `Module` interface:
 
 ```php

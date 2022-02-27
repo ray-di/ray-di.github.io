@@ -187,7 +187,7 @@ do this:
 
 Conceptually, these APIs simply provide ways to manipulate the Ray.Di map. The
 manipulations they do are pretty straightforward. Here are some example
-translations, shown using Java 8 syntax for brevity and clarity:
+translations, shown using PHP syntax for brevity and clarity:
 
 | Ray.Di DSL syntax                   | Mental model                                                                       |
 | ---------------------------------- | ---------------------------------------------------------------------------------- |

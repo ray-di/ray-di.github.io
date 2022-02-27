@@ -97,7 +97,7 @@ class RealBillingService implements BillingServiceInterface
                 : Receipt::forDeclinedCharge($result->getDeclineMessage());
         } catch (UnreachableException $e) {
             $transactionLog->logConnectException($e);
-            return Receipt::forSystemFailure($e.getMessage());
+            return Receipt::forSystemFailure($e->getMessage());
         }
     }
 }
@@ -110,7 +110,7 @@ class RealBillingServiceTest extends TestCase
 {
     private PizzaOrder $order;
     private CreditCard $creditCard;
-    private InMemoryTransactionLog $transactionLog
+    private InMemoryTransactionLog $transactionLog;
     private FakeCreditCardProcessor $processor;
     
     public function setUp(): void
