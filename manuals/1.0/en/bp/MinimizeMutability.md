@@ -19,8 +19,7 @@ class RealPaymentService implements PaymentServiceInterface
     ){}
 ```
 
-All fields of this class are final and initialized by a single
-`@Inject`-annotated constructor.
+All fields of this class are readonly and initialized by a constructor.
 [Effective Java](http://www.amazon.com/Effective-Java-Edition-Joshua-Bloch/dp/0321356683)
 discusses other benefits of immutability.
 
@@ -31,7 +30,7 @@ discusses other benefits of immutability.
 *   Injected constructors may not be optional.
 *   It cannot be used unless objects are created by Guice. This is a dealbreaker
     for certain frameworks.
-*   Subclasses must call `super()` with all dependencies. This makes constructor
+*   Subclasses must call `parent()` with all dependencies. This makes constructor
     injection cumbersome, especially as the injected base class changes.
 
 *Method injection* is most useful when you need to initialize an instance that
