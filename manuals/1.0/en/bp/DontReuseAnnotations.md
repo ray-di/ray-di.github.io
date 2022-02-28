@@ -31,4 +31,4 @@ final class MyThing
 }
 ```
 
-You can then use `#[MyThing(FOO)]`, `#[MyThing(BAR)]`, and `#[MyThing(BAZ)]` rather than defining each of them as separate annotation types.
+You can then use `#[MyThing(Thing::FOO)]`, `#[MyThing(Thing::BAR)]`, and `#[MyThing(Thing::BAZ)]` rather than defining each of them as separate annotation types.
