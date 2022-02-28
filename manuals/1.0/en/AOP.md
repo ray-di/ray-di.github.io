@@ -123,7 +123,7 @@ overriding methods.
 This approach imposes limits on what classes and methods can be intercepted:
 
 *   Classes must be non-final
-*   Methods must be public or protected
+*   Methods must be public
 *   Methods must be non-final
 *   Instances must be created by Ray.Di. 
 
