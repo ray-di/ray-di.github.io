@@ -26,7 +26,7 @@ final class NotOnWeekends
 }
 ```
 
-...そして、それを傍受する必要のあるメソッドに適用します。
+...そして、それをインターセプトする必要のあるメソッドに適用します。
 
 ```php
 class BillingService implements BillingServiceInterface
