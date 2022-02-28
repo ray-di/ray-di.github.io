@@ -1,6 +1,6 @@
 ---
 layout: docs-en
-title: Don't reuse binding annotations
+title: DontReuseAnnotations
 category: Manual
 permalink: /manuals/1.0/en/bp/dont_reuse_annotations.html
 ---
