@@ -11,7 +11,7 @@ that that module installs, for example:
 
 ```php
 /**
- * Provides FooServiceClient and derived bindings.
+ * Provides FooServiceClient and derived bindings
  *
  * [...]
  *
