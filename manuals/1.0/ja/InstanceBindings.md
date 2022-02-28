@@ -6,7 +6,7 @@ permalink: /manuals/1.0/ja/instance_bindings.html
 ---
 ## インスタンス束縛
 
-ある型をその型のインスタンスにバインドすることができます。これは通常、値オブジェクトのような、それ自体に依存性がないオブジェクトにのみ使用します。
+ある型をその型のインスタンスに束縛できます。これは通常、値オブジェクトのような、それ自体に依存性がないオブジェクトにのみ使用します。
 
 ```php
 $this->bind(UserInterface::class)->toInstance(new User);
