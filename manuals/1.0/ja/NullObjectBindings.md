@@ -4,11 +4,11 @@ title: Null Object Binding
 category: Manual
 permalink: /manuals/1.0/ja/null_object_binding.html
 ---
-## Null Object Binding
+## Nullオブジェクトのバインディング
 
-A Null Object is an object that implements an interface but whose methods do nothing.
-When bound with `toNull()`, the code of the Null Object is generated from the interface and bound to the generated instance.
-This is useful for testing and AOP.
+Nullオブジェクトとは、あるインターフェースを実装しているが、そのメソッドは何もしないオブジェクトのことです。
+toNull()` で束縛すると、Null Object のコードはインターフェースから生成され、生成されたインスタンスに束縛されます。
+これはテストやAOPに便利です。
 
 ```php
 $this->bind(CreditCardProcessorInterface::class)->toNull();
