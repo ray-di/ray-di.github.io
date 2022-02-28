@@ -25,7 +25,7 @@ public function __construct(DbInterface $db)
 
 ## Setter Injection
 
-Ray.Di can inject dependencies through methods that have the `#[Inject]` attribute. Dependencies take the form of parameters, which the injector resolves before invoking the method. Injected methods may have any number of parameters, and the method name does not impact injection.
+Ray.Di can inject by methods that have the `#[Inject]` attribute. Dependencies take the form of parameters, which the injector resolves before invoking the method. Injected methods may have any number of parameters, and the method name does not impact injection.
 
 ```php
 use Ray\Di\Di\Inject;
