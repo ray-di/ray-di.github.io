@@ -30,5 +30,5 @@ All fields of this class are readonly and initialized by a constructor.
 *   Subclasses must call `parent()` with all dependencies. This makes constructor
     injection cumbersome, especially as the injected base class changes.
 
-*Method injection* is most useful when you need to initialize an instance that
+*Setter injection* is most useful when you need to initialize an instance that
 is not constructed by Ray.Di.
