@@ -1,17 +1,17 @@
 ---
 layout: docs-ja
-title: Provider Bindings
+title: プロバイダ束縛
 category: Manual
 permalink: /manuals/1.0/ja/provider_bindings.html
 ---
-## Provider Bindings
+## プロバイダ束縛
 
-Provider bindings map a type to its provider.
+プロバイダ束縛は型に対するプロバイダをマッピングします。
 
 ```php
 $this->bind(TransactionLogInterface::class)->toProvider(DatabaseTransactionLogProvider::class);
 ```
-The provider class implements Ray's Provider interface, which is a simple, general interface for supplying values:
+プロバイダ class は `ProviderInterface` を実装しています。このインターフェイスは値を供給するだけのシンプルなインターフェイスです。
 
 ```php
 namespace Ray\Di;
@@ -21,8 +21,8 @@ interface ProviderInterface
     public function get();
 }
 ```
-Our provider implementation class has dependencies of its own, which it receives via a contructor.
-It implements the Provider interface to define what's returned with complete type safety:
+プロバイダ実装classはそれ自身でも依存性を持っており、コンストラクタを介して依存性を受け取ることができます。  
+以下の例では `ProviderInterface` を実装し、型の安全性が保証された値を返します。
 
 ```php
 
@@ -45,18 +45,19 @@ class DatabaseTransactionLogProvider implements ProviderInterface
 }
 ```
 
-Finally we bind to the provider using the `toProvider()` method:
+最後に `toProvider()` メソッドを用いてプロバイダを束縛します。
 
 ```php
 $this->bind(TransactionLogInterface::class)->toProvider(DatabaseTransactionLogProvider::class);
 ```
 
-## Injection Point
+## インジェクションポイント
 
-An **InjectionPoint** is a class that has information about an injection point.
-It provides access to metadata via `\ReflectionParameter` or an attribute in `Provider`.
+**InjectionPoint** はインジェクションポイントに関する情報をもつクラスです。  
+メタデータへのアクセスは、 `RefrectionParameter` または `Provider` 属性によって行われます。
 
-For example, the following `get()` method of `Psr3LoggerProvider` class creates injectable Loggers. The log category of a Logger depends upon the class of the object into which it is injected.
+例えば、 `Psr3LoggerProvier` クラスの `get()` メソッドは、インジェクト可能なLoggerを作成します。  
+Loggerのログカテゴリは、それがインジェクトされる対象のオブジェクトのクラスに依存しています。
 
 ```php
 class Psr3LoggerProvider implements ProviderInterface
@@ -74,7 +75,7 @@ class Psr3LoggerProvider implements ProviderInterface
     }
 }
 ```
-`InjectionPointInterface` provides following methods.
+`InjectionPointInterface` は次のメソッドを提供します。
 
 ```php
 $ip->getClass();      // \ReflectionClass
