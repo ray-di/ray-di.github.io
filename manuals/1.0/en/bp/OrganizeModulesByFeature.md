@@ -1,6 +1,6 @@
 ---
 layout: docs-en
-title: Organize Modules By Feature
+title: OrganizeModulesByFeature
 category: Manual
 permalink: /manuals/1.0/en/bp/organize_modules_by_feature.html
 ---
