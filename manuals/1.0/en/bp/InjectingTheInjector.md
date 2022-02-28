@@ -6,7 +6,7 @@ permalink: /manuals/1.0/en/bp/injecting_the_injector.html
 ---
 # Use the Injector as little as possible (preferably only once)
 
-Guice has a [built-in](../built_in_bindings.html) binding for the `Injector` but it should be used sparsely.
+Ray.Di has a [built-in](../built_in_bindings.html) binding for the `Injector` but it should be used sparsely.
 
 Don't pass injectors into other injected objects through the constructor (which is also called "injecting the injector"). You should declare your dependencies statically.
 
