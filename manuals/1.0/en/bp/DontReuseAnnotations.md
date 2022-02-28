@@ -1,20 +1,20 @@
 ---
 layout: docs-en
-title: DontReuseAnnotations
+title: DontReuseAttributes
 category: Manual
 permalink: /manuals/1.0/en/bp/dont_reuse_annotations.html
 ---
-# Don't reuse binding annotations (aka `#[Qualifiers]`)
+# Don't reuse binding attribute (aka `#[Attribute]`)
 
 Sometimes, of course, it makes sense to bind some highly-related bindings with
-the same annotations. E.g. `#[ServerName]`
+the same attributes. E.g. `#[ServerName]`
 
-That said, most binding annotations should only qualify one binding. And you
-should definitely not reuse a binding annotation for *unrelated* bindings.
+That said, most binding attributes should only qualify one binding. And you
+should definitely not reuse a binding attributes for *unrelated* bindings.
 
-When in doubt, don't reuse annotations: creating one is straightfoward!
+When in doubt, don't reuse attributes: creating one is straightfoward!
 
-To avoid some boilerplate, sometimes it makes sense to use annotation parameters
+To avoid some boilerplate, sometimes it makes sense to use attribute parameters
 to create distinct annotation instances from a single declaration. For example:
 
 ```php
