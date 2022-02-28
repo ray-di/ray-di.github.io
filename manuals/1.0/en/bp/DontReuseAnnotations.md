@@ -4,7 +4,7 @@ title: DontReuseAnnotations
 category: Manual
 permalink: /manuals/1.0/en/bp/dont_reuse_annotations.html
 ---
-# Don't reuse binding annotations (aka `@Qualifiers`)
+# Don't reuse binding annotations (aka `#[Qualifiers]`)
 
 Sometimes, of course, it makes sense to bind some highly-related bindings with
 the same annotations. E.g. `#[ServerName]`
@@ -36,7 +36,3 @@ final class MyThing
 
 You can then use `#[MyThing(FOO)]`, `#[MyThing(BAR)]`, and `#[MyThing(BAZ)]` rather
 than defining each of them as separate annotation types.
-
-To construct `Annotation` object instances for parameterized annotations (e.g.
-to use in constructing a `Key` object), you can use the
-[auto annotation helper](https://github.com/google/auto/blob/master/value/userguide/howto.md#-use-autovalue-to-implement-an-annotation-type).
