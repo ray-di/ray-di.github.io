@@ -26,7 +26,7 @@ class CustomersModule extends AbstractModule
 {
     protected function configure()
     {
-        $this->bind(Acount::class)->toProvider(PurchasingAccountProvider::class);
+        $this->bind(Account::class)->toProvider(PurchasingAccountProvider::class);
     }
 }
 
