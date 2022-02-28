@@ -1,6 +1,6 @@
 ---
 layout: docs-en
-title: Document the public bindings provided by modules
+title: DocumentPublicBindings
 category: Manual
 permalink: /manuals/1.0/en/bp/document_public_bindings.html
 ---
