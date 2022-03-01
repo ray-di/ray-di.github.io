@@ -20,13 +20,13 @@ Rather than doing work in the module itself, define an interface that can do the
 interface ServiceInterface
 {
     /**
-    * Starts the service. This method blocks until the service has completely started.
-    */
+     * Starts the service. This method blocks until the service has completely started.
+     */
     public function start(): void;
     
     /**
-    * Stops the service. This method blocks until the service has completely shut down.
-    */
+     * Stops the service. This method blocks until the service has completely shut down.
+     */
     public function stop(): void;
 }
 ```
