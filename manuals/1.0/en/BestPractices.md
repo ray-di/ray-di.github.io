@@ -9,7 +9,7 @@ permalink: /manuals/1.0/en/best_practices.html
 *   [Minimize mutability](bp/minimize_mutability.html)
 *   [Inject only direct dependencies](bp/inject_only_direct_dependencies.html)
 *   [Use the Injector as little as possible (preferably only once)](bp/injecting_the_injector.html)
-*   [Avoid cyclic dependencies](bp/cyclic_dependencies.html)
+*   Avoid cyclic dependencies
 *   [Avoid static state](bp/avoid_static_state.html)
 *   [Modules should be fast and side-effect free](bp/modules_should_be_fast_and_side_effect_free.html)
 *   [Avoid conditional logic in modules](bp/avoid_conditional_logic_in_modules.html)
