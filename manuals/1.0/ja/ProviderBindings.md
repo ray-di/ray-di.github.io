@@ -11,7 +11,7 @@ permalink: /manuals/1.0/ja/provider_bindings.html
 ```php
 $this->bind(TransactionLogInterface::class)->toProvider(DatabaseTransactionLogProvider::class);
 ```
-プロバイダ class は `ProviderInterface` を実装しています。このインターフェイスは値を供給するだけのシンプルなインターフェイスです。
+プロバイダは `ProviderInterface` を実装しています。このインターフェイスは値を供給するだけのシンプルなインターフェイスです。
 
 ```php
 namespace Ray\Di;
