@@ -6,7 +6,7 @@ permalink: /manuals/1.0/ja/provider_bindings.html
 ---
 ## プロバイダ束縛
 
-プロバイダ束縛は型に対するプロバイダをマッピングします。
+プロバイダ束縛は型に対してそのプロバイダをマッピングします。
 
 ```php
 $this->bind(TransactionLogInterface::class)->toProvider(DatabaseTransactionLogProvider::class);
