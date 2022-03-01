@@ -21,7 +21,7 @@ interface ProviderInterface
     public function get();
 }
 ```
-プロバイダ実装classはそれ自身でも依存性を持っており、コンストラクタを介して依存性を受け取ることができます。  
+プロバイダはそれ自身でも依存性を持っており、コンストラクタを介して依存性を受け取ります。  
 以下の例では `ProviderInterface` を実装し、型の安全性が保証された値を返します。
 
 ```php
