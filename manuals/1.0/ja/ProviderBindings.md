@@ -55,7 +55,9 @@ $this->bind(TransactionLogInterface::class)->toProvider(DatabaseTransactionLogPr
 
 `InjectionPoint`オブジェクトは、注入が行われる箇所（インジェクションポイント）のメタ情報を持つクラスです。プロバイダは、注入箇所のクラス名や変数名などのインジェクションポイントのメタデータを使って依存インスタンスを作成する事ができます。
 
-例えば、 `Psr3LoggerProvier` クラスの `get()` メソッドは、インジェクト可能なLoggerを作成します。  
+### 例：インスタンス生成にインジェクションポイントのクラス名を使用
+
+インジェクションポイントのクラス名を`$this->ip->getClass()->getName()`で取得して依存インスタンスを生成しています。
 Loggerのログカテゴリは、それがインジェクトされる対象のオブジェクトのクラスに依存しています。
 
 ```php
