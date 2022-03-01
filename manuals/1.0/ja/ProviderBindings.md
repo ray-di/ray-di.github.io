@@ -75,7 +75,7 @@ class Psr3LoggerProvider implements ProviderInterface
     }
 }
 ```
-`InjectionPointInterface` は次のメソッドを提供します。
+`InjectionPointInterface` は以下のメソッドを提供します。
 
 ```php
 $ip->getClass();      // \ReflectionClass
