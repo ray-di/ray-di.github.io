@@ -46,7 +46,7 @@ class Main
         $databaseConnectionPool->start();
         $this->addShutdownHook($databaseConnectionPool);
 
-        $webserver = $injector->getInstance(WebserverService::class, Service::class);
+        $webserver = $injector->getInstance(ServiceInterface::class, WebserverService::class);
         $webserver->start();
         $this->addShutdownHook($webserver);
     );
