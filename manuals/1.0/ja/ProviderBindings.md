@@ -58,7 +58,6 @@ $this->bind(TransactionLogInterface::class)->toProvider(DatabaseTransactionLogPr
 ### 例：インスタンス生成にインジェクションポイントのクラス名を使用
 
 インジェクションポイントのクラス名を`$this->ip->getClass()->getName()`で取得して依存インスタンスを生成しています。
-Loggerのログカテゴリは、それがインジェクトされる対象のオブジェクトのクラスに依存しています。
 
 ```php
 class Psr3LoggerProvider implements ProviderInterface
