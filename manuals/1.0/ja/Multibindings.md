@@ -4,32 +4,23 @@ title: Multibindings
 category: Manual
 permalink: /manuals/1.0/ja/multibindings.html
 ---
-# Multibindings
+# マルチバインディング
 
-_Overview of Multibinder, MapBinder_
+_Multibinder, MapBinder の概要_
 
-Multibinder is intended for plugin-type architectures.
+Multibinderは、プラグインタイプのアーキテクチャを想定しています。
 
-## Multibinding
+## マルチバインディング
 
-Using `Multibinder` to host plugins.
+プラグインをホストするために `Multibinder` を使用する。
 
-### Multibinder
+### マルチバインダー
 
-Multibindings make it easy to support plugins in your application. Made popular
-by [IDEs](https://plugins.jetbrains.com/phpstorm) and [browsers](https://chrome.google.com/webstore/category/extensions), this pattern exposes APIs
-for extending the behaviour of an application.
+マルチバインディングは、アプリケーションのプラグインを簡単にサポートすることができます。[IDE](https://plugins.jetbrains.com/phpstorm) や [ブラウザ](https://chrome.google.com/webstore/category/extensions) によって普及したこのパターンは、アプリケーションの動作を拡張するためのAPIを公開するものです。
 
-Neither the plugin consumer nor the plugin author need write much setup code for
-extensible applications with Ray.Di. Simply define an interface, bind
-implementations, and inject sets of implementations! Any module can create a new
-Multibinder to contribute bindings to a set of implementations. To illustrate,
-we'll use plugins to summarize ugly URIs like `http://bit.ly/1mzgW1` into
-something readable on Twitter.
+プラグインの消費者もプラグインの作成者も、Ray.Diを使った拡張可能なアプリケーションのために多くのセットアップコードを書く必要はありません。単にインターフェイスを定義し、実装をバインドし、実装のセットをインジェクトするだけです。どのモジュールも新しい Multibinder を作成し、実装のセットへのバインディングを提供することができます。例として、`http://bit.ly/1mzgW1` のような醜いURIをTwitterで読みやすいように要約するプラグインを使ってみましょう。
 
-First, we define an interface that plugin authors can implement. This is usually
-an interface that lends itself to several implementations. For this example, we
-would write a different implementation for each website that we could summarize.
+まず、プラグインの作者が実装できるインタフェースを定義します。これは通常、いくつかの実装が可能なインターフェイスである。この例では、要約するWebサイトごとに異なる実装を書くことになる。
 
 ```php
 interface UriSummarizerInterface
@@ -42,8 +33,7 @@ interface UriSummarizerInterface
 }
 ```
 
-Next, we'll get our plugin authors to implement the interface. Here's an
-implementation that shortens Flickr photo URLs:
+次に、プラグインの作者にこのインターフェイスを実装してもらいます。以下は Flickr の写真 URL を短縮する実装です。
 
 ```php
 class FlickrPhotoSummarizer implements UriSummarizer
@@ -67,9 +57,7 @@ class FlickrPhotoSummarizer implements UriSummarizer
 }
 ```
 
-The plugin author registers their implementation using a multibinder. Some
-plugins may bind multiple implementations, or implementations of several
-extension-point interfaces.
+プラグイン作者は、マルチバインダを使用して実装を登録します。プラグインによっては、複数の実装をバインドしたり、複数の拡張点インタフェースの実装をバインドすることがあります。
 
 ```php
 class FlickrPluginModule extends AbstractModule
@@ -84,8 +72,7 @@ class FlickrPluginModule extends AbstractModule
 }
 ```
 
-Now we can consume the services exposed by our plugins. In this case, we're
-summarizing tweets:
+これで、プラグインが公開するサービスを利用できるようになりました。今回は、ツイートを要約しています。
 
 ```php
 class TweetPrettifier
@@ -119,13 +106,10 @@ class TweetPrettifier
 }
 ```
 
-_**Note:** The method `Multibinder::newInstance($module, $type)` can be confusing.
-This operation creates a new binder, but doesn't override any existing bindings.
-A binder created this way contributes to the existing Set of implementations for
-that type. It would create a new set only if one is not already bound._
+_**Note:** `Multibinder::newInstance($module, $type)` というメソッドは混乱を招く可能性があります。
+この操作は、新しいバインダを作成しますが、 既存のバインダを上書きすることはありません。この方法で作成されたバインダーは、 その型に対する既存の実装群に貢献します。新しいバインダを作成するのは、バインダがまだ存在しない場合だけです。
 
-Finally we must register the plugins themselves. The simplest mechanism to do so
-is to list them programatically:
+最後に、プラグインを登録する必要があります。そのための最も単純なメカニズムは、プログラム的にそれらをリストアップすることです。
 
 ```php
 class PrettyTweets
@@ -145,7 +129,7 @@ class PrettyTweets
 (new PrettyTweets)();
 ```
 
-### MapBinder
+### マップバインダー
 
 マルチバインダーで追加するクラスに名前をつけることができます。
 
@@ -161,7 +145,7 @@ class FlickrPluginModule extends AbstractModule
    }
 }
 ```
-アプリケーションでは``#[Set(UriSummarizer::class)]`などとアトリビュート指定して注入された`Map`を、束縛で指定しと時の名前で取り出すことができます。
+アプリケーションでは`#[Set(UriSummarizer::class)]`などとアトリビュート指定して注入された`Map`を、束縛で指定しと時の名前で取り出すことができます。
 
 ```php
 
