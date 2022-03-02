@@ -147,7 +147,7 @@ class PrettyTweets
 
 ### MapBinder
 
-マルチバインダーで追加するクラスに名前をつけることができます。
+You can name the classes you add in the multibinder.
 
 ```php
 class FlickrPluginModule extends AbstractModule
@@ -161,7 +161,7 @@ class FlickrPluginModule extends AbstractModule
    }
 }
 ```
-アプリケーションでは``#[Set(UriSummarizer::class)]`などとアトリビュート指定して注入された`Map`を、束縛で指定しと時の名前で取り出すことができます。
+In the application, you can retrieve a `Map` injected by specifying attributes such as ``#[Set(UriSummarizer::class)]`` with the name as it was when specified by the binding.
 
 ```php
 
@@ -184,7 +184,7 @@ class TweetPrettifier
 
 ## Map
 
-`Map`オブジェクトは静的解析ではジェネリクスとして扱われます。注入されるインターフェイスがTなら `Map<T>` のように記述します。
+`Map` objects are treated as generics in static analysis. If the injected interface is T, it is written as `Map<T>`.
 
 ```php
 /** @param Map<UriSummarizerInterface> $summarizers **/
