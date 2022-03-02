@@ -6,34 +6,29 @@ permalink: /manuals/1.0/ja/multibindings.html
 ---
 # マルチバインディング
 
-_Multibinder, MapBinder の概要_
+_マルチバインダー, マップバインダー の概要_
 
 Multibinderは、プラグインタイプのアーキテクチャを想定しています。
 
-## マルチバインディング
-
-プラグインをホストするために `Multibinder` を使用する。
-
 ### マルチバインダー
 
-マルチバインディングは、アプリケーションのプラグインを簡単にサポートすることができます。[IDE](https://plugins.jetbrains.com/phpstorm) や [ブラウザ](https://chrome.google.com/webstore/category/extensions) によって普及したこのパターンは、アプリケーションの動作を拡張するためのAPIを公開するものです。
+マルチバインディングは、アプリケーションのプラグインを簡単にサポートすることができます。[IDE](https://plugins.jetbrains.com/phpstorm) や [ブラウザ](https://chrome.google.com/webstore/category/extensions) によって普及したこのパターンは、アプリケーションの動作を拡張するためのAPIを公開します。
 
-プラグインの消費者もプラグインの作成者も、Ray.Diを使った拡張可能なアプリケーションのために多くのセットアップコードを書く必要はありません。単にインターフェイスを定義し、実装をバインドし、実装のセットをインジェクトするだけです。どのモジュールも新しい Multibinder を作成し、実装のセットへのバインディングを提供することができます。例として、`http://bit.ly/1mzgW1` のような醜いURIをTwitterで読みやすいように要約するプラグインを使ってみましょう。
+プラグインの利用者もプラグインの作成者も、Ray.Diを使った拡張可能なアプリケーションのために多くのセットアップコードを書く必要はありません。単にインターフェイスを定義し、実装をバインドし、実装のセットをインジェクトするだけです。どのモジュールも新しい マルチバインダーを作成し、実装のセットの束縛を提供することができます。例として、`http://bit.ly/1mzgW1` のような醜いURIをTwitterで読みやすいように要約するプラグインを使ってみましょう。
 
-まず、プラグインの作者が実装できるインタフェースを定義します。これは通常、いくつかの実装が可能なインターフェイスである。この例では、要約するWebサイトごとに異なる実装を書くことになる。
+まず、プラグインの作者が実装できるインタフェースを定義します。これは通常、いくつかの種類の実装が可能なインターフェイスです。例としてWebサイトごとに異なる、URIを短縮する実装を書いてみます。
 
 ```php
 interface UriSummarizerInterface
 {
     /**
-     * Returns a short summary of the URI, or null if this summarizer doesn't
-     * know how to summarize the URI.
+     * 短縮URIを返す。このsummarizerがURIの短縮方法を知らない場合はnullを返す。
      */
     public function summarize(URI $uri): string;
 }
 ```
 
-次に、プラグインの作者にこのインターフェイスを実装してもらいます。以下は Flickr の写真 URL を短縮する実装です。
+次に、プラグインの作者にこのインターフェイスを実装してもらいます。以下はFlickrに写真URLを短縮する実装です。
 
 ```php
 class FlickrPhotoSummarizer implements UriSummarizer
@@ -57,7 +52,7 @@ class FlickrPhotoSummarizer implements UriSummarizer
 }
 ```
 
-プラグイン作者は、マルチバインダを使用して実装を登録します。プラグインによっては、複数の実装をバインドしたり、複数の拡張点インタフェースの実装をバインドすることがあります。
+プラグイン作者は、マルチバインダを使用して実装を登録します。プラグインによっては、複数の実装を束縛したり、複数の拡張点のインタフェースの実装を束縛することがあります。
 
 ```php
 class FlickrPluginModule extends AbstractModule
@@ -67,12 +62,12 @@ class FlickrPluginModule extends AbstractModule
         $uriBinder = Multibinder::newInstance($this, UriSummarizerInterface::class);
         $uriBinder->add(FlickrPhotoSummarizer::class);
 
-        // ...bind plugin dependencies, such as our Flickr API key
+        // ...その他、Flickr API キーなど、プラグインの依存性を束縛
    }
 }
 ```
 
-これで、プラグインが公開するサービスを利用できるようになりました。今回は、ツイートを要約しています。
+これで、プラグインが公開するサービスを利用できるようになりました。今回はツイートのURIを短縮しています。
 
 ```php
 class TweetPrettifier
@@ -106,10 +101,12 @@ class TweetPrettifier
 }
 ```
 
-_**Note:** `Multibinder::newInstance($module, $type)` というメソッドは混乱を招く可能性があります。
-この操作は、新しいバインダを作成しますが、 既存のバインダを上書きすることはありません。この方法で作成されたバインダーは、 その型に対する既存の実装群に貢献します。新しいバインダを作成するのは、バインダがまだ存在しない場合だけです。
+_**Note:** `Multibinder::newInstance($module, $type)` というメソッドについて
 
-最後に、プラグインを登録する必要があります。そのための最も単純なメカニズムは、プログラム的にそれらをリストアップすることです。
+この操作は、新しいバインダを作成しますが、 既存のバインダを上書きすることはありません。この方法で作成されたバインダーで対象の型に対して実装群を加えます。
+新しいバインダを作成するのは、バインダがまだ存在しない場合だけです。
+
+最後に、プラグインを登録する必要があります。
 
 ```php
 class PrettyTweets
@@ -131,7 +128,7 @@ class PrettyTweets
 
 ### マップバインダー
 
-マルチバインダーで追加するクラスに名前をつけることができます。
+マルチバインダーで追加するクラスに名前をつけることができます。ここでは'flickr'という名前をつけました。
 
 ```php
 class FlickrPluginModule extends AbstractModule
@@ -145,6 +142,7 @@ class FlickrPluginModule extends AbstractModule
    }
 }
 ```
+
 アプリケーションでは`#[Set(UriSummarizer::class)]`などとアトリビュート指定して注入された`Map`を、束縛で指定しと時の名前で取り出すことができます。
 
 ```php
@@ -164,6 +162,17 @@ class TweetPrettifier
         assert($filickerSummarizer instanceof FlickrPhotoSummarizer);
     }    
 }
+```
+
+マップバインダーは名前をつけて取り出しやすくしただけで、マルチバインダーとほとんど同じです。
+
+## set()
+
+`set()`メソッドはそれまでの束縛を上書きします。
+
+```php
+$uriBinder = Multibinder::newInstance($this, UriSummarizerInterface::class);
+$uriBinder->set(FlickrPhotoSummarizer::class, 'flickr');
 ```
 
 ## Map
