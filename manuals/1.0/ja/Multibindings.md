@@ -82,12 +82,12 @@ class TweetPrettifier
     
     public function prettifyTweet(String tweetMessage): Html
     {
-        // split out the URIs and call prettifyUri() for each
+        // URIを分割し、それぞれに対してprettifyUri()を呼び出します。
     }
 
     public prettifyUri(URI $uri): string
     {
-        // loop through the implementations, looking for one that supports this URI
+        // 実装をループし、このURIをサポートするものを探します
         for ($this->summarizer as summarizer) {
             $summary = $summarizer->summarize($uri);
             if ($summary != null) {
@@ -95,18 +95,18 @@ class TweetPrettifier
             }
        }
 
-        // no summarizer found, just return the URI itself
+        // URI短縮が見つからない場合は、URIそのものを返します。
         return $uri->toString();
     }
 }
 ```
 
-_**Note:** `Multibinder::newInstance($module, $type)` というメソッドについて
-
-この操作は、新しいバインダを作成しますが、 既存のバインダを上書きすることはありません。この方法で作成されたバインダーで対象の型に対して実装群を加えます。
+> **Note:** `Multibinder::newInstance($module, $type)` というメソッドについて
+>
+>この操作は、新しいバインダを作成しますが、 既存のバインダを上書きすることはありません。この方法で作成されたバインダーで対象の型に対して実装群を加えます。
 新しいバインダを作成するのは、バインダがまだ存在しない場合だけです。
 
-最後に、プラグインを登録する必要があります。
+最後にプラグインを登録する必要があります。
 
 ```php
 class PrettyTweets
