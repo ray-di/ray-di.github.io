@@ -6,9 +6,9 @@ permalink: /manuals/1.0/ja/multibindings.html
 ---
 # Multibindings
 
-_Overview of Multibinder, MapBinder
+_Overview of Multibinder, MapBinder_
 
-[Multibinder](http://google.github.io/guice/api-docs/latest/javadoc/com/google/inject/multibindings/Multibinder.html) is intended for plugin-type architectures.
+Multibinder is intended for plugin-type architectures.
 
 ## Multibinding
 
