@@ -182,6 +182,15 @@ class TweetPrettifier
 }
 ```
 
+## set()
+
+The `set()` method overrides any previous binding.
+
+```php
+$uriBinder = Multibinder::newInstance($this, UriSummarizerInterface::class);
+$uriBinder->set(FlickrPhotoSummarizer::class, 'flickr');
+```
+
 ## Map
 
 `Map` objects are treated as generics in static analysis. If the injected interface is T, it is written as `Map<T>`.
