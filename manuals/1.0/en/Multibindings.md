@@ -17,8 +17,7 @@ Using `Multibinder` to host plugins.
 ### Multibinder
 
 Multibindings make it easy to support plugins in your application. Made popular
-by [IDEs](http://www.eclipseplugincentral.com) and
-[browsers](https://addons.mozilla.org/en-US/firefox/), this pattern exposes APIs
+by [IDEs](https://plugins.jetbrains.com/phpstorm) and [browsers](https://chrome.google.com/webstore/category/extensions), this pattern exposes APIs
 for extending the behaviour of an application.
 
 Neither the plugin consumer nor the plugin author need write much setup code for
