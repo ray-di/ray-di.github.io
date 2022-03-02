@@ -4,7 +4,7 @@ title: DontReuseAttributes
 category: Manual
 permalink: /manuals/1.0/en/bp/dont_reuse_annotations.html
 ---
-# Don't reuse binding attributes (aka `#[Attribute]`)
+# Don't reuse binding attributes (aka `#[Qualifier]`)
 
 Sometimes, of course, it makes sense to bind some highly-related bindings with the same attributes. E.g. `#[ServerName]`
 
