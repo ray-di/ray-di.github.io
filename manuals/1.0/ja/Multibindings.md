@@ -166,9 +166,9 @@ class TweetPrettifier
 
 マップバインダーは名前をつけて取り出しやすくしただけで、マルチバインダーとほとんど同じです。
 
-## set()
+## セット束縛
 
-`set()`メソッドはそれまでの束縛を上書きします。
+`setBinding()`はそれまでの束縛を上書きします。
 
 ```php
 $uriBinder = Multibinder::newInstance($this, UriSummarizerInterface::class);

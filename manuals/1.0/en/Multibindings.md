@@ -182,9 +182,9 @@ class TweetPrettifier
 }
 ```
 
-## set()
+## Set binding
 
-The `set()` method overrides any previous binding.
+The `setBinding()` method overrides any previous binding.
 
 ```php
 $UriBinder = Multibinder::newInstance($this, UriSummarizerInterface::class);
