@@ -4,12 +4,12 @@ title: Grapher
 category: Manual
 permalink: /manuals/1.0/ja/grapher.html
 ---
-## Graphing Ray.Di Applications
+## Ray.Diアプリケーションのグラフ化
 
-When you've written a sophisticated application, Ray.Di rich introspection API can describe the object graph in detail. The object-visual-grapher exposes this data as an easily understandable visualization. It can show the bindings and dependencies from several classes in a complex application in a unified diagram.
+高度なアプリケーションを作成した場合、Ray.DiのリッチなイントロスペクションAPIにより、オブジェクトグラフを詳細に記述することができます。オブジェクトビジュアルグラファーは、このデータを理解しやすいビジュアライゼーションとして公開します。複雑なアプリケーションの複数のクラスのバインディングや依存関係を、統一されたダイアグラムで表示することができます。
 
-### Generating a .dot file
-Ray.Di's grapher leans heavily on [GraphViz](http://www.graphviz.org/), an open source graph visualization package. It cleanly separates graph specification from visualization and layout. To produce a graph `.dot` file for an `Injector`, you can use the following code:
+### .dotファイルの生成
+Ray.Diのgrapherは、オープンソースのグラフ可視化パッケージである[GraphViz](http://www.graphviz.org/)を大きく活用しています。グラフの仕様と視覚化・レイアウトをきれいに分離することができます。Injector用のグラフ.dotファイルを作成するには、以下のコードを使用します。
 
 ```php
 use Ray\ObjectGrapher\ObjectGrapher;
@@ -18,8 +18,8 @@ $dot = (new ObjectGrapher)(new FooModule);
 file_put_contents('path/to/graph.dot', $dot);
 ```
 
-### The .dot file
-Executing the code above produces a `.dot` file that specifies a graph. Each entry in the file represents either a node or an edge in the graph. Here's a sample `.dot` file:
+### .dotファイル
+上記のコードを実行すると、グラフを指定した.dotファイルが生成されます。ファイルの各エントリは、グラフのノードまたはエッジを表します。以下は.dotファイルのサンプルです。
 
 ```dot
 digraph injector {
@@ -30,10 +30,11 @@ dependency_BEAR_Resource_ResourceInterface_ -> class_BEAR_Resource_Resource [sty
 dependency_BEAR_Resource_FactoryInterface_ -> class_BEAR_Resource_Factory [style=dashed, arrowtail=none, arrowhead=onormal]
 ```
 
-### Rendering the .dot file
- You can then paste that code into [GraphvizOnline](https://dreampuf.github.io/GraphvizOnline/)to render it. 
+### .dotファイルのレンダリング
+そのコードを[GraphvizOnline](https://dreampuf.github.io/GraphvizOnline/)に貼り付けて、レンダリングすることができます。
 
-On Linux, you can use the command-line `dot` tool to convert `.dot` files into images.
+Linuxでは、コマンドラインのdotツールを使って、.dotファイルを画像に変換することができます。
+
 ```shell
 dot -T png graph.dot > graph.png
 ```
@@ -41,13 +42,13 @@ dot -T png graph.dot > graph.png
 ![graph](https://user-images.githubusercontent.com/529021/72650686-866ec100-39c4-11ea-8b49-2d86d991dc6d.png)
 
 
-#### Graph display
+#### グラフ表示
 
-Edges:
-   * **Solid edges** represent dependencies from implementations to the types they depend on.
-   * **Dashed edges** represent bindings from types to their implementations.
-   * **Double arrows** indicate that the binding or dependency is to a `Provider`.
+エッジ
+   * **実線エッジ** は、実装から依存する型への依存を表します。
+   * **破線のエッジ** は、タイプからその実装へのバインディングを表します。
+   * **二重矢印** は、バインディングまたは依存関係が `Provider` にあることを表します。
 
-Nodes:
-   * Implementation types are given *black backgrounds*.
-   * Implementation instances have *gray backgrounds*.
+ノード
+   * 実装タイプは *黒背景で表示されます*。
+   * 実装のインスタンスには *灰色の背景があります*。
