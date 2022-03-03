@@ -34,7 +34,7 @@ dependency_BEAR_Resource_FactoryInterface_ -> class_BEAR_Resource_Factory [style
 ```
 
 ### .dotファイルのレンダリング
-そのコードを[GraphvizOnline](https://dreampuf.github.io/GraphvizOnline/)に貼り付けて、レンダリングすることができます。
+生成されたコードを[GraphvizOnline](https://dreampuf.github.io/GraphvizOnline/)に貼り付けるとグラフがレンダリングされます。
 
 Linuxでは、コマンドラインの`dot`ツールを使って、`.dot`ファイルを画像に変換することができます。
 
