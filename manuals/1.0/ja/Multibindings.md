@@ -24,7 +24,7 @@ interface UriSummarizerInterface
     /**
      * 短縮URIを返す。このsummarizerがURIの短縮方法を知らない場合はnullを返す。
      */
-    public function summarize(URI $uri): string;
+    public function summarize(Uri $uri): string;
 }
 ```
 
@@ -37,7 +37,7 @@ class FlickrPhotoSummarizer implements UriSummarizer
         private readonly PhotoPaternMatcherInterface $matcher
     ) {}
 
-    public function summarize(URI $uri): ?string
+    public function summarize(Uri $uri): ?string
     {
         $match = $this->matcher->match($uri);
         if (! $match) {
@@ -60,7 +60,7 @@ class FlickrPluginModule extends AbstractModule
     public function configure(): void 
     {
         $uriBinder = Multibinder::newInstance($this, UriSummarizerInterface::class);
-        $uriBinder->add(FlickrPhotoSummarizer::class);
+        $uriBinder->addBinding()->to(FlickrPhotoSummarizer::class);
 
         // ...その他、Flickr API キーなど、プラグインの依存性を束縛
    }
@@ -136,7 +136,7 @@ class FlickrPluginModule extends AbstractModule
     public function configure(): void 
     {
         $uriBinder = Multibinder::newInstance($this, UriSummarizerInterface::class);
-        $uriBinder->add(FlickrPhotoSummarizer::class, 'flickr');
+        $uriBinder->addBinding('flickr')->to(FlickrPhotoSummarizer::class);
 
         // ...bind plugin dependencies, such as our Flickr API key
    }
@@ -172,7 +172,7 @@ class TweetPrettifier
 
 ```php
 $uriBinder = Multibinder::newInstance($this, UriSummarizerInterface::class);
-$uriBinder->set(FlickrPhotoSummarizer::class, 'flickr');
+$uriBinder->setBinding('flickr')->(FlickrPhotoSummarizer::class);
 ```
 
 ## Map

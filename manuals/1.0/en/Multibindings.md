@@ -38,7 +38,7 @@ interface UriSummarizerInterface
      * Returns a short summary of the URI, or null if this summarizer doesn't
      * know how to summarize the URI.
      */
-    public function summarize(URI $uri): string;
+    public function summarize(Uri $uri): string;
 }
 ```
 
@@ -52,7 +52,7 @@ class FlickrPhotoSummarizer implements UriSummarizer
         private readonly PhotoPaternMatcherInterface $matcher
     ) {}
 
-    public function summarize(URI $uri): ?string
+    public function summarize(Uri $uri): ?string
     {
         $match = $this->matcher->match($uri);
         if (! $match) {
@@ -77,7 +77,7 @@ class FlickrPluginModule extends AbstractModule
     public function configure(): void 
     {
         $uriBinder = Multibinder::newInstance($this, UriSummarizerInterface::class);
-        $uriBinder->add(FlickrPhotoSummarizer::class);
+        $uriBinder->addBinding()->to(FlickrPhotoSummarizer::class);
 
         // ...bind plugin dependencies, such as our Flickr API key
    }
@@ -155,7 +155,7 @@ class FlickrPluginModule extends AbstractModule
     public function configure(): void 
     {
         $uriBinder = Multibinder::newInstance($this, UriSummarizerInterface::class);
-        $uriBinder->add(FlickrPhotoSummarizer::class, 'flickr');
+        $uriBinder->addBinding('flickr')->to(FlickrPhotoSummarizer::class);
 
         // ...bind plugin dependencies, such as our Flickr API key
    }
@@ -187,8 +187,8 @@ class TweetPrettifier
 The `set()` method overrides any previous binding.
 
 ```php
-$uriBinder = Multibinder::newInstance($this, UriSummarizerInterface::class);
-$uriBinder->set(FlickrPhotoSummarizer::class, 'flickr');
+$UriBinder = Multibinder::newInstance($this, UriSummarizerInterface::class);
+$UriBinder->setBinding('flickr')->(FlickrPhotoSummarizer::class);
 ```
 
 ## Map
