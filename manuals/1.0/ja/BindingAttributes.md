@@ -1,5 +1,5 @@
 ---
-layout: docs-ja
+  layout: docs-ja
 title: 束縛アトリビュート
 category: Manual
 permalink: /manuals/1.0/ja/binding_attributes.html
@@ -119,13 +119,9 @@ $this->bind(CreditCardProcessorInterface::class)
 ```
 
 
-## アノテーション
+## 束縛アノテーション
 
-Ray.Di はPHP8より前のPHPのために [doctrine/annotation](https://github.com/doctrine/annotations) と共に使用できます。
-
-* アノテーションコードの例は古い[README(v2.10)](https://github.com/ray-di/Ray.Di/tree/2.10.5/README.md)をご覧ください。
-* アトリビュートに対する前方互換性のあるアノテーションを作成するには、 [カスタムアノテーションクラス](https://github.com/kerveros12v/sacinta4/blob/e976c143b3b7d42497334e76c00fdf38717af98e/vendor/doctrine/annotations/docs/en/custom.rst#optional-constructors-with-named-parameters) を参照してください。
-  
+Ray.Di はPHP7.xのために [doctrine/annotation](https://github.com/doctrine/annotations) と共に使用できます。アノテーションコードの例は古い[README(v2.10)](https://github.com/ray-di/Ray.Di/tree/2.10.5/README.md)をご覧ください。アトリビュートに対する前方互換性のあるアノテーションを作成するには、 [カスタムアノテーションクラス](https://github.com/kerveros12v/sacinta4/blob/e976c143b3b7d42497334e76c00fdf38717af98e/vendor/doctrine/annotations/docs/en/custom.rst#optional-constructors-with-named-parameters) を参照してください。
 
 アノテーションは引数に対して適用することができないので、カスタムアノテーションの最初の引数に変数名を指定します。なおメソッドに引数が１つのしかない場合には不要です。
 
@@ -133,8 +129,8 @@ Ray.Di はPHP8より前のPHPのために [doctrine/annotation](https://github.c
 /**
  * @Paypal('processor')
  */
-public function __construct(CreditCardProcessorInterface $processor)
-{
-}
+public function setCreditCardProcessor(
+	 CreditCardProcessorInterface $processor
+   OtherDepedeciyInterface $depedency
+){
 ```
-
