@@ -173,6 +173,7 @@ require __DIR__ . '/vendor/autoload.php';
 
 use Ray\Di\AbstractModule;
 use Ray\Di\Di\Qualifier;
+use Ray\Di\ProviderInterface;
 use Ray\Di\Injector;
 
 #[Attribute, Qualifier]
@@ -195,7 +196,7 @@ class CountProvider implements ProviderInterface
 
 class MessageProvider implements ProviderInterface
 {
-    public function get(): int
+    public function get(): string
     {
         return 'hello world';
     }
@@ -213,14 +214,14 @@ class DemoModule extends AbstractModule
 class Greeter
 {
     public function __construct(
-        #[Greeting] private string $greerting,
+        #[Message] private string $message,
         #[Count] private int $count
     ) {}
 
     public function sayHello(): void
     {
         for ($i = 0; $i < $this->count ; $i++) {
-            echo $this->greerting . PHP_EOL;
+            echo $this->message . PHP_EOL;
         }
     }
 }
@@ -236,7 +237,7 @@ $injector = new Injector(new DemoModule);
  */
 $greeter = $injector->getInstance(Greeter::class);
 
-// コンソールに "hello world "を3回表示。
+// コンソールに 'hello world'を3回表示。
 $greeter->sayHello();
 ```
 
