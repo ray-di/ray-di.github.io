@@ -92,7 +92,7 @@ $this->bind(CreditCardProcessorInterface::class)
 The provider can now use the information supplied in the qualifier attribute in order to instantiate
 the most appropriate class.
 
-## Qualifier
+## #[Named]
 
 The most common use of a Qualifier attribute is tagging arguments in a function with a certain label,
 the label can be used in the bindings in order to select the right class to be instantiated. For those
@@ -127,8 +127,18 @@ public function __construct(
 ){}
 ```
 
-## Annotation / Attribute
+## Binding Annotation
 
-Ray.Di can be used either with [doctrine/annotation](https://github.com/doctrine/annotations) in PHP 7/8 or with an [Attributes](https://www.php.net/manual/en/language.attributes.overview.php) in PHP8.
-See the annotation code examples in the older [README(v2.10)](https://github.com/ray-di/Ray.Di/tree/2.10.5/README.md).
-To make forward-compatible annotations for attributes, see [Custom Annotation Classes](https://github.com/kerveros12v/sacinta4/blob/e976c143b3b7d42497334e76c00fdf38717af98e/vendor/doctrine/annotations/docs/en/custom.rst#optional-constructors-with-named-parameters).
+Ray.Di can be used with [doctrine/annotation](https://github.com/doctrine/annotations) for PHP 7.x. See the old [README(v2.10)](https://github.com/ray-di/Ray.Di/tree/2.10.5/README.md) for annotation code examples. To create forward-compatible annotations for attributes, see [custom annotation classes](https://github.com/kerveros12v/sacinta4/blob/e976c143b3b7d42497334e76c00fdf 38717af98e/vendor/doctrine/annotations/docs/en/custom.rst#optional-constructors-with-named-parameters).
+
+Since annotations cannot be applied to arguments, the first argument of a custom annotation should be the name of the variable. This is not necessary if the method has only one argument.
+
+```php
+/**
+ * @Paypal('processor')
+ */
+public function setCreditCardProcessor(
+	 CreditCardProcessorInterface $processor
+   OtherDepedeciyInterface $depedency
+){
+```
