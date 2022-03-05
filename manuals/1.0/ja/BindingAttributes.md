@@ -119,14 +119,15 @@ $this->bind(CreditCardProcessorInterface::class)
 ```
 
 
-## アノテーション／アトリビュート
+## アノテーション
 
-Ray.Di は、PHP 7/8 では [doctrine/annotation](https://github.com/doctrine/annotations) と共に、PHP8 では [Attributes](https://www.php.net/manual/en/language.attributes.overview.php) と共に使用することができます。
-古い[README(v2.10)](https://github.com/ray-di/Ray.Di/tree/2.10.5/README.md)にあるアノテーションコードの例をご覧ください。
+Ray.Di はPHP8より前のPHPのために [doctrine/annotation](https://github.com/doctrine/annotations) と共に使用できます。
 
-アトリビュートに対する前方互換性のあるアノテーションを作成するには、 [カスタムアノテーションクラス](https://github.com/kerveros12v/sacinta4/blob/e976c143b3b7d42497334e76c00fdf38717af98e/vendor/doctrine/annotations/docs/en/custom.rst#optional-constructors-with-named-parameters) を参照してください。
+* アノテーションコードの例は古い[README(v2.10)](https://github.com/ray-di/Ray.Di/tree/2.10.5/README.md)をご覧ください。
+* アトリビュートに対する前方互換性のあるアノテーションを作成するには、 [カスタムアノテーションクラス](https://github.com/kerveros12v/sacinta4/blob/e976c143b3b7d42497334e76c00fdf38717af98e/vendor/doctrine/annotations/docs/en/custom.rst#optional-constructors-with-named-parameters) を参照してください。
+  
 
-アノテーションは引数に対して適用することができないので、カスタムアノテーションの最初の引数に変数名を指定します。なおメソッドに１つの引数しかない場合には不要です。
+アノテーションは引数に対して適用することができないので、カスタムアノテーションの最初の引数に変数名を指定します。なおメソッドに引数が１つのしかない場合には不要です。
 
 ```php
 /**
