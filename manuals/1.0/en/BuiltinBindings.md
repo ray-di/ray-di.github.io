@@ -21,3 +21,8 @@ sparingly.
 
 For every type Ray.Di knows about, it can also inject a Provider of that type.
 [Injecting Providers](injecting_provider.html) describes this in detail.
+
+## Multi-bundling
+
+Multi bindinga allows multiple implementations to be injected for a type.
+It is explained in detail in [MultiBindings](multi_bindings.html).
