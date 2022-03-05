@@ -202,7 +202,7 @@ class CountProvider implements ProviderInterface
 
 class MessageProvider implements ProviderInterface
 {
-    public function get(): int
+    public function get(): string
     {
         return 'hello world';
     }
@@ -220,14 +220,14 @@ class DemoModule extends AbstractModule
 class Greeter
 {
     public function __construct(
-        #[Greeting] private string $greerting,
+        #[Message] private string $messag,
         #[Count] private int $count
     ) {}
 
     public function sayHello(): void
     {
         for ($i = 0; $i < $this->count ; $i++) {
-            echo $this->greerting . PHP_EOL;
+            echo $this->messag . PHP_EOL;
         }
     }
 }
