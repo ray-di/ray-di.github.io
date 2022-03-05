@@ -233,10 +233,10 @@ class Greeter
 }
 
 /*
- * Injector's constructor takes one modules.
+ * Injector's constructor takes one or more modules.
  * Most applications will call this method exactly once in bootstrap.
  */
-$injector = new Injector(new DemoModule);
+$injector = new Injector([new DemoModule]);
 
 /*
  * Now that we've got the injector, we can build objects.
@@ -247,7 +247,7 @@ $greeter = $injector->getInstance(Greeter::class);
 $greeter->sayHello();
 ```
 
-The `RayDiDemo` application constructed a small dependency graph using Ray.Di
+The [greeter](https://github.com/ray-di/greeter/blob/master/greeter.php) application constructed a small dependency graph using Ray.Di
 that is capable of building instances of `Greeter` class. Large applications
 usually have many `Module`s that can build complex objects.
 

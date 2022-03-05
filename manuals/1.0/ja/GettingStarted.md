@@ -241,7 +241,7 @@ $greeter = $injector->getInstance(Greeter::class);
 $greeter->sayHello();
 ```
 
-`RayDiDemo` アプリケーションは、`Greeter` クラスのインスタンスを構築することができる Ray.Di を使用して小さな依存関係グラフを構築しています。通常、大規模なアプリケーションは複雑なオブジェクトを構築することができる多くの `Module` を持っています。
+[greeter](https://github.com/ray-di/greeter/blob/master/greeter.php) アプリケーションは、`Greeter` クラスのインスタンスを構築することができる Ray.Di を使用して小さな依存関係グラフを構築しています。通常、大規模なアプリケーションは複雑なオブジェクトを構築することができる多くの `Module` を持っています。
 
 ## 次に
 
