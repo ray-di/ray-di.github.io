@@ -13,4 +13,4 @@ $this->bind(MyConcreteClass::class);
 $this->bind(AnotherConcreteClass::class)->in(Scope::SINGLETON);
 ```
 
-note: annotations are not supported for Untargeted Bindings
+Note: Untargeted binding does not currently support the `annotatedWith()` clause.
