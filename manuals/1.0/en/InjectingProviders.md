@@ -25,7 +25,6 @@ interface ProviderInteterface
 }
 ```
 
-プロバイダによって提供される型を`#[Set]`アトリビュートで指定します。
 The type provided by the provider is specified by the `#[Set]` attribute.
 
 ```php
@@ -50,7 +49,6 @@ class RealBillingService implements BillingServiceInterface
 }
 ```
 
-静的解析でジェネリクスをサポートをするためにはphpdocの`@param`で`ProviderInterface<TransactionLogInterface>` や `ProviderInterface<CreditCardProcessorInterface>`などと表記します。`get()`メソッドで取得して得られるインスタンスの型が指定され、静的解析でチェックされます。
 To support generics in static analysis, you need to set `@param` in phpdoc to `ProviderInterface<TransactionLogInterface>` or `ProviderInterface<Cre ditCardProcessorInterface>` and so on. The type of the instance obtained by the `get()` method is specified and checked by static analysis.
 
 ## Providers for multiple instances
