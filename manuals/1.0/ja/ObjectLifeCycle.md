@@ -1,12 +1,12 @@
 ---
 layout: docs-ja
-title: Object Life Cycle
+title: オブジェクトライフサイクル
 category: Manual
 permalink: /manuals/1.0/ja/object_life_cycle.html
 ---
 # Object Life Cycle
 
-`#[PostConstruct]` is used on methods that need to get executed after dependency injection has finalized to perform any extra initialization.
+`[PostConstruct]`は、依存性注入が完了した後に実行される必要があるメソッドで使用され、余分な初期化を実行します。
 
 ```php
 use Ray\Di\Di\PostConstruct;
