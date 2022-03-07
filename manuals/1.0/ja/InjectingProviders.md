@@ -1,14 +1,14 @@
 ---
 layout: docs-ja
-title: Injecting Providers
+title: プロバイダ注入
 category: Manual
 permalink: /manuals/1.0/ja/injecting_providers.html
 ---
-# インジェクションプロバイダー
+# プロバイダ注入
 
-通常の依存性注入では、各タイプは依存するタイプのそれぞれのインスタンスを正確に *1つ*取得します。
-RealBillingService` は、 `CreditCardProcessor` と `TransactionLog` を一つずつ取得します。時には、依存する型のインスタンスを複数取得したいこともあるでしょう。
-このような柔軟性が必要な場合、Ray.Diはプロバイダをバインドします。プロバイダは `get()` メソッドが呼び出されたときに値を生成します。
+通常の依存性注入では、各タイプは依存するタイプのそれぞれのインスタンスを正確に*1つ*取得します。
+例えば`RealBillingService` は`CreditCardProcessor` と`TransactionLog` を一つずつ取得します。しかし時には依存する型のインスタンスを複数取得したいこともあるでしょう。
+このような場合、Ray.Diはプロバイダを束縛します。プロバイダは `get()` メソッドが呼び出されたときに値を生成します。
 
 ```php
 /**
@@ -42,7 +42,7 @@ class RealBillingService implements BillingServiceInterface
         $transactionLog = $this->transactionLogProvider->get();
         $processor = $this->processorProvider->get();
         
-        /* use the processor and transaction log here */
+        /* プロセッサとトランザクションログをここで使用する */
     }
 }
 ```
@@ -51,7 +51,8 @@ class RealBillingService implements BillingServiceInterface
 
 ## 複数インスタンスのためのプロバイダ
 
-同じ型のインスタンスが複数必要な場合は、プロバイダを使用します。例えば、ピザのチャージに失敗したときに、サマリーエントリと詳細情報を保存するアプリケーションを考えてみましょう。プロバイダを使えば、必要なときにいつでも新しいエントリを取得することができます。
+同じ型のインスタンスが複数必要な場合の時もプロバイダを使用します。例えば、ピザのチャージに失敗したときに、サマリーエントリと詳細情報を保存するアプリケーションを考えてみましょう。
+プロバイダを使えば、必要なときにいつでも新しいエントリを取得することができます。
 
 ```php
 class LogFileTransactionLog implements TransactionLogInterface
@@ -76,7 +77,8 @@ class LogFileTransactionLog implements TransactionLogInterface
 
 ## 遅延ロードのためのプロバイダ
 
-もし、ある型に依存していて、その型を作るのが特に *高価* な場合、プロバイダを使ってその作業を先延ばしにすることができます。これは、その依存関係が常に必要なわけではない場合に、特に有用です。
+もしある型に依存していて、その型を作るのが特に**高価**な場合、プロバイダを使ってその作業を先延ばしに、つまり遅延生成することができます。
+これはその依存が不必要な時がある場合に特に役立ちます。
 
 ```php
 class LogFileTransactionLog implements TransactionLogInterface
@@ -86,16 +88,19 @@ class LogFileTransactionLog implements TransactionLogInterface
     ) {}
     
     public function logChargeResult(ChargeResult $result) {
-        /* only write failed charges to the database */
+        /* 失敗した時だけをデータベースに書き込み */
         if (! $result->wasSuccessful()) {
             $connection = $connectionProvider->get();
         }
     }
 ```
 
-## スコープを混在させるプロバイダ
+## 混在するスコープのためのプロバイダ
 
-より狭いスコープを持つオブジェクトを直接注入すると、 通常はアプリケーションで意図しない動作が発生します。以下の例では、リクエストスコープを持つ現在のユーザーに依存するシングルトン`ConsoleTransactionLog`があるとします。もし、ユーザーを `ConsoleTransactionLog` のコンストラクタに直接注入したとすると、ユーザーはアプリケーションのライフタイム中、一度だけ評価されることになります。ユーザーはリクエストごとに変わるので、この動作は正しくありません。その代わりに、プロバイダを使用する必要があります。プロバイダはオンデマンドで値を生成するので、安全にスコープを混在させることができるようになります。
+より狭いスコープを持つオブジェクトを直接注入すると、アプリケーションで意図しない動作が発生することがあります。
+以下の例では、現在のユーザーに依存するシングルトン`ConsoleTransactionLog`があるとします。
+もし、ユーザーを `ConsoleTransactionLog` のコンストラクタに直接注入したとすると、ユーザーはアプリケーションで一度だけ評価されることになってしまいます。
+ユーザーはリクエストごとに変わるので、この動作は正しくありません。その代わりに、プロバイダを使用する必要があります。プロバイダはオンデマンドで値を生成するので、安全にスコープを混在させることができるようになります。
 
 ```php
 class ConsoleTransactionLog implements TransactionLogInterface
