@@ -183,3 +183,21 @@ $uriBinder->setBinding('flickr')->(FlickrPhotoSummarizer::class);
 /** @param Map<UriSummarizerInterface> $summarizers **/
 ```
 
+## アノテーション
+
+引数にアノテートすることができないので、代入するプロパティを同名にしてプロパティに`@Set`をアノテートします。
+
+```php
+class TweetPrettifier
+{
+    /** @Set(UriSummarizer::class) */
+    private $summarizers;
+    
+    /**
+     * @param Map<UriSummarizerInterface> $summarizers
+     */
+    public function __construct(Map $summarizers) {
+        $this-$this->summarizers = $summarizers;
+    }
+}
+```

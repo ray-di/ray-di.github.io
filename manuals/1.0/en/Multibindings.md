@@ -199,3 +199,21 @@ $UriBinder->setBinding('flickr')->(FlickrPhotoSummarizer::class);
 /** @param Map<UriSummarizerInterface> $summarizers **/
 ```
 
+## Annotation
+
+Since it is not possible to annotate the argument, annotate the property to be assigned with the same name and annotate the property with `@Set`.
+
+```php
+class TweetPrettifier
+{
+    /** @Set(UriSummarizer::class) */
+    private $summarizers;
+    
+    /**
+     * @param Map<UriSummarizerInterface> $summarizers
+     */
+    public function __construct(Map $summarizers) {
+        $this-$this->summarizers = $summarizers;
+    }
+}
+```
