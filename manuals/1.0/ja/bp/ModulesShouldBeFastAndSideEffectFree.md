@@ -1,8 +1,8 @@
 ---
-layout: docs-en
+layout: docs-ja
 title: ModulesShouldBeFastAndSideEffectFree
 category: Manual
-permalink: /manuals/1.0/en/bp/modules_should_be_fast_and_side_effect_free.html
+permalink: /manuals/1.0/ja/bp/modules_should_be_fast_and_side_effect_free.html
 ---
 # Modules should be fast and side-effect free
 

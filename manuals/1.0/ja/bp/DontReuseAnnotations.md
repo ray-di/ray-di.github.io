@@ -1,8 +1,8 @@
 ---
-layout: docs-en
+layout: docs-ja
 title: DontReuseAttributes
 category: Manual
-permalink: /manuals/1.0/en/bp/dont_reuse_annotations.html
+permalink: /manuals/1.0/ja/bp/dont_reuse_annotations.html
 ---
 # Don't reuse binding attributes (aka `#[Qualifier]`)
 
