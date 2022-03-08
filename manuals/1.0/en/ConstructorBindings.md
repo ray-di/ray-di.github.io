@@ -10,24 +10,19 @@ When `#[Inject]` attribute cannot be applied to the target constructor or setter
 
 To address this, Ray.Di has `toConstructor` bindings.
 
-
 ```php
 $this->bind($interfaceName)
     ->toConstructor(
-        $className,
-        $name,
-        $injectionPoint,
-        $postConstruct
+        $className,       // Class name
+        $name,            // Qualifier
+        $injectionPoint,  // Setter injection
+        $postConstruct    // Initialize method
     );
 
-(new InjectionPoints)                       // InjectionPoints　$setter_injection
-    ->addMethod('setGuzzle', 'token')
-    ->addOptionalMethod('setOptionalToken', 'initialize');           // string $postCostruct
-$this->bind()->annotated('user_id')->toInstance($_ENV['user_id']);
-$this->bind()->annotated('user_password')->toInstance($_ENV['user_password']);
-
+(new InjectionPoints) 
+    ->addMethod('setGuzzle')                 // Setter injection method name
+    ->addOptionalMethod('setOptionalToken'); // Optional setter injection method name
 ```
-
 
 ### Parameter
 
@@ -60,7 +55,7 @@ Specify the method name ($methodName) and qualifier ($named) of the setter injec
 (new InjectionPoints)
 	->addMethod($methodName1)
 	->addMethod($methodName2, $named)
-        ->addOptionalMethod($methodName, $named);
+    ->addOptionalMethod($methodName, $named);
 ```
 
 **postCosntruct**
@@ -90,3 +85,4 @@ $this->bind()->annotatedWith('pdo_password')->toInstance(getenv('db_password'));
 ```
 
 Since no argument of PDO has a type, it binds with the `Name Binding` of the second argument of the `toConstructor()` method.
+In the above example, the variable `username` is given the identifier `pdo_username`, and `toInstance` binds the value of the environment variable.

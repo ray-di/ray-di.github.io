@@ -9,25 +9,20 @@ permalink: /manuals/1.0/ja/constructor_bindings.html
 
 時には対象のコンストラクタやセッターメソッドがサードパーティ製であるため`#[Inject]`アトリビュートが適用できない場合や、あるいは単にアトリビュートを使いたくない場合があります。
 
-コンストラクタ束縛はこの問題を解決します。つまり、対象となるコンストラクタをユーザー側で明示的に呼び出すことで、リフレクションやそれに関する面倒を考える必要がなくなります。
-
-これに対処するため、Ray.Diには`toConstructor`束縛があります。
+コンストラクタ束縛はこの問題を解決します。つまり、対象となるコンストラクタの情報をアトリビュートではなく、ユーザー側で明示的に指定することでRay.DIにオブジェクトの生成方法を伝えます。
 
 ```php
 $this->bind($interfaceName)
     ->toConstructor(
-        $className,
-        $name,
-        $injectionPoint,
-        $postConstruct
+        $className,       // Class name
+        $name,            // Qualifier
+        $injectionPoint,  // Setter injection
+        $postConstruct    // Initialize method
     );
 
-(new InjectionPoints) // InjectionPoints $setter_injection
-    ->addMethod('setGuzzle', 'token')
-    ->addOptionalMethod('setOptionalToken', 'initialize'); // string $postCostruct
-$this->bind()->annotated('user_id')->toInstance($_ENV['user_id']);
-$this->bind()->annotated('user_password')->toInstance($_ENV['user_password']);
-
+(new InjectionPoints) 
+    ->addMethod('setGuzzle')                 // Setter injection method name
+    ->addOptionalMethod('setOptionalToken'); // Optional setter injection method name
 ```
 
 ### Parameter
@@ -44,7 +39,8 @@ $this->bind()->annotated('user_password')->toInstance($_ENV['user_password']);
 
 ```php
 [
-	[$param_name1 => $binding_name1],
+	[$paramName1 => $named1],
+	[$paramName2 => $named2],
 	...
 ]
 ```
@@ -97,4 +93,5 @@ $this->bind()->annotatedWith('pdo_password')->toInstance(getenv('db_password'));
 
 PDOのコンストラクタ引数は`$dsn`, `$username`などstringの値を受け取り、その束縛を区別するために識別子が必要です。しかしPDOはPHP自体のビルトインクラスなのでアトリビュートを加えることができません。
 
-`toConstructor()`の第2引数の`$name`で識別子を指定します。
+`toConstructor()`の第2引数の`$name`で識別子(qualifier)を指定します。その識別子に対してあらためて束縛を行います。
+上記の例では`username`という変数に`pdo_username`と言う識別子を与え、`toInstance`で環境変数の値を束縛しています。
