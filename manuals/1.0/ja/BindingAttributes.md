@@ -30,7 +30,7 @@ public function __construct(
 ){}
 ```
 
-最後に、そのアトリビュートを使用する束縛を作成します。これは bind() 文のオプションのannotatedWith` 節を使用します。
+最後に、そのアトリビュートを使用する束縛を作成します。これは`bind()` 文のオプションの`annotatedWith` 節を使用します。
 
 ```php
 $this->bind(CreditCardProcessorInterface::class)
