@@ -4,20 +4,22 @@ title: Builtin Bindings
 category: Manual
 permalink: /manuals/1.0/ja/builtin_bindings.html
 ---
-# Built-in Bindings
+# ビルトイン束縛
 
-_More bindings that you can use_
+_その他の使用可能なバインディングについて_
 
-**NOTE**: It's very rare that you'd need to use those built-in bindings.
+**注意**: これらのビルトインバインディングを使用する必要は稀です。
 
-## The Injector
+## インジェクター
 
-In framework code, sometimes you don't know the type you need until runtime. In
-this rare case you should inject the injector. Code that injects the injector
-does not self-document its dependencies, so this approach should be done
-sparingly.
+フレームワークのコードでは、実行時まで必要な型がわからないことがあります。このまれなケースでは、インジェクタを注入する必要があります。インジェクタを注入するコードは、その依存関係を自己文書化しないので、この方法は控えめにすべきです。
 
-## Providers
+## プロバイダ
 
-For every type Ray.Di knows about, it can also inject a Provider of that type.
-[Injecting Providers](injecting_provider.html) describes this in detail.
+Ray.Diが知っているすべての型について、その型のプロバイダを注入することが出来ます。
+[プロバイダ注入](injecting_provider.html)で詳しく説明されています。
+
+## マルチ束縛
+
+プロバイダ束縛は、型に対して複数の実装を注入することが出来ます。
+[マルチ束縛](multi_bindings.html)で詳しく説明されています。
