@@ -95,7 +95,7 @@ class TweetPrettifier
      */
     public function __construct(
         #[Set(UriSummarizer::class)] private readonyl Map $summarizers;
-        private readonyl EmoticonImagifier $emoticonImagifier;
+        private readonly EmoticonImagifier $emoticonImagifier;
     ) {}
     
     public function prettifyTweet(String tweetMessage): Html
@@ -103,10 +103,10 @@ class TweetPrettifier
         // split out the URIs and call prettifyUri() for each
     }
 
-    public prettifyUri(URI $uri): string
+    public function prettifyUri(Uri $uri): string
     {
         // loop through the implementations, looking for one that supports this URI
-        for ($this->summarizer as summarizer) {
+        foreach ($this->summarizer as summarizer) {
             $summary = $summarizer->summarize($uri);
             if ($summary != null) {
                 return $summary;
@@ -130,7 +130,7 @@ is to list them programatically:
 ```php
 class PrettyTweets
 {
-    public static function __invoke(): void
+    public function __invoke(): void
     {
         $injector = new Injector(
             new GoogleMapsPluginModule(),
@@ -171,7 +171,7 @@ class TweetPrettifier
      * @param Map<UriSummarizerInterface> $summarizers
      */
     public function __construct(
-        #[Set(UriSummarizer::class)] private readonyl Map $summarizers;
+        #[Set(UriSummarizer::class)] private readonly Map $summarizers;
     ) {}
 
     public doSomething(): void
@@ -213,7 +213,7 @@ class TweetPrettifier
      * @param Map<UriSummarizerInterface> $summarizers
      */
     public function __construct(Map $summarizers) {
-        $this-$this->summarizers = $summarizers;
+        $this->summarizers = $summarizers;
     }
 }
 ```

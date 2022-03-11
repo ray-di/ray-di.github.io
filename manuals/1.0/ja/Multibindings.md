@@ -77,7 +77,7 @@ class TweetPrettifier
      */
     public function __construct(
         #[Set(UriSummarizer::class)] private readonyl Map $summarizers;
-        private readonyl EmoticonImagifier $emoticonImagifier;
+        private readonly EmoticonImagifier $emoticonImagifier;
     ) {}
     
     public function prettifyTweet(String tweetMessage): Html
@@ -85,7 +85,7 @@ class TweetPrettifier
         // URIを分割し、それぞれに対してprettifyUri()を呼び出します。
     }
 
-    public prettifyUri(URI $uri): string
+    public function prettifyUri(Uri $uri): string
     {
         // 実装をループし、このURIをサポートするものを探します
         for ($this->summarizer as summarizer) {
@@ -111,7 +111,7 @@ class TweetPrettifier
 ```php
 class PrettyTweets
 {
-    public static function __invoke(): void
+    public function __invoke(): void
     {
         $injector = new Injector(
             new GoogleMapsPluginModule(),
@@ -153,7 +153,7 @@ class TweetPrettifier
      * @param Map<UriSummarizerInterface> $summarizers
      */
     public function __construct(
-        #[Set(UriSummarizer::class)] private readonyl Map $summarizers;
+        #[Set(UriSummarizer::class)] private readonly Map $summarizers;
     ) {}
 
     public doSomething(): void
@@ -197,7 +197,7 @@ class TweetPrettifier
      * @param Map<UriSummarizerInterface> $summarizers
      */
     public function __construct(Map $summarizers) {
-        $this-$this->summarizers = $summarizers;
+        $this->summarizers = $summarizers;
     }
 }
 ```
