@@ -1,16 +1,16 @@
 ---
 layout: docs-ja
-title: Untargeted Bindings
+title: アンターゲット束縛
 category: Manual
 permalink: /manuals/1.0/ja/untargeted_bindings.html
 ---
-## Untargeted Bindings
+## アンターゲット束縛
 
-You may create bindings without specifying a target. This is most useful for concrete classes. An untargetted binding informs the injector about a type, so it may prepare dependencies eagerly. Untargetted bindings have no _to_ clause, like so:
+具象クラスの束縛に用います。インジェクタに型に関する情報を提供し、依存関係を準備することができます。アンターゲット束縛には `to()` 節がありません。
 
 ```php
 $this->bind(MyConcreteClass::class);
 $this->bind(AnotherConcreteClass::class)->in(Scope::SINGLETON);
 ```
 
-note: annotations are not supported for Untargeted Bindings
+注：現在、アンターゲット束縛は`annotatedWith()`節をサポートしていません。
