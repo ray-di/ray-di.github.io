@@ -13,51 +13,43 @@ dependent types. When this flexibility is necessary, Ray.Di binds a provider.
 Providers produce a value when the `get()` method is invoked:
 
 ```php
-interface Provider
+/**
+ * @template T
+ */
+interface ProviderInterface
 {
+    /**
+     * @return T
+     */
     public function get();
 }
 ```
 
-Provider types are marked with a qualifier to distinguish `Provider<TransactionLog>` from `Provider<CreditCardProcessor>`. Wherever you inject a value, you can inject a provider for that value.
+The type provided by the provider is specified by the `#[Set]` attribute.
 
 ```php
 class RealBillingService implements BillingServiceInterface
 {
+    /**
+     * @param ProviderInterface<TransactionLogInterface>      $processorProvider
+     * @param ProviderInterface<CreditCardProcessorInterface> $transactionLogProvider
+     */
     public __construct(
-        #[QureditCardProcessor] private Provider $processorProvider,
-        #[TransactionLog] private Provider $transactionLogProvider
+        #[Set(TransactionLogInterface::class)] private ProviderInterface $processorProvider,
+        #[Set(CreditCardProcessorInterface::class)] private ProviderInterface $transactionLogProvider
     ) {}
 
     public chargeOrder(PizzaOrder $order, CreditCard $creditCard): Receipt
     {
-        $processor = $this->processorProvider->get();
         $transactionLog = $this->transactionLogProvider->get();
+        $processor = $this->processorProvider->get();
         
         /* use the processor and transaction log here */
     }
 }
 ```
 
-```php
-use Attribute;
-use Ray\Di\Di\Qualifier;
-
-#[Attribute, Qualifier]
-final class QureditCardProcessor
-{
-}
-```
-
-```php
-use Attribute;
-use Ray\Di\Di\Qualifier;
-
-#[Attribute, Qualifier]
-final class TransactionLog
-{
-}
-```
+To support generics in static analysis, you need to set `@param` in phpdoc to `ProviderInterface<TransactionLogInterface>` or `ProviderInterface<Cre ditCardProcessorInterface>` and so on. The type of the instance obtained by the `get()` method is specified and checked by static analysis.
 
 ## Providers for multiple instances
 
@@ -68,11 +60,9 @@ providers, you can get a new entry whenever you need one:
 ```php
 class LogFileTransactionLog implements TransactionLogInterface
 {
-    private readonly Provider $logFileProvider;
-    
-    public __construct(#[TransactionLog] Provider $logFileProvider) {
-        $this->logFileProvider = $logFileProvider;
-    }
+    public function __construct(
+        #[Set(TransactionLogInterface::class)] private readonly ProviderInterface $logFileProvider
+    ) {}
     
     public logChargeResult(ChargeResult $result): void {
         $summaryEntry = $this->logFileProvider->get();
@@ -98,7 +88,7 @@ when you don't always need the dependency:
 class LogFileTransactionLog implements TransactionLogInterface
 {
     public function __construct(
-        #[Connection] private Provider $connectionProvider
+        (#[Set(Connection::class)] private ProviderInterface $connectionProvider
     ) {}
     
     public function logChargeResult(ChargeResult $result) {
@@ -124,7 +114,7 @@ they enable you to mix scopes safely:
 class ConsoleTransactionLog implements TransactionLogInterface
 {
     public function __construct(
-        #[User] private readonly Provider $userProvider
+        #[Set(User::class)] private readonly ProviderInterface $userProvider
     ) {}
     
     public function logConnectException(UnreachableException $e): void

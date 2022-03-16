@@ -1,78 +1,65 @@
 ---
 layout: docs-ja
-title: Injecting Providers
+title: プロバイダ注入
 category: Manual
 permalink: /manuals/1.0/ja/injecting_providers.html
 ---
-# Injecting Providers
+# プロバイダ注入
 
-With normal dependency injection, each type gets exactly *one instance* of each
-of its dependent types. The `RealBillingService` gets one `CreditCardProcessor`
-and one `TransactionLog`. Sometimes you want more than one instance of your
-dependent types. When this flexibility is necessary, Ray.Di binds a provider.
-Providers produce a value when the `get()` method is invoked:
+通常の依存性注入では、各タイプは依存するタイプのそれぞれのインスタンスを正確に*1つ*取得します。
+例えば`RealBillingService` は`CreditCardProcessor` と`TransactionLog` を一つずつ取得します。しかし時には依存する型のインスタンスを複数取得したいこともあるでしょう。
+このような場合、Ray.Diはプロバイダを束縛します。プロバイダは `get()` メソッドが呼び出されたときに値を生成します。
 
 ```php
-interface Provider
+/**
+ * @template T
+ */
+interface ProviderInterface
 {
+    /**
+     * @return T
+     */
     public function get();
 }
 ```
 
-Provider types are marked with a qualifier to distinguish `Provider<TransactionLog>` from `Provider<CreditCardProcessor>`. Wherever you inject a value, you can inject a provider for that value.
+プロバイダによって提供される型を`#[Set]`アトリビュートで指定します。
 
 ```php
 class RealBillingService implements BillingServiceInterface
 {
+    /**
+     * @param ProviderInterface<TransactionLogInterface>      $processorProvider
+     * @param ProviderInterface<CreditCardProcessorInterface> $transactionLogProvider
+     */
     public __construct(
-        #[QureditCardProcessor] private Provider $processorProvider,
-        #[TransactionLog] private Provider $transactionLogProvider
+        #[Set(TransactionLogInterface::class)] private ProviderInterface $processorProvider,
+        #[Set(CreditCardProcessorInterface::class)] private ProviderInterface $transactionLogProvider
     ) {}
 
     public chargeOrder(PizzaOrder $order, CreditCard $creditCard): Receipt
     {
-        $processor = $this->processorProvider->get();
         $transactionLog = $this->transactionLogProvider->get();
+        $processor = $this->processorProvider->get();
         
-        /* use the processor and transaction log here */
+        /* プロセッサとトランザクションログをここで使用する */
     }
 }
 ```
 
-```php
-use Attribute;
-use Ray\Di\Di\Qualifier;
+静的解析でジェネリクスをサポートをするためにはphpdocの`@param`で`ProviderInterface<TransactionLogInterface>` や `ProviderInterface<CreditCardProcessorInterface>`などと表記します。`get()`メソッドで取得して得られるインスタンスの型が指定され、静的解析でチェックされます。
 
-#[Attribute, Qualifier]
-final class QureditCardProcessor
-{
-}
-```
+## 複数インスタンスのためのプロバイダ
 
-```php
-use Attribute;
-use Ray\Di\Di\Qualifier;
-
-#[Attribute, Qualifier]
-final class TransactionLog
-{
-}
-```
-
-## Providers for multiple instances
-
-Use providers when you need multiple instances of the same type. Suppose your
-application saves a summary entry and a details when a pizza charge fails. With
-providers, you can get a new entry whenever you need one:
+同じ型のインスタンスが複数必要な場合の時もプロバイダを使用します。例えば、ピザのチャージに失敗したときに、サマリーエントリと詳細情報を保存するアプリケーションを考えてみましょう。
+プロバイダを使えば、必要なときにいつでも新しいエントリを取得することができます。
 
 ```php
 class LogFileTransactionLog implements TransactionLogInterface
 {
-    private readonly Provider $logFileProvider;
-    
-    public __construct(#[TransactionLog] Provider $logFileProvider) {
-        $this->logFileProvider = $logFileProvider;
-    }
+    public function __construct(
+        #[Set(TransactionLogInterface::class)] private readonly ProviderInterface $logFileProvider
+    ) {}
     
     public logChargeResult(ChargeResult $result): void {
         $summaryEntry = $this->logFileProvider->get();
@@ -88,43 +75,38 @@ class LogFileTransactionLog implements TransactionLogInterface
 }
 ```
 
-## Providers for lazy loading
+## 遅延ロードのためのプロバイダ
 
-If you've got a dependency on a type that is particularly *expensive to
-produce*, you can use providers to defer that work. This is especially useful
-when you don't always need the dependency:
+もしある型に依存していて、その型を作るのが特に**高価**な場合、プロバイダを使ってその作業を先延ばしに、つまり遅延生成することができます。
+これはその依存が不必要な時がある場合に特に役立ちます。
 
 ```php
 class LogFileTransactionLog implements TransactionLogInterface
 {
     public function __construct(
-        #[Connection] private Provider $connectionProvider
+        (#[Set(Connection::class)] private ProviderInterface $connectionProvider
     ) {}
     
     public function logChargeResult(ChargeResult $result) {
-        /* only write failed charges to the database */
+        /* 失敗した時だけをデータベースに書き込み */
         if (! $result->wasSuccessful()) {
             $connection = $connectionProvider->get();
         }
     }
 ```
 
-## Providers for Mixing Scopes
+## 混在するスコープのためのプロバイダ
 
-Directly injecting an object with a _narrower_ scope usually causes unintended
-behavior in your application. In the example below, suppose you have a singleton
-`ConsoleTransactionLog` that depends on the request-scoped current user. If you
-were to inject the user directly into the `ConsoleTransactionLog` constructor,
-the user would only be evaluated once for the lifetime of the application. This
-behavior isn't correct because the user changes from request to request.
-Instead, you should use a Provider. Since Providers produce values on-demand,
-they enable you to mix scopes safely:
+より狭いスコープを持つオブジェクトを直接注入すると、アプリケーションで意図しない動作が発生することがあります。
+以下の例では、現在のユーザーに依存するシングルトン`ConsoleTransactionLog`があるとします。
+もし、ユーザーを `ConsoleTransactionLog` のコンストラクタに直接注入したとすると、ユーザーはアプリケーションで一度だけ評価されることになってしまいます。
+ユーザーはリクエストごとに変わるので、この動作は正しくありません。その代わりに、プロバイダを使用する必要があります。プロバイダはオンデマンドで値を生成するので、安全にスコープを混在させることができるようになります。
 
 ```php
 class ConsoleTransactionLog implements TransactionLogInterface
 {
     public function __construct(
-        #[User] private readonly Provider $userProvider
+        #[Set(User::class)] private readonly ProviderInterface $userProvider
     ) {}
     
     public function logConnectException(UnreachableException $e): void
