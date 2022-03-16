@@ -28,7 +28,7 @@ interface ProviderInterface
 ```php
 class RealBillingService implements BillingServiceInterface
 {
-　　 /**
+    /**
      * @param ProviderInterface<TransactionLogInterface>      $processorProvider
      * @param ProviderInterface<CreditCardProcessorInterface> $transactionLogProvider
      */
