@@ -30,7 +30,7 @@ The type provided by the provider is specified by the `#[Set]` attribute.
 ```php
 class RealBillingService implements BillingServiceInterface
 {
-　　 /**
+    /**
      * @param ProviderInterface<TransactionLogInterface>      $processorProvider
      * @param ProviderInterface<CreditCardProcessorInterface> $transactionLogProvider
      */
