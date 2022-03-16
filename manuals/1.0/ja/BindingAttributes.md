@@ -1,17 +1,17 @@
 ---
-layout: docs-ja
-title: Binding Attributes
+  layout: docs-ja
+title: 束縛アトリビュート
 category: Manual
 permalink: /manuals/1.0/ja/binding_attributes.html
 ---
-## Binding Attributes
+# 束縛アトリビュート
 
-Occasionally you'll want multiple bindings for a same type. For example, you might want both a PayPal credit card processor and a Google Checkout processor.
-To enable this, bindings support an optional binding attribute. The attribute and type together uniquely identify a binding. This pair is called a key.
+場合によっては、同じ型複数の束縛が必要になることがあります。たとえば、PayPalのクレジットカード決済と Google Checkoutの決済の両方を行いたい場合などです。
+このような場合に備えて、オプションの束縛アトリビュートという束縛が用意されています。このアトリビュートと型を組み合わせることで、バインディングを一意に識別します。
 
-### Defining binding attributes
+### 束縛アトリビュートの定義
 
-Define qualifier attribute first. It needs to be annotated with `Qualifier` attribute.
+束縛アトリビュートは `Qualifier` アトリビュートが付与されたPHPのアトリビュートです。
 
 ```php
 use Ray\Di\Di\Qualifier;
@@ -22,21 +22,15 @@ final class PayPal
 }
 ```
 
-To depend on the annotated binding, apply the attribute to the injected parameter:
+指定した束縛に依存するには、注入されるパラメータにそのアトリビュートを割り当てます。
 
 ```php
 public function __construct(
     #[Paypal] private readonly CreditCardProcessorInterface $processor
 ){}
 ```
-You can specify parameter name with qualifier. Qualifier applied all parameters without it.
 
-```php
-public function __construct(
-    #[Paypal('processor')] private readonly CreditCardProcessorInterface $processor
-){}
-```
-Lastly we create a binding that uses the attribute. This uses the optional `annotatedWith` clause in the bind() statement:
+最後に、そのアトリビュートを使用する束縛を作成します。これは`bind()` 文のオプションの`annotatedWith` 節を使用します。
 
 ```php
 $this->bind(CreditCardProcessorInterface::class)
@@ -44,10 +38,46 @@ $this->bind(CreditCardProcessorInterface::class)
   ->to(PayPalCreditCardProcessor::class);
 ```
 
-### Binding Attributes in Setters
+## #[Named]
 
-In order to make your custom `Qualifier` attribute inject dependencies by default in any method the
-attribute is added, you need to implement the `Ray\Di\Di\InjectInterface`:
+`Qualifier` アトリビュートの最も一般的な使用法は、メソッドの引数に特定のラベルを付けることです。このラベルは、インスタンス化するクラスを正しく選択するために束縛で使用されます。
+
+カスタムの`Qualifier` アトリビュートを作成する他に、Ray.Diには文字列を受け取るビルトインのバインディングアトリビュート`#[Named]` が用意されています。
+
+```php
+use Ray\Di\Di\Inject;
+use Ray\Di\Di\Named;
+
+public function __construct(
+    #[Named('checkout')] private CreditCardProcessorInterface $processor
+){}
+```
+
+特定の名前をバインドするには、`annotatedWith()` メソッドを用いてその文字列を渡します。
+
+```php
+$this->bind(CreditCardProcessorInterface::class)
+    ->annotatedWith('checkout')
+    ->to(CheckoutCreditCardProcessor::class);
+```
+
+パラメータを指定するには、`#[Named]` アトリビュートを付ける必要があります。
+
+```php
+use Ray\Di\Di\Inject;
+use Ray\Di\Di\Named;
+
+public function __construct(
+    #[Named('checkout')] private CreditCardProcessorInterface $processor,
+    #[Named('backup')] private CreditCardProcessorInterface $subProcessor
+){}
+```
+
+## カスタムインジェクタアトリビュート
+
+通常、セッターインジェクションで束縛アトリビュートを行う時は`#[Inject]` アトリビュートと束縛アトリビュートの２つが必要です。これをカスタムインジェクタアトリビュートを使って１つにすることができます。
+
+カスタムインジェクタアトリビュートは`InjectInterface` を実装する必要があります。
 
 ```php
 use Ray\Di\Di\InjectInterface;
@@ -68,10 +98,9 @@ final class PaymentProcessorInject implements InjectInterface
 }
 ```
 
-The interface requires that you implement the `isOptional()` method. It will be used to determine whether
-or not the injection should be performed based on whether there is a known binding for it.
+このインターフェースでは、`isOptional()` メソッドの実装が必須です。このメソッドを実行するかどうかは、その束縛が存在するかどうかで決定されます。
 
-Now that you have created your custom injector attribute, you can use it on any method.
+これでカスタムインジェクタアトリビュートが作成できたので、任意のメソッドで使用することができます。
 
 ```php
 #[PaymentProcessorInject(type: 'paypal')]
@@ -81,7 +110,7 @@ public setPaymentProcessor(CreditCardProcessorInterface $processor)
 }
 ```
 
-Finally, you can bind the interface to an implementation by using your new annotated information:
+最後に、新しいアノテーション情報を使って、インターフェイスを実装にバインドすることができます。
 
 ```php
 $this->bind(CreditCardProcessorInterface::class)
@@ -89,46 +118,19 @@ $this->bind(CreditCardProcessorInterface::class)
     ->toProvider(PaymentProcessorProvider::class);
 ```
 
-The provider can now use the information supplied in the qualifier attribute in order to instantiate
-the most appropriate class.
 
-## Qualifier
+## 束縛アノテーション
 
-The most common use of a Qualifier attribute is tagging arguments in a function with a certain label,
-the label can be used in the bindings in order to select the right class to be instantiated. For those
-cases, Ray.Di comes with a built-in binding attribute `#[Named]` that takes a string.
+Ray.DiはPHP7.xのために [doctrine/annotation](https://github.com/doctrine/annotations) と共に使用できます。アノテーションコードの例は古い[README(v2.10)](https://github.com/ray-di/Ray.Di/tree/2.10.5/README.md)をご覧ください。アトリビュートに対する前方互換性のあるアノテーションを作成するには、 [カスタムアノテーションクラス](https://github.com/kerveros12v/sacinta4/blob/e976c143b3b7d42497334e76c00fdf38717af98e/vendor/doctrine/annotations/docs/en/custom.rst#optional-constructors-with-named-parameters) を参照してください。
+
+アノテーションは引数に対して適用することができないので、カスタムアノテーションの最初の引数に変数名を指定します。なおメソッドに引数が１つのしかない場合には不要です。
 
 ```php
-use Ray\Di\Di\Inject;
-use Ray\Di\Di\Named;
-
-public function __construct(
-    #[Named('checkout')] private CreditCardProcessorInterface $processor
-){}
+/**
+ * @Paypal('processor')
+ */
+public function setCreditCardProcessor(
+	 CreditCardProcessorInterface $processor
+   OtherDepedeciyInterface $depedency
+){
 ```
-
-To bind a specific name, pass that string using the `annotatedWith()` method.
-
-```php
-$this->bind(CreditCardProcessorInterface::class)
-    ->annotatedWith('checkout')
-    ->to(CheckoutCreditCardProcessor::class);
-```
-
-You need to put the `#[Named]` attribuet in order to specify the parameter.
-
-```php
-use Ray\Di\Di\Inject;
-use Ray\Di\Di\Named;
-
-public function __construct(
-    #[Named('checkout')] private CreditCardProcessorInterface $processor,
-    #[Named('backup')] private CreditCardProcessorInterface $subProcessor
-){}
-```
-
-## Annotation / Attribute
-
-Ray.Di can be used either with [doctrine/annotation](https://github.com/doctrine/annotations) in PHP 7/8 or with an [Attributes](https://www.php.net/manual/en/language.attributes.overview.php) in PHP8.
-See the annotation code examples in the older [README(v2.10)](https://github.com/ray-di/Ray.Di/tree/2.10.5/README.md).
-To make forward-compatible annotations for attributes, see [Custom Annotation Classes](https://github.com/kerveros12v/sacinta4/blob/e976c143b3b7d42497334e76c00fdf38717af98e/vendor/doctrine/annotations/docs/en/custom.rst#optional-constructors-with-named-parameters).
