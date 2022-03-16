@@ -14,7 +14,7 @@ permalink: /manuals/1.0/ja/injecting_providers.html
 /**
  * @template T
  */
-interface ProviderInteterface
+interface ProviderInterface
 {
     /**
      * @return T
