@@ -16,7 +16,7 @@ Providers produce a value when the `get()` method is invoked:
 /**
  * @template T
  */
-interface ProviderInteterface
+interface ProviderInterface
 {
     /**
      * @return T
