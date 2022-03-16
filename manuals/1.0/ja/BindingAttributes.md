@@ -1,5 +1,5 @@
 ---
-  layout: docs-ja
+layout: docs-ja
 title: 束縛アトリビュート
 category: Manual
 permalink: /manuals/1.0/ja/binding_attributes.html
