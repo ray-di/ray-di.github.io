@@ -10,4 +10,6 @@ permalink: /manuals/1.0/ja/index.html
 
 簡単に言うと、Ray.DiはファクトリーやPHPコードでの`new`の使用を不要にするものです。ファクトリーを書く必要がある場合もありますが、コードが直接ファクトリーに依存することはありません。あなたのコードは、変更、ユニットテスト、他の文脈での再利用がより簡単になります。
 
-注: このサイトのほとんどのドキュメントは [Google Guice](https://github.com/google/guice/wiki)から引用しています。
+## Google GuiceとRay.Di
+
+Ray.Diは[Google Guice](https://github.com/google/guice)にインスパイアされたPHPのDIフレームワークです。このサイトのほとんどのドキュメントはGoogle Guiceから引用しています。
