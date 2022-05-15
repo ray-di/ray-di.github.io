@@ -1,14 +1,14 @@
 ---
 layout: docs-ja
-title: MinimizeMutability
+title: ミュータビリティの最小化
 category: Manual
 permalink: /manuals/1.0/ja/bp/minimize_mutability.html
 ---
-# Minimize mutability
+# ミュータビリティの最小化
 
-Wherever possible, use constructor injection to create immutable objects.
-Immutable objects are simple, shareable, and can be composed. Follow this
-pattern to define your injectable types:
+可能な限り、コンストラクター注入を使用して、イミュータブルオブジェクトを作成します。
+イミュータブルなオブジェクトはシンプルで、共有可能で、合成することができます。
+このパターンに従って、注入可能な型を定義してください。
 
 ```php
 class RealPaymentService implements PaymentServiceInterface
@@ -19,16 +19,14 @@ class RealPaymentService implements PaymentServiceInterface
     ){}
 ```
 
-All fields of this class are readonly and initialized by a constructor.
+このクラスのすべてのフィールドは読み取り専用で、コンストラクタによって初期化されます。
 
-## Injecting methods
+## 注入方法
 
-*Constructor injection* has some limitations:
+*コンストラクター注入*には、いくつかの制限があります。
 
-*   Injected constructors may not be optional.
-*   It cannot be used unless objects are created by Ray.Di.
-*   Subclasses must call `parent()` with all dependencies. This makes constructor
-    injection cumbersome, especially as the injected base class changes.
+* 注入されたコンストラクタはオプションであってはならない。
+* Ray.Diでオブジェクトが作成されていないと使用できません。
+* サブクラスは、すべての依存性を持って `parent()` を呼び出さなければなりません。これは、特に注入された基底クラスが変更された場合に、コンストラクタ注入を面倒なものにします。
 
-*Setter injection* is most useful when you need to initialize an instance that
-is not constructed by Ray.Di.
+*セッターインジェクション*は、Ray.Diによって構築されていないインスタンスを初期化する必要がある場合に最も便利です。
