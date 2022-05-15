@@ -17,6 +17,7 @@ class RealPaymentService implements PaymentServiceInterface
         private readnonly PaymentQueue $paymentQueue,
         private readnonly Notifier $notifier;
     ){}
+}
 ```
 
 このクラスのすべてのフィールドは読み取り専用で、コンストラクタによって初期化されます。
