@@ -1,12 +1,13 @@
 ---
 layout: docs-ja
-title: InjectOnlyDirectDependencies
+title: 直接依存するものだけを注入する
 category: Manual
 permalink: /manuals/1.0/ja/bp/inject_only_direct_dependencies.html
 ---
-# Inject only direct dependencies
+# 直接依存するものだけを注入する
 
-Avoid injecting an object only as a means to get at another object. For example, don't inject a `Customer` as a means to get at an `Account`:
+他のオブジェクトを取得するための手段としてのみオブジェクトをインジェクトすることは避けてください。
+例えば、 `Account` を取得するための手段として `Customer` をインジェクトするのはやめましょう。
 
 ```php
 class ShowBudgets
@@ -19,7 +20,9 @@ class ShowBudgets
     }
 ```
 
-Instead, inject the dependency directly. This makes testing easier; the test case doesn't need to concern itself with the customer. Use an `Provider` class to create the binding for `Account` that uses the binding for `Customer`:
+その代わり、依存関係を直接インジェクトします。
+これにより、テストケースは顧客について気にする必要がなくなり、テストが容易になります。
+`Provider` クラスを使用して、 `Customer` のバインディングを使用する `Account` のバインディングを作成します。
 
 ```php
 class CustomersModule extends AbstractModule
@@ -43,7 +46,7 @@ class PurchasingAccountProvider implements ProviderInterface
 }
 ```
 
-By injecting the dependency directly, our code is simpler.
+依存関係を直接インジェクトすることで、コードがよりシンプルになります。
 
 ```php
 class ShowBudgets
