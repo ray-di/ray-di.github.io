@@ -7,7 +7,7 @@ permalink: /manuals/1.0/ja/bp/inject_only_direct_dependencies.html
 # 直接依存するものだけを注入する
 
 他のオブジェクトを取得するためだけに、オブジェクトを注入することは避けてください。
-例えば、 `Account` オブジェクトを取得するために `Customer` オブジェクトをインジェクトするのはやめましょう。
+例えば、 `Account` を取得するために `Customer` をインジェクトするのはやめましょう。
 
 ```php
 class ShowBudgets
@@ -22,7 +22,7 @@ class ShowBudgets
 ```
 
 その代わり、依存関係を直接インジェクトします。
-これにより、テストケースは顧客について気にする必要がなくなり、テストが容易になります。
+これにより、テストケースは `Customer` を気にする必要がなくなり、テストが容易になります。
 `Provider` クラスを使用して、 `Customer` の束縛を使用する `Account` の束縛を作成します。
 
 ```php
