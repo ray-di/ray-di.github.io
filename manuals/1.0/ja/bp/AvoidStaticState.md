@@ -4,13 +4,10 @@ title: AvoidStaticState
 category: Manual
 permalink: /manuals/1.0/ja/bp/avoid_static_state.html
 ---
-# Avoid static state
+# 静的状態を避ける
 
-Static state and testability are enemies. Your tests should be fast and free of
-side-effects. But non-constant values held by static fields are a pain to
-manage. It's tricky to reliably tear down static singletons that are mocked by
-tests, and this interferes with other tests.
+静的な状態とテスト容易性は敵同士です。テストは高速で副作用のないものであるべきです。しかし、静的なフィールドで保持される定数でない値を管理するのは面倒です。
+テストでモックされた静的な値を確実に削除するのは難しいですし、 他のテストの邪魔にもなります。
 
-Although *static state* is bad, there's nothing wrong with the static *keyword*.
-Static classes are okay (preferred even!) and for pure functions (sorting, math,
-etc.), static is just fine.
+静的状態*は悪いことですが、静的*というキーワードは何も問題ではありません。
+静的なクラスは問題ありませんし（むしろ好ましい！）、純粋な関数（ソートや数学など）については、静的であることがちょうどよいのです。
