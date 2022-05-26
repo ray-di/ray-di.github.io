@@ -11,8 +11,7 @@ permalink: /manuals/1.0/ja/bp/avoid_conditional_logic_in_modules.html
 ```php
 class FooModule extends AbstractModule
 {
-  public function __construct(?string $fooServer)
-  {
+  public function __construct(
     private readonly ?string $fooServer
   }{}
 
