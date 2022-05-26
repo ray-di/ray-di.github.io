@@ -1,13 +1,16 @@
 ---
 layout: docs-ja
-title: InjectingTheInjector
+title: インジェクターはなるべく使用しない
 category: Manual
 permalink: /manuals/1.0/ja/bp/injecting_the_injector.html
 ---
-# Use the Injector as little as possible (preferably only once)
+# インジェクターはなるべく使用しない (できれば1回だけ)
 
-Ray.Di has a [built-in](../built_in_bindings.html) binding for the `Injector` but it should be used sparsely.
+Ray.Diは `Injector` の[ビルトイン](../built_in_bindings.html)バインディングを持っていますが、あまり使用しないでください。
 
-Don't pass injectors into other injected objects through the constructor (which is also called "injecting the injector"). You should declare your dependencies statically.
+インジェクタをコンストラクタで他のインジェクションオブジェクトに渡さないようにする。 (というのは、"インジェクターに注入する "というのもあります。)
+依存関係は静的に宣言する必要があります。
 
-Injecting the injector makes it impossible for Ray.Di to know ahead-of-time that your Dependency Ray.Di is complete, because it lets folks get instances directly from the injector. So long as nothing injects the injector, then Ray.Di will 100% fail at `new Injector` time if any dependency isn't configured correctly. However, if something injects the injector, then Ray.Di might fail at runtime (when the code lazily calls `getInstance()`) with missing bindings error.
+インジェクターに注入することで、Ray.DiはあなたのDependency Ray.Diが完了したことを事前に知ることができなくなります。なぜなら、インジェクターから直接インスタンスを取得することができるようになるからです。
+インジェクターに何も注入しない限り、依存関係が正しく設定されていない場合、Ray.Diは `new Injector` の時点で100%失敗します。
+しかし、もし何かがインジェクタを注入した場合、Ray.Diは実行時に（コードが怠惰に `getInstance() ` を呼び出すとき）missing bindings error で失敗するかもしれません。
