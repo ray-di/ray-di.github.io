@@ -6,7 +6,7 @@ permalink: /manuals/1.0/ja/bp/injecting_the_injector.html
 ---
 # インジェクターはなるべく使用しない (できれば1回だけ)
 
-Ray.Diは `Injector` の[ビルトイン](../built_in_bindings.html)バインディングを持っていますが、あまり使用しないでください。
+Ray.Diは `Injector` の[ビルトイン](../builtin_bindings.html)バインディングを持っていますが、あまり使用しないでください。
 
 インジェクタをコンストラクタで他のインジェクションオブジェクトに渡さないようにする。 (というのは、"インジェクターに注入する "というのもあります。)
 依存関係は静的に宣言する必要があります。
