@@ -12,8 +12,7 @@ operate differently for different environments:
 ```php
 class FooModule extends AbstractModule
 {
-  public function __construct(?string $fooServer)
-  {
+  public function __construct(
     private readonly ?string $fooServer
   }{}
 

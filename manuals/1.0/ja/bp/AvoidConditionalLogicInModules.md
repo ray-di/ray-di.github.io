@@ -4,16 +4,14 @@ title: AvoidConditionalLogicInModules
 category: Manual
 permalink: /manuals/1.0/ja/bp/avoid_conditional_logic_in_modules.html
 ---
-# Avoid conditional logic in modules
+# モジュールの条件付きロジックは避ける
 
-It’s tempting to create modules that have moving parts and can be configured to
-operate differently for different environments:
+環境ごとに異なる動作を設定できるような動的なモジュールを作りたくなる事があります。
 
 ```php
 class FooModule extends AbstractModule
 {
-  public function __construct(?string $fooServer)
-  {
+  public function __construct(
     private readonly ?string $fooServer
   }{}
 
@@ -29,19 +27,10 @@ class FooModule extends AbstractModule
 }
 ```
 
-Conditional logic in itself isn't too bad. But problems arise when
-configurations are untested. In this example, the`InMemoryFooService` is used
-for development and `RemoteFooService` is used in production. But without
-testing this specific case, it's impossible to be sure that `RemoteFooService`
-works in the integrated application.
+条件付きロジック自体はそれほど悪いものではありません。 しかし、構成が未検証の場合に問題が発生します。
+この例では、`InMemoryFooService` を開発用に使用し、`RemoteFooService` を本番用に使用しますが、その本番用の特定のケースをテストしないと、統合アプリケーションで `RemoteFooService` が動作することを確認することはできません。
 
-To overcome this, **minimize the number of distinct configurations** in your
-applications. If you split production and development into distinct modules, it
-is easier to be sure that the entire production codepath is tested. In this
-case, we split `FooModule` into `RemoteFooModule` and `InMemoryFooModule`. This
-also prevents production classes from having a compile-time dependency on test
-code.
+この問題を解決するには、アプリケーションの**個別の設定の数を最小限**にします。本番環境と開発環境を個別のモジュールに分割すれば、本番環境のコードパス全体をテストすることが容易になります。
+この例では、`FooModule` を `RemoteFooModule` と `InMemoryFooModule` に分割します。これにより、実運用中のクラスがテストコードにコンパイル時に依存するのを防ぐこともできます。
 
-Another, related, issue with the example above: sometimes there's a binding for
-`#[ServerName]`, and sometimes that binding is not there. You should avoid
-sometimes binding a key, and other times not.
+もうひとつ、上の例に関連する問題です。`#[ServerName]`に対するバインディングがあるときとないときがあります。そのようにあるキーが束縛されたりしてなかったりする事があるのは避けるべきでしょう。
