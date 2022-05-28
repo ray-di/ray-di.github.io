@@ -4,10 +4,9 @@ title: DocumentPublicBindings
 category: Manual
 permalink: /manuals/1.0/ja/bp/document_public_bindings.html
 ---
-# Document the public bindings provided by modules
+# モジュールが提供する束縛を文書化する
 
-To document a Ray.Di module, a good strategy is to describe the public bindings
-that that module installs, for example:
+Ray.Diモジュールのドキュメンテーションとして、そのモジュールが提供する束縛を記述します。
 
 ```php
 /**
