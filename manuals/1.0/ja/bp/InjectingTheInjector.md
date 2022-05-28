@@ -1,13 +1,17 @@
 ---
 layout: docs-ja
-title: InjectingTheInjector
+title: インジェクタはなるべく使用しない
 category: Manual
 permalink: /manuals/1.0/ja/bp/injecting_the_injector.html
 ---
-# Use the Injector as little as possible (preferably only once)
+# インジェクタはなるべく使用しない (できれば1回だけ)
 
-Ray.Di has a [built-in](../built_in_bindings.html) binding for the `Injector` but it should be used sparsely.
+Ray.Diは `Injector` の[ビルトイン束縛](../builtin_bindings.html)がありますが、あまり使用しないでください。
 
-Don't pass injectors into other injected objects through the constructor (which is also called "injecting the injector"). You should declare your dependencies statically.
+コンストラクタを通して、他の注入オブジェクトにインジェクタを渡さないようにしましょう。 (これは "インジェクタを注入する" とも呼ばれます)
+依存関係は静的に宣言した方が良いでしょう。
 
-Injecting the injector makes it impossible for Ray.Di to know ahead-of-time that your Dependency Ray.Di is complete, because it lets folks get instances directly from the injector. So long as nothing injects the injector, then Ray.Di will 100% fail at `new Injector` time if any dependency isn't configured correctly. However, if something injects the injector, then Ray.Di might fail at runtime (when the code lazily calls `getInstance()`) with missing bindings error.
+インジェクタを注入することで、事前にRay.Diが依存関係の解決が可能か知ることができなくなります。
+なぜなら、インジェクタから直接インスタンスを取得できるからです。
+依存関係が正しく設定されていなくて、インジェクタを注入していない場合には、Ray.Diのコンパイルで依存解決の失敗を検知できます。
+しかし、もしインジェクタを注入している場合には、Ray.Diは実行時（コードが`getInstance()`を遅延実行する時）に、`Unbound`例外が出て依存解決が失敗するかもしれません。
