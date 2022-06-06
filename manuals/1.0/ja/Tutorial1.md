@@ -185,7 +185,7 @@ interface GreeterInterface
 <?php
 namespace Ray\Tutorial;
 
-final class CleanGreeter implements GreeterInterface
+class CleanGreeter implements GreeterInterface
 {
     public function __construct(
         private readonly Users $users,
@@ -214,12 +214,12 @@ use Ray\Tutorial\Users;
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 
-$greeting = new CleanGreeter(
+$greeter = new CleanGreeter(
     new Users(['DI', 'AOP', 'REST']),
     new Printer
 );
 
-$greeting();
+$greeter();
 ```
 
 ファイル数が増え全体としては複雑になっているように見えますが、個々のスクリプトはこれ以上単純にするのが難しいぐらい単純です。それぞれのクラスはただ１つの責務しか担っていませんし[^srp]、実装ではなく抽象に依存して[^dip]、テストや拡張も用意です。
@@ -245,7 +245,7 @@ namespace Ray\Tutorial;
 
 use Ray\Di\AbstractModule;
 
-final class AppModule extends AbstractModule
+class AppModule extends AbstractModule
 {
     protected function configure(): void
     {
@@ -270,8 +270,8 @@ require dirname(__DIR__) . '/vendor/autoload.php';
 
 $module = new AppModule();
 $injector = new Injector($module);
-$greering = $injector->getInstance(GreetingInterface::class);
-$greering();
+$greeter = $injector->getInstance(GreeterInterface::class);
+$greeter->sayHello();
 ```
 
 ## 依存の置き換え
@@ -365,7 +365,7 @@ final class SpanishModule extends AbstractModule
 {
     protected function configure(): void
     {
-        $this->bind()->annotatedWith('message')->toInstance('¡Hola %s !' . PHP_EOL);
+        $this->bind()->annotatedWith(Message::class)->toInstance('¡Hola %s !' . PHP_EOL);
     }
 }
 ```
