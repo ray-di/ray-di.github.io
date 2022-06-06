@@ -52,7 +52,7 @@ require dirname(__DIR__) . '/vendor/autoload.php';
 実行してみましょう。
 
 ```php
-php bin/run_tutorial.php
+php bin/run.php
 
 Hello DI!
 Hello AOP!
@@ -224,7 +224,7 @@ $greeter = new CleanGreeter(
     new Printer
 );
 
-$greeter();
+$greeter->sayHello();
 ```
 
 ファイル数が増え全体としては複雑になっているように見えますが、個々のスクリプトはこれ以上単純にするのが難しいぐらい単純です。それぞれのクラスはただ１つの責務しか担っていませんし[^srp]、実装ではなく抽象に依存して[^dip]、テストや拡張、それに再利用も容易です。
