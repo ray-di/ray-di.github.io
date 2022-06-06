@@ -28,7 +28,7 @@ namespace Ray\Tutorial;
 
 class Greeter
 {
-    public function sayHello()
+    public function sayHello(): void
     {
         $users = ['DI', 'AOP', 'REST'];
         foreach ($users as $user) {
@@ -42,7 +42,6 @@ class Greeter
 
 ```php
 <?php
-
 use Ray\Tutorial\Greeting;
 
 require dirname(__DIR__) . '/vendor/autoload.php';
@@ -98,24 +97,28 @@ $users = Config::get('users')
 コードの外側から依存を注入(dependency injection)するのがDIパターンです。
 
 ```php
+class Greeter
+{
     public function __construct(
         private readonly Users $users
     ) {}
 
-    public function sayHello()
+    public function sayHello(): void
     {
         foreach ($this->users as $user) {
             echo 'Hello ' . $user . '!' . PHP_EOL;
         }
     }
+}
 ```
 
 必要なデータだけでなく、出力も独立したサービスにして注入しましょう。
 
 ```diff
     public function __construct(
-        private readonly Users $users,
-+        private readonly PrinterInterface $printer
+        private readonly Users $users
++       private readonly Users $users,
++       private readonly PrinterInterface $printer
     ) {}
 
     public function sayHello()
@@ -123,7 +126,7 @@ $users = Config::get('users')
         foreach ($this->users as $user) {
 -            echo 'Hello ' . $user . '!' . PHP_EOL;
 +            ($this->printer)($user);
-				}
+        }
     }
 ```
 
@@ -177,7 +180,7 @@ namespace Ray\Tutorial;
 
 interface GreeterInterface
 {
-    public function sayHello(string $user);
+    public function sayHello(string $user): void;
 }
 ```
 
