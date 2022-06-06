@@ -75,14 +75,16 @@ Hello REST!
 
 ```php
 define(USERS, ['DI', 'AOP', 'REST']);
+
+$users = USERS;
 ```
 ```php
-class Users
+class User
 {
     public const $names = ['DI', 'AOP', 'REST'];
 };
 
-$users = Users:$names;
+$users = User::$names;
 ```
 
 ```php
