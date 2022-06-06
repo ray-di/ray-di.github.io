@@ -19,16 +19,16 @@ composer update
 
 
 
-`src/Greeting.php`を作成します。
+`src/Greeter.php`を作成します。
 `$users`に次々に挨拶するプログラムです。
 
 ```php
 <?php
 namespace Ray\Tutorial;
 
-final class Greeting
+class Greeter
 {
-    public function __invoke()
+    public function sayHello()
     {
         $users = ['DI', 'AOP', 'REST'];
         foreach ($users as $user) {
@@ -47,7 +47,7 @@ use Ray\Tutorial\Greeting;
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 
-(new Greeting)();
+(new Greeter)->sayHello();
 ```
 
 実行してみましょう。
@@ -100,7 +100,7 @@ $users = Config::get('users')
         private readonly Users $users
     ) {}
 
-    public function __invoke()
+    public function sayHello()
     {
         foreach ($this->users as $user) {
             echo 'Hello ' . $user . '!' . PHP_EOL;
@@ -116,7 +116,7 @@ $users = Config::get('users')
 +        private readonly PrinterInterface $printer
     ) {}
 
-    public function __invoke()
+    public function sayHello()
     {
         foreach ($this->users as $user) {
 -            echo 'Hello ' . $user . '!' . PHP_EOL;
@@ -175,24 +175,24 @@ namespace Ray\Tutorial;
 
 interface GreeterInterface
 {
-    public function __invoke(string $user);
+    public function sayHello(string $user);
 }
 ```
 
-`src/CleanGreeting.php`
+`src/CleanGreeter.php`
 
 ```php
 <?php
 namespace Ray\Tutorial;
 
-final class CleanGreeting implements GreetingInterface
+final class CleanGreeter implements GreeterInterface
 {
     public function __construct(
         private readonly Users $users,
         private readonly PrinterInterface $printer
     ) {}
 
-    public function __invoke(): void
+    public function sayHello(): void
     {
         foreach ($this->users as $user) {
             ($this->printer)($user);
@@ -214,7 +214,7 @@ use Ray\Tutorial\Users;
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 
-$greeting = new CleanGreeting(
+$greeting = new CleanGreeter(
     new Users(['DI', 'AOP', 'REST']),
     new Printer
 );
@@ -251,7 +251,7 @@ final class AppModule extends AbstractModule
     {
         $this->bind(Users::class)->toInstance(new Users(['DI', 'AOP', 'REST']));
         $this->bind(PrinterInterface::class)->to(Printer::class);
-        $this->bind(GreetingInterface::class)->to(CleanGreeting::class);
+        $this->bind(GreeterInterface::class)->to(CleanGreeter::class);
     }
 }
 ```
@@ -326,7 +326,7 @@ use Ray\Di\Di\Named;
 class IntlPrinter implements PrinterInterface
 {
     public function __construct(
-        #[Named('message')] private string $message
+        #[Message] private string $message
     ){}
 
     public function __invoke(string $user): void
@@ -336,12 +336,26 @@ class IntlPrinter implements PrinterInterface
 }
 ```
 
-コンストラクタは挨拶のメッセージ文字列を受け取りますが、この束縛を特定するために`#[Named('message')]`アトリビュートを付加しています。
+コンストラクタは挨拶のメッセージ文字列を受け取りますが、この束縛を特定するために`#[Message]`アトリビュートを付加します。そのための`src/Message.php`も作成します。
+
+```php
+<?php
+namespace Ray\Tutorial;
+
+use Ray\Di\Di\Qualifier;
+
+#[Attribute, Qualifier]
+class Message
+{
+}
+```
+
+束縛を変更。
 
 ```diff
 -        $this->bind(PrinterInterface::class)->to(Printer::class);
 +        $this->bind(PrinterInterface::class)->to(IntlPrinter::class);
-+        $this->bind()->annotatedWith('message')->toInstance('Hello %s !' . PHP_EOL);
++        $this->bind()->annotatedWith(Message::class)->toInstance('Hello %s !' . PHP_EOL);
 ```
 
 実行して変わらない事を確認しましょう。以下のような束縛を`SpanishModule`として作ってTestModuleと同じように上書きしてみましょう。
