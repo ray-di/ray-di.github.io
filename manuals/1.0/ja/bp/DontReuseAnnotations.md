@@ -1,18 +1,21 @@
 ---
 layout: docs-ja
-title: DontReuseAttributes
+title: 束縛アトリビュートを再利用しない
 category: Manual
 permalink: /manuals/1.0/ja/bp/dont_reuse_annotations.html
 ---
-# Don't reuse binding attributes (aka `#[Qualifier]`)
+# 束縛アトリビュートを再利用しない (`#[Qualifier]`)
 
-Sometimes, of course, it makes sense to bind some highly-related bindings with the same attributes. E.g. `#[ServerName]`
+もちろん、関連性の高い束縛を同じアトリビュートでバインドすることは適切です。 例) `#[ServerName]`
 
-That said, most binding attributes should only qualify one binding. And you should definitely not reuse a binding attributes for *unrelated* bindings.
+しかしながら、ほとんどの束縛アトリビュートは1つの束縛だけを対象にします。
+また、束縛アトリビュートを *無関係* の束縛に再利用することは絶対に避けてください。
 
-When in doubt, don't reuse attributes: creating one is straightfoward!
+迷ったときは、アトリビュートを再利用しないことです。作成するのは簡単です!
 
-To avoid some boilerplate, sometimes it makes sense to use attribute parameters to create distinct annotation instances from a single declaration. For example:
+ボイラープレートコードを避けるために、アトリビュートの引数を使用して１つのアトリビュートから複数の区別をすれば良いでしょう。
+
+例えば
 
 ```php
 enum Thing
@@ -31,4 +34,4 @@ final class MyThing
 }
 ```
 
-You can then use `#[MyThing(Thing::FOO)]`, `#[MyThing(Thing::BAR)]`, and `#[MyThing(Thing::BAZ)]` rather than defining each of them as separate attribute types.
+それぞれを別々のアトリビュートを定義する代わりに、 `#[MyThing(Thing::FOO)]`, `#[MyThing(Thing::BAR)]`, `#[MyThing(Thing::BAZ)]`などと引数で区別します。
