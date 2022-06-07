@@ -1,20 +1,15 @@
 ---
 layout: docs-ja
-title: OrganizeModulesByFeature
+title: 機能別にモジュールを整理する
 category: Manual
 permalink: /manuals/1.0/ja/bp/organize_modules_by_feature.html
 ---
-# Organize modules by feature, not by class type
+# クラスタイプではなく、機能別にモジュールを整理する
 
-Group bindings into features. Ideally it should be possible to enable/disable an
-entire working feature by simply installing or not installing a single module in
-the injector.
+バインディングをフィーチャーにグループ化する。
+理想的には、インジェクタにモジュールを1つインストールするかしないかだけで、動作機能全体を有効化/無効化できるようにすることです。
 
-For example, don't just make a `FiltersModule` that has bindings for all the
-classes that implement `Filter` in it, and a `GraphsModule` that has all the
-classes that implement `Graph`, etc. Instead, try to organize modules by
-feature, for example an `AuthenticationModule` that authenticates requests made
-to your server, or a `FooBackendModule` that lets your server make requests to
-the Foo backend.
+例えば、`Filter` を実装するすべてのクラスのバインディングを含む `FiltersModule` や、 `Graph` を実装するすべてのクラスを含む `GraphsModule` などは作らないようにしましょう。
+例えば、サーバーへのリクエストを認証する `AuthenticationModule` や、サーバーから Foo バックエンドへのリクエストを可能にする `FooBackendModule` のようにです。
 
-This principle is also known as "organize modules vertically, not horizontally".
+この原則は、「水平ではなく、垂直にモジュールを編成する」としても知られている。
