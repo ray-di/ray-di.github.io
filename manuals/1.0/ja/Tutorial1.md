@@ -6,6 +6,9 @@ permalink: /manuals/1.0/ja/tutorial1.html
 ---
 # Ray.Di チュートリアル1
 
+このチュートリアルではDIパターンの基礎やRay.Diのプロジェクトの始め方を学びます。
+DIを使わないコードから手動のDIコードに変更し、次にRay.Diを使ったコードにして機能追加をします。
+
 ## 準備
 
 チュートリアルのためのプロジェクトを作成します。
@@ -16,8 +19,6 @@ cd ray-tutorial
 composer init --name=ray/tutorial --require=ray/di:^2 --autoload=src -n
 composer update
 ```
-
-
 
 `src/Greeter.php`を作成します。
 `$users`に次々に挨拶するプログラムです。
@@ -38,11 +39,11 @@ class Greeter
 }
 ```
 
-実行するためのスクリプトを`bin/run_tutorial.php`に用意します。
+実行するためのスクリプトを`bin/run.php`に用意します。
 
 ```php
 <?php
-use Ray\Tutorial\Greeting;
+use Ray\Tutorial\Greeter;
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 
@@ -180,7 +181,7 @@ namespace Ray\Tutorial;
 
 interface GreeterInterface
 {
-    public function sayHello(string $user): void;
+    public function sayHello(): void;
 }
 ```
 
@@ -213,7 +214,7 @@ class CleanGreeter implements GreeterInterface
 ```php
 <?php
 
-use Ray\Tutorial\CleanGreeting;
+use Ray\Tutorial\CleanGreeter;
 use Ray\Tutorial\Printer;
 use Ray\Tutorial\Users;
 
@@ -229,18 +230,20 @@ $greeter->sayHello();
 
 ファイル数が増え全体としては複雑になっているように見えますが、個々のスクリプトはこれ以上単純にするのが難しいぐらい単純です。それぞれのクラスはただ１つの責務しか担っていませんし[^srp]、実装ではなく抽象に依存して[^dip]、テストや拡張、それに再利用も容易です。
 
-[^srp]: [単一責任原則](https://ja.wikipedia.org/wiki/SOLID)
-[^dip]: [依存性逆転の法則](https://ja.wikipedia.org/wiki/%E4%BE%9D%E5%AD%98%E6%80%A7%E9%80%86%E8%BB%A2%E3%81%AE%E5%8E%9F%E5%89%87)
+[^srp]: [単一責任原則 (SRP)](https://ja.wikipedia.org/wiki/SOLID)
+[^dip]: [依存性逆転の原則 (DIP)](https://ja.wikipedia.org/wiki/%E4%BE%9D%E5%AD%98%E6%80%A7%E9%80%86%E8%BB%A2%E3%81%AE%E5%8E%9F%E5%89%87)
 
 `bin`は**コンパイルタイム**で依存を構成し、`src`以下のコードは**ランタイムタイム**での実行します。PHPはスクリプト言語ですが、このようにコンパイルタイム・ランタイムタイムの区別を考えることができます。
 
-DIのコードは基本的にこのように依存をコンストラクタで渡してオブジェクトが相互依存するオブジェクトグラフを生成します。オブジェクトは他から所有されているか、他を所有しているか、あるいは双方のいずれかです。
+DIのコードは基本的にこのように依存をコンストラクタで渡してオブジェクトが相互依存するオブジェクトグラフ[^og]を生成します。オブジェクトは他から所有されているか、他を所有しているか、あるいは双方のいずれかです。
 
 `$object = new A(new B, new C(new D(new E, new F, new G)))`
 
-小さなオブジェクトグラフ生成をこのように手動で行うことは問題ありません。しかし深いネストの依存解決、シングルトン管理、再利用性、メンテナンス性、それらの問題が現実化してきます。その問題を解決するのがRay.Diです。
+小さなオブジェクトグラフ生成をこのように手動で行うことは問題ありません。しかしプロジェクトが規模を伴うようになると、深いネストの依存解決、シングルトン管理、再利用性、メンテナンス性、それらの問題が現実化してきます。その問題を解決するのがRay.Diです。
 
 ### モジュール
+
+モジュールは束縛の集合です。束縛にはいくつか種類がありますが、ここでは最も基本のインターフェイスにクラスを束縛する[リンク束縛](https://ray-di.github.io/manuals/1.0/ja/linked_bindings.html) 、バリューオブジェクトなど実態への束縛を行う[インスタンス束縛](https://ray-di.github.io/manuals/1.0/ja/instance_bindings.html)を行います。
 
 `src/AppModule.php`を用意します。
 
@@ -268,8 +271,7 @@ class AppModule extends AbstractModule
 
 use Ray\Di\Injector;
 use Ray\Tutorial\AppModule;
-use Ray\Tutorial\GreetingInterface;
-use Ray\Tutorial\Users;
+use Ray\Tutorial\GreeterInterface;
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 
@@ -278,6 +280,8 @@ $injector = new Injector($module);
 $greeter = $injector->getInstance(GreeterInterface::class);
 $greeter->sayHello();
 ```
+
+うまくいきましたか？ おかしい時は[tutorial1](https://github.com/ray-di/tutorial1/tree/master/src)と見比べてみてください。
 
 ## 依存の置き換え
 
@@ -341,12 +345,13 @@ class IntlPrinter implements PrinterInterface
 }
 ```
 
-コンストラクタは挨拶のメッセージ文字列を受け取りますが、この束縛を特定するために`#[Message]`アトリビュートを付加します。そのための`src/Message.php`も作成します。
+コンストラクタは挨拶のメッセージ文字列を受け取りますが、この束縛を特定するために[アトリビュート束縛](https://ray-di.github.io/manuals/1.0/ja/binding_attributes.html)のための`#[Message]`アトリビュート、`src/Message.php`を作成します。
 
 ```php
 <?php
 namespace Ray\Tutorial;
 
+use Attribute;
 use Ray\Di\Di\Qualifier;
 
 #[Attribute, Qualifier]
@@ -360,25 +365,65 @@ class Message
 ```diff
 -        $this->bind(PrinterInterface::class)->to(Printer::class);
 +        $this->bind(PrinterInterface::class)->to(IntlPrinter::class);
-+        $this->bind()->annotatedWith(Message::class)->toInstance('Hello %s !' . PHP_EOL);
++        $this->bind()->annotatedWith(Message::class)->toInstance('Hello %s!' . PHP_EOL);
 ```
 
-実行して変わらない事を確認しましょう。以下のような束縛を`SpanishModule`として作ってTestModuleと同じように上書きしてみましょう。
+実行して変わらない事を確認しましょう。
+
+次にエラーを試してみましょう。`configure()`メソッドの中の`Message::class`の束縛をコメントアウトしてください。
+
+```diff
+-        $this->bind()->annotatedWith(Message::class)->toInstance('Hello %s!' . PHP_EOL);
++        // $this->bind()->annotatedWith(Message::class)->toInstance('Hello %s!' . PHP_EOL);
+```
+
+これではRay.Diは`#[Message]`とアトリビュートされた依存に何を注入すれば良いかわかりません。
+
+実行すると以下のようなエラーが出力されます。
+
+```
+PHP Fatal error:  Uncaught exception 'Ray\Di\Exception\Unbound' with message '-Ray\Tutorial\Message'
+- dependency '' with name 'Ray\Tutorial\Message' used in /tmp/tutorial/src/IntlPrinter.php:8 ($message)
+- dependency 'Ray\Tutorial\PrinterInterface' with name '' /tmp/tutorial/src/CleanGreeter.php:6 ($printer)
+```
+
+これは`IntlPrinter.php:8`の`$message`が依存解決できないので、それに依存する`CleanGreeter.php:6`の`$printer`も依存解決できなくて注入が失敗しましたというエラーです。このように依存の依存が解決できない時はその依存のネストも表示されます。
+
+最後に、以下のような束縛を`src/SpanishModule.php`として作成してTestModuleと同じように上書きしてみましょう。
 
 ```php
-final class SpanishModule extends AbstractModule
+<?php
+namespace Ray\Tutorial;
+
+use Ray\Di\AbstractModule;
+
+class SpanishModule extends AbstractModule
 {
     protected function configure(): void
     {
-        $this->bind()->annotatedWith(Message::class)->toInstance('¡Hola %s !' . PHP_EOL);
+        $this->bind()->annotatedWith(Message::class)->toInstance('¡Hola %s!' . PHP_EOL);
     }
 }
 ```
 
+以下のようにスペイン語の挨拶に変わりましたか？
+
+```
+¡Hola DI!
+¡Hola AOP!
+¡Hola REST!
+```
+
 ## まとめ
 
-ここまでが、DIパターンとRay.Diの基本です。オブジェクト指向のアプリケーションは相互に関係のある複雑なオブジェクトグラフ（網）を持ちます。依存をpullするのではなく注入、その依存解決をRay.Diが行いオブジェクトグラフを生成します。
+ここまでが、DIパターンとRay.Diの基本です。
 
-コンパイルタイムでオブジェクトの構成や依存の束縛は完了していて、ランタイムではインターフェイスに依存したコードが実行されます。
+オブジェクト指向のアプリケーションは相互に関係のある複雑なオブジェクトグラフ[^og]を持ちます。依存はユーザーコードが外からpullするのではなくRay.Diによって注入されることで、オブジェクトグラフが生成されます。DIパターンに従う事で、SRP原則[^srp]やDIP原則[^dip]を守る事も自然になりました。
+
+[^og]: "コンピュータサイエンスにおいて、オブジェクト指向のアプリケーションは相互に関係のある複雑なオブジェクト網を持ちます。オブジェクトはあるオブジェクトから所有されているか、他のオブジェクト（またはそのリファレンス）を含んでいるか、そのどちらかでお互いに接続されています。このオブジェクト網をオブジェクトグラフと呼びます。" [Object Graph](https://en.wikipedia.org/wiki/Object_graph)
+
+コンパイルタイムでオブジェクトの構成や依存の束縛は完了していて、ランタイムではインターフェイスに依存したコードが実行されます。 ランタイムで依存を確保する責務が無くなることで、変更に対しても柔軟になりテストも容易になりました。コードは安定していて、拡張に対しては開いていても修正に対しては閉じています。[^ocp]
+
+[^ocp]: [開放/閉鎖原則 (OCP)](https://ja.wikipedia.org/wiki/%E9%96%8B%E6%94%BE/%E9%96%89%E9%8E%96%E5%8E%9F%E5%89%87)
 
 ---
