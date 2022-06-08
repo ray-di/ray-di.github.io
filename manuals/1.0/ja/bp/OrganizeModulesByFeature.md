@@ -13,4 +13,4 @@ permalink: /manuals/1.0/ja/bp/organize_modules_by_feature.html
 
 その代わり、例えば、サーバーへのリクエストを認証する `AuthenticationModule` やサーバーから Fooバックエンドへのリクエストを可能にする `FooBackendModule` のように作りましょう。
 
-この原則は、「モジュールを水平ではなく、垂直に整理する」としても知られている。
+この原則は、「モジュールを水平ではなく、垂直に整理する」としても知られています。
