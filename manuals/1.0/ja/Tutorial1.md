@@ -173,13 +173,25 @@ class Printer implements PrinterInterface
 }
 ```
 
+`src/GreeterInterface.php`
+
+```php
+<?php
+namespace Ray\Tutorial;
+
+interface GreeterInterface
+{
+    public function sayHello(): void;
+}
+```
+
 `src/CleanGreeter.php`
 
 ```php
 <?php
 namespace Ray\Tutorial;
 
-class CleanGreeter
+class CleanGreeter implements GreeterInterface
 {
     public function __construct(
         private readonly Users $users,
@@ -233,7 +245,7 @@ DIのコードは依存を外部から渡して、コンストラクタで受け
 
 ### モジュール
 
-モジュールは束縛の集合です。束縛にはいくつか種類がありますが、ここでは基本の、バリューオブジェクトなど実態への束縛を行う[インスタンス束縛](https://ray-di.github.io/manuals/1.0/ja/instance_bindings.html)、インターフェイスにクラスを束縛する[リンク束縛](https://ray-di.github.io/manuals/1.0/ja/linked_bindings.html) 、具象クラスをそのまま登録する[アンターゲット束縛](https://ray-di.github.io/manuals/1.0/ja/untargeted_bindings.html)を行います。
+モジュールは束縛の集合です。束縛にはいくつか種類がありますが、ここでは最も基本のインターフェイスにクラスを束縛する[リンク束縛](https://ray-di.github.io/manuals/1.0/ja/linked_bindings.html) 、バリューオブジェクトなど実態への束縛を行う[インスタンス束縛](https://ray-di.github.io/manuals/1.0/ja/instance_bindings.html)を行います。
 
 `src/AppModule.php`を用意します。
 
@@ -247,9 +259,9 @@ class AppModule extends AbstractModule
 {
     protected function configure(): void
     {
-        $this->bind(Users::class)->toInstance(new Users(['DI', 'AOP', 'REST'])); // インスタンス束縛
-        $this->bind(PrinterInterface::class)->to(Printer::class); // リンク束縛
-        $this->bind(CleanGreeter::class); // アンターゲット束縛
+        $this->bind(Users::class)->toInstance(new Users(['DI', 'AOP', 'REST']));
+        $this->bind(PrinterInterface::class)->to(Printer::class);
+        $this->bind(GreeterInterface::class)->to(CleanGreeter::class);
     }
 }
 ```
@@ -267,7 +279,7 @@ require dirname(__DIR__) . '/vendor/autoload.php';
 
 $module = new AppModule();
 $injector = new Injector($module);
-$greeter = $injector->getInstance(CleanGreeter::class);
+$greeter = $injector->getInstance(GreeterInterface::class);
 $greeter->sayHello();
 ```
 
