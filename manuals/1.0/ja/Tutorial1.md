@@ -16,6 +16,7 @@ DIを使わないコードから手動のDIコードに変更し、次にRay.Di�
 ```
 mkdir ray-tutorial
 cd ray-tutorial
+composer self-update
 composer init --name=ray/tutorial --require=ray/di:^2 --autoload=src -n
 composer update
 ```
