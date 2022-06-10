@@ -98,16 +98,17 @@ $users = Config::get('users')
 
 コードの外側から依存を注入(dependency injection)するのがDIパターンです。
 
-```php
+```diff
 class Greeter
-{
-    public function __construct(
-        private readonly Users $users
-    ) {}
-
+{ 
++   public function __construct(
++       private readonly Users $users
++   ) {}
     public function sayHello(): void
     {
-        foreach ($this->users as $user) {
+-       $users = ['DI', 'AOP', 'REST'];
+-       foreach ($users as $user) {
++       foreach ($this->users as $user) {
             echo 'Hello ' . $user . '!' . PHP_EOL;
         }
     }
@@ -118,7 +119,7 @@ class Greeter
 
 ```diff
     public function __construct(
-        private readonly Users $users
+-       private readonly Users $users
 +       private readonly Users $users,
 +       private readonly PrinterInterface $printer
     ) {}
@@ -311,6 +312,12 @@ final class TestModule extends AbstractModule
 この束縛を上書きするために`bin/run_di.php`スクリプトを変更します。
 
 ```diff
+use Ray\Tutorial\AppModule;
++use Ray\Tutorial\TestModule;
+use Ray\Tutorial\GreeterInterface;
+
+require dirname(__DIR__) . '/vendor/autoload.php';
+
 $module = new AppModule();
 +$module->override(new TestModule());
 ```
@@ -366,9 +373,17 @@ class Message
 束縛を変更。
 
 ```diff
--        $this->bind(PrinterInterface::class)->to(Printer::class);
-+        $this->bind(PrinterInterface::class)->to(IntlPrinter::class);
-+        $this->bind()->annotatedWith(Message::class)->toInstance('Hello %s!' . PHP_EOL);
+class AppModule extends AbstractModule
+{
+    protected function configure(): void
+    {
+        $this->bind(Users::class)->toInstance(new Users(['DI', 'AOP', 'REST']));
+-       $this->bind(PrinterInterface::class)->to(Printer::class);
++       $this->bind(PrinterInterface::class)->to(IntlPrinter::class);
++       $this->bind()->annotatedWith(Message::class)->toInstance('Hello %s!' . PHP_EOL);
+        $this->bind(GreeterInterface::class)->to(CleanGreeter::class);
+    }
+}
 ```
 
 実行して変わらない事を確認しましょう。
@@ -407,6 +422,19 @@ class SpanishModule extends AbstractModule
         $this->bind()->annotatedWith(Message::class)->toInstance('¡Hola %s!' . PHP_EOL);
     }
 }
+```
+
+```diff
+use Ray\Tutorial\AppModule;
+-use Ray\Tutorial\TestModule;
++use Ray\Tutorial\SpanishModule;
+use Ray\Tutorial\GreeterInterface;
+
+require dirname(__DIR__) . '/vendor/autoload.php';
+
+$module = new AppModule();
+-$module->override(new TestModule());
++$module->override(new SpanishModule());
 ```
 
 以下のようにスペイン語の挨拶に変わりましたか？
