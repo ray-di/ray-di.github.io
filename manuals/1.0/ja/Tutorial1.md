@@ -98,17 +98,15 @@ $users = Config::get('users')
 
 コードの外側から依存を注入(dependency injection)するのがDIパターンです。
 
-```diff
+```php
 class Greeter
-{ 
-+   public function __construct(
-+       private readonly Users $users
-+   ) {}
+{
+    public function __construct(
+        private readonly Users $users
+    ) {}
     public function sayHello(): void
     {
--       $users = ['DI', 'AOP', 'REST'];
--       foreach ($users as $user) {
-+       foreach ($this->users as $user) {
+        foreach ($this->users as $user) {
             echo 'Hello ' . $user . '!' . PHP_EOL;
         }
     }
