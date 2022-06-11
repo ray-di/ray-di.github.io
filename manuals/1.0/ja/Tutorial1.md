@@ -104,6 +104,7 @@ class Greeter
     public function __construct(
         private readonly Users $users
     ) {}
+
     public function sayHello(): void
     {
         foreach ($this->users as $user) {
