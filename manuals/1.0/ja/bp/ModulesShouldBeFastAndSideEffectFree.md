@@ -6,7 +6,7 @@ permalink: /manuals/1.0/ja/bp/modules_should_be_fast_and_side_effect_free.html
 ---
 # モジュールは高速で副作用がないこと
 
-Ray.Diのモジュールは、設定に外部XMLファイルを使用せずに、通常のPHPコードで記述します。
+Ray.Diのモジュールは、設定に外部XMLファイルを使用せずに通常のPHPコードで記述します。
 PHPは使い慣れ、お使いのIDEで動作し、リファクタリングに耐えることができます。
 
 しかし、PHP言語のフルパワーは代償として、モジュール内で _多くのこと_ をやりすぎてしまいがちです。
