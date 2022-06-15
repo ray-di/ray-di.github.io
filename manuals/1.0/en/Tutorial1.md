@@ -460,12 +460,12 @@ Have you changed to the Spanish greeting as follows?
 ## Summary
 
 We have seen the basics of the DI pattern and Ray.Di.
-Dependencies are not acquired, but injected recursively from the outside, creating an object graph.
+Dependencies are injected recursively from the outside rather than obtained by user code from within, and an object graph is generated.
 
 At compile time, the relationship building between objects through dependency binding is complete, and at the runtime, the running code depends only on the interface. By following the DI pattern, the SRP principle [^srp] and the DIP principle [^dip] can be followed by nature.
 
 The responsibility of securing dependencies has been removed from the code, making it loosely coupled and simple. The code is stable yet flexible, open to extensions but closed to modifications. [^ocp]
 
 [^ocp]: [OCP](https://ja.wikipedia.org/wiki/%E9%96%8B%E6%94%BE/%E9%96%89%E9%8E%96%E5%8E%9F%E5%89%87)
-
+¥
 ---
