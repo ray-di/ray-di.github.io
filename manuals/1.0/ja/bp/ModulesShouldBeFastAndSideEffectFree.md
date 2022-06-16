@@ -1,20 +1,24 @@
 ---
 layout: docs-ja
-title: ModulesShouldBeFastAndSideEffectFree
+title: モジュールは高速で副作用がないこと
 category: Manual
 permalink: /manuals/1.0/ja/bp/modules_should_be_fast_and_side_effect_free.html
 ---
-# Modules should be fast and side-effect free
+# モジュールは高速で副作用がないこと
 
-Rather than using an external XML file for configuration, Ray.Di modules are written using regular PHP code. PHP is familiar, works with your IDE, and survives refactoring.
+Ray.Diのモジュールは、設定に外部XMLファイルを使用せずに通常のPHPコードで記述します。
+PHPは使い慣れ、お使いのIDEで動作し、リファクタリングに耐えることができます。
 
-But the full power of the PHP language comes at a cost: it's easy to do _too much_ in a module. It's tempting to connect to a database connection or to start an HTTP server in your Ray.Di module. Don't do this! Doing heavy-lifting in a module poses problems:
+しかし、PHPが自由に使える利点の代償としてモジュール内で多くのことをやりすぎてしまいがちです。
+例えば、Ray.Diモジュールの中でデータベースの接続やHTTPサーバーの起動をすることです。
+しかし、それはやめましょう。このような処理をモジュールの中で実行するには以下の問題があります。
 
-*   **Modules start up, but they don't shut down.** Should you open a database connection in your module, you won't have any hook to close it.
-*   **Modules should be tested.** If a module opens a database as a course of execution, it becomes difficult to write unit tests for it.
-*   **Modules can be overridden.** Ray.Di modules support `overrides`, allowing a production service to be substituted with a lightweight or test one. When the production service is created as a part of module execution, such overrides are ineffective.
+* **モジュールは起動するが、シャットダウンしません。** モジュール内でデータベース接続を開いた場合、それを閉じるためのフックがありません。
+* **モジュールはテストをする必要があります。** モジュールの実行過程でデータベースを開くと、そのモジュールの単体テストを書くのが難しくなります。
+* **モジュールはオーバーライドが可能です。** Ray.Diモジュールは `オーバーライド` をサポートしており、本番サービスを軽量サービスやテストサービスで代用することができます。モジュール実行の一部として本番サービスが作成される場合、このようなオーバーライドは効果的ではありません。
 
-Rather than doing work in the module itself, define an interface that can do the work at the proper level of abstraction. In our applications we use this interface:
+モジュール自体で作業を行うのではなく、適切な抽象度で作業を行えるようなインターフェースを定義しましょう。
+例えば、次のようなインターフェースを定義します。
 
 ```php
 interface ServiceInterface
@@ -31,7 +35,8 @@ interface ServiceInterface
 }
 ```
 
-After creating the Injector, we finish bootstrapping our application by starting its services. We also add shutdown hooks to cleanly release resources when the application is stopped.
+Injector を作成した後、サービスを開始してアプリケーションのブートストラップを完了します。
+また、アプリケーションを停止したときにリソースをきれいに解放するためにシャットダウンフックを追加します。
 
 ```php
 class Main
