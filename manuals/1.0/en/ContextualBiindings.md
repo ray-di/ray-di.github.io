@@ -53,8 +53,9 @@ class DbalProvider implements ProviderInterface, SetContextInterface
 It is the same interface, but you can receive different connections made by `Provider`.
 
 ```php
-public function __construct(#[Named('user')] Connection $userDb, #[Named('job')] Connection $jobDb, #[Named('log') Connection $logDb)
-{
-  //...
-}
+public function __construct(
+    #[Named('user')] private readonly Connection $userDb,
+    #[Named('job')] private readonly Connection $jobDb,
+    #[Named('log') private readonly Connection $logDb)
+) {}
 ```

@@ -55,8 +55,9 @@ class DbalProvider implements ProviderInterface, SetContextInterface
 `Provider`によって作られた異なるコネクションを受け取ることができます。
 
 ```php
-public function __construct(#[Named('user')] Connection $userDb, #[Named('job')] Connection $jobDb, #[Named('log') Connection $logDb)
-{
-  //...
-}
+public function __construct(
+    #[Named('user')] private readonly Connection $userDb,
+    #[Named('job')] private readonly Connection $jobDb,
+    #[Named('log') private readonly Connection $logDb)
+) {}
 ```
