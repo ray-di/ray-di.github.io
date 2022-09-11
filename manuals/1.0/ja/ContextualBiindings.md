@@ -1,12 +1,14 @@
 ---
 layout: docs-ja
-title: Contextual Biindings
+title: コンテキストプロバイダー束縛
 category: Manual
 permalink: /manuals/1.0/ja/contextual_bindings.html
 ---
-# Contextual Provider Bindings
+# コンテキストプロバイダー束縛
 
-You may want to create an object using the context when binding with Provider. For example, you want to inject different connection destinations on the same DB interface. In such a case, we bind it by specifying the context (string) with `toProvider ()`.
+Providerとバインドする際に、同じようなインスタンスを少しづつ変えて返したい時があります。
+例えば、異なる接続先の同じDBオブジェクトをインジェクトしたい場合です。そのような場合には、`toProvider()`で文字列のコンテキストを指定して束縛することができます。
+
 
 
 ```php
@@ -17,7 +19,7 @@ $this->bind(Connection::class)->annotatedWith('job_db')->toProvider(DbalProvider
 $this->bind(Connection::class)->annotatedWith('log_db')->toProvider(DbalProvider::class, 'log');
 ```
 
-Providers are created for each context.
+それぞれのコンテキストのプロバイダーがつくられます。
 
 ```php
 use Ray\Di\Di\Inject;
@@ -50,7 +52,7 @@ class DbalProvider implements ProviderInterface, SetContextInterface
 }
 ```
 
-It is the same interface, but you can receive different connections made by `Provider`.
+`Provider`によって作られた異なるコネクションを受け取ることができます。
 
 ```php
 public function __construct(#[Named('user')] Connection $userDb, #[Named('job')] Connection $jobDb, #[Named('log') Connection $logDb)
