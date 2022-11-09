@@ -65,7 +65,7 @@ PHPクラスのコンストラクタは、[コンストラクタ注入](Injectio
 class Greeter
 {
     // Greeterは、文字列メッセージと、メッセージを表示する回数を表す整数が必要であると宣言しています。
-    public function __construfct(
+    public function __construct(
         #[Message] readonly string $message,
         #[Count] readonly int $count
     ) {}
