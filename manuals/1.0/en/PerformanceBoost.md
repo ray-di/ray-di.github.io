@@ -55,3 +55,27 @@ The `CachedInejctorFactory` can be used in a hybrid of the two injectors to achi
 The injector is able to inject singleton objects **beyond the request**, greatly increasing the speed of testing. Successive PDO connections also do not run out of connection resources in the test.
 
 See [CachedInjectorFactory](https://github.com/ray-di/Ray.Compiler/issues/75) for more information.
+
+## Attribute Reader
+
+When not using Doctrine annotations, you can improve performance during development by using only PHP8 attribute readers.
+
+Register it as an autoloader in the `composer.json` 
+
+```json
+  "autoload": {
+    "files": [
+      "vendor/ray/aop/attribute_reader.php"
+    ]
+```
+
+Or set in bootstrap script.
+
+```php
+declare(strict_types=1);
+
+use Koriym\Attributes\AttributeReader;
+use Ray\ServiceLocator\ServiceLocator;
+
+ServiceLocator::setReader(new AttributeReader());
+```
