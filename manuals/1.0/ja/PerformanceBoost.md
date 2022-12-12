@@ -55,3 +55,27 @@ $lister = $injector->getInstance(ListerInterface::class);
 その結果テストの速度は大幅に向上します。テスト中に連続したPDO接続によって接続リソースが枯渇することもありません。
 
 詳しくは、[CachedInjectorFactory](https://github.com/ray-di/Ray.Compiler/issues/75)をご覧ください。
+
+## Attribute Reader
+
+Doctrineアノテーションを利用しない時はPHP8のアトリビュートリーダーだけを使用することで開発時のパフォーマンスが改善します。
+
+`composer.json`にオートローダーとして登録するか
+
+```json
+  "autoload": {
+    "files": [
+      "vendor/ray/aop/attribute_reader.php"
+    ]
+```
+
+ブートストラップのスクリプトでセットします。
+
+```php
+declare(strict_types=1);
+
+use Koriym\Attributes\AttributeReader;
+use Ray\ServiceLocator\ServiceLocator;
+
+ServiceLocator::setReader(new AttributeReader());
+```
