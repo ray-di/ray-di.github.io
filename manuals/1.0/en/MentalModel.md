@@ -304,7 +304,7 @@ anymore.
 
 ## What's next?
 
-Learn how to use [`Scopes`](Scopes) to manage the lifecycle of objects created
+Learn how to use [`Scopes`](scopes.html) to manage the lifecycle of objects created
 by Ray.Di and the many different ways to
-[add entries into the Ray.Di map](Bindings).
+[add entries into the Ray.Di map](bindings.html).
 
