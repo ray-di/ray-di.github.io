@@ -68,7 +68,7 @@ class Greeter
 {
     // Greeter declares that it needs a string message and an integer
     // representing the number of time the message to be printed.
-    public function __construfct(
+    public function __construct(
         #[Message] readonly string $message,
         #[Count] readonly int $count
     ) {}
