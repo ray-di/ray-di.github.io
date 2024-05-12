@@ -19,7 +19,7 @@ def generate_combined_file(language, intro_message)
     combined_file.write(intro_message + "\n\n")
 
     # 指定フォルダ内のすべての.mdファイルを取得し、ソートする
-    files = Dir.glob(File.join(source_folder, "*.md")).sort
+    files = Dir.glob(File.join(source_folder, "**", "*.md")).sort
 
     # 各ファイルを処理する - ヘッダーを削除
     files.each do |filepath|
