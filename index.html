@@ -10,7 +10,18 @@ category: Index
         Objects are injected from the interface, just as sun ray is injected when a window is opened.
         Ray.Di is a dependency injection framework for PHP inspired Google Guice.
     </p>
-    <a class="btn btn-primary" href="/manuals/1.0/en/index.html">
+    <a class="intl btn btn-primary" href="/manuals/1.0/en/index.html">
         Overview &raquo;
     </a>
+    <script>
+        window.addEventListener('DOMContentLoaded', (event) => {
+            const links = document.getElementsByClassName('intl');
+            const locale = window.navigator.language;
+            if (locale.startsWith('ja')) {
+                for(let i = 0; i < links.length; i++) {
+                    links[i].setAttribute('href', links[i].getAttribute('href').replace('/en/', '/ja/'));
+                }
+            }
+        });
+    </script>
 </div>
