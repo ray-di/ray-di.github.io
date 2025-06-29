@@ -1,0 +1,61 @@
+---
+layout: docs-en
+title: Contextual Biindings
+category: Manual
+permalink: /manuals/1.0/en/contextual-bindings.html
+---
+# Contextual Provider Bindings
+
+You may want to create an object using the context when binding with Provider. For example, you want to inject different connection destinations on the same DB interface. In such a case, we bind it by specifying the context (string) with `toProvider ()`.
+
+
+```php
+$dbConfig = ['user' => $userDsn, 'job'=> $jobDsn, 'log' => $logDsn];
+$this->bind()->annotatedWith('db-config')->toInstance(dbConfig);
+$this->bind(Connection::class)->annotatedWith('usr-db')->toProvider(DbalProvider::class, 'user');
+$this->bind(Connection::class)->annotatedWith('job-db')->toProvider(DbalProvider::class, 'job');
+$this->bind(Connection::class)->annotatedWith('log-db')->toProvider(DbalProvider::class, 'log');
+```
+
+Providers are created for each context.
+
+```php
+use Ray\Di\Di\Inject;
+use Ray\Di\Di\Named;
+
+class DbalProvider implements ProviderInterface, SetContextInterface
+{
+    private $dbConfigs;
+
+    public function setContext($context)
+    {
+        $this->context = $context;
+    }
+
+    public function __construct(#[Named('db-config') array $dbConfigs)
+    {
+        $this->dbConfigs = $dbConfigs;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function get()
+    {
+        $config = $this->dbConfigs[$this->context];
+        $conn = DriverManager::getConnection($config);
+
+        return $conn;
+    }
+}
+```
+
+It is the same interface, but you can receive different connections made by `Provider`.
+
+```php
+public function __construct(
+    #[Named('user')] private readonly Connection $userDb,
+    #[Named('job')] private readonly Connection $jobDb,
+    #[Named('log') private readonly Connection $logDb)
+) {}
+```
