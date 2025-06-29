@@ -1,0 +1,63 @@
+# Ray.Di
+
+> Ray.Di is a PHP dependency injection framework inspired by Google Guice. It provides a powerful and flexible way to manage dependencies in your PHP applications through constructor injection, setter injection, and assisted injection.
+
+Ray.Di is a mature framework that has been actively maintained since 2015, supporting the latest PHP versions while maintaining backward compatibility. It follows the dependency injection pattern to create loosely coupled, testable, and maintainable code.
+
+## Core Concepts
+
+- **Dependency Injection**: Dependencies are injected from outside rather than created internally
+- **Modules**: Configuration units that define how dependencies are resolved
+- **Bindings**: Map interfaces to their implementations
+- **Scopes**: Control the lifecycle of injected objects (Singleton, Prototype)
+- **AOP Support**: Aspect-oriented programming for cross-cutting concerns
+
+## Key Features
+
+- Constructor injection without annotations
+- Method injection with #[Inject] attribute
+- Assisted injection for runtime dependencies
+- Provider pattern support for lazy loading
+- Contextual bindings for different implementations
+- Built-in AOP support for method interception
+- Multi-bindings for plugin architectures
+
+## Docs
+
+- [Getting Started Guide](/manuals/1.0/en/getting_started.md): Introduction to dependency injection with Ray.Di
+- [Installation](/manuals/1.0/en/installation.md): How to install Ray.Di via Composer
+- [Mental Model](/manuals/1.0/en/mental_model.md): Understanding Ray.Di as a map of keys to providers
+- [Tutorial](/manuals/1.0/en/tutorial1.md): Step-by-step guide from manual DI to Ray.Di
+
+## Bindings
+
+- [Linked Bindings](/manuals/1.0/en/linked_bindings.md): Map interfaces to implementations
+- [Instance Bindings](/manuals/1.0/en/instance_bindings.md): Bind to specific instances
+- [Provider Bindings](/manuals/1.0/en/provider_bindings.md): Use providers for complex object creation
+- [Constructor Bindings](/manuals/1.0/en/constructor_bindings.md): Bind to specific constructors
+- [Untargeted Bindings](/manuals/1.0/en/untargeted_bindings.md): Bindings without specific targets
+- [Binding Attributes](/manuals/1.0/en/binding_attributes.md): Use qualifiers for multiple bindings of same type
+
+## Advanced Features
+
+- [AOP](/manuals/1.0/en/aop.md): Method interception for cross-cutting concerns
+- [Injecting Providers](/manuals/1.0/en/injecting_providers.md): Inject providers for multiple instances and lazy loading
+- [Multibindings](/manuals/1.0/en/multibindings.md): Support for plugin architectures
+- [Contextual Bindings](/manuals/1.0/en/contextual_bindings.md): Different implementations based on context
+- [Object Life Cycle](/manuals/1.0/en/object_life_cycle.md): PostConstruct for initialization after injection
+
+## Best Practices
+
+- [Minimize Mutability](/manuals/1.0/en/bp/minimize_mutability.md): Use constructor injection for immutable objects
+- [Inject Only Direct Dependencies](/manuals/1.0/en/bp/inject_only_direct_dependencies.md): Avoid injecting objects to get other objects
+- [Avoid Static State](/manuals/1.0/en/bp/avoid_static_state.md): Static state and testability are enemies
+- [Organize Modules by Feature](/manuals/1.0/en/bp/organize_modules_by_feature.md): Group bindings by feature, not by type
+
+## Performance
+
+- [Performance Boost](/manuals/1.0/en/performance_boost.md): ScriptInjector and CachedInjector for production optimization
+
+## Optional
+
+- [Grapher](/manuals/1.0/en/grapher.md): Visualize object graphs and dependencies
+- [Backward Compatibility](/manuals/1.0/en/backward_compatibility.md): Ray.Di's commitment to not breaking BC
