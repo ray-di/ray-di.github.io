@@ -88,9 +88,13 @@ function generateLlmsFull(): void
     foreach ($linkSections as $sectionName => $links) {
         foreach ($links as $link) {
             $markdownPath = parseMarkdownPath($link['url'], $baseDir);
-            if ($markdownPath && file_exists($markdownPath)) {
+            if ($markdownPath && file_exists($markdownPath) && is_readable($markdownPath)) {
                 echo "Including: {$link['title']} from $markdownPath\n";
                 $markdownContent = includeMarkdownFile($markdownPath);
+                if ($markdownContent === false || $markdownContent === null || trim($markdownContent) === '') {
+                    echo "Error: Failed to read or invalid markdown content in {$link['title']} ($markdownPath)\n";
+                    continue;
+                }
                 $fullContent .= "\n" . $markdownContent . "\n";
             } else {
                 echo "Warning: Could not find file for {$link['title']} at $markdownPath\n";
