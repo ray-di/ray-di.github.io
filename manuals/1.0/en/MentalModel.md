@@ -137,7 +137,7 @@ Most applications do not implement `Provider` interface directly, they use
 For example, the following Ray.Di module creates two `Provider`s:
 
 ```php
-class countProvicer implements ProviderInterface
+class CountProvicer implements ProviderInterface
 {
     public function get(): int
     {
@@ -145,7 +145,7 @@ class countProvicer implements ProviderInterface
     }
 }
 
-class messageProvider implements ProviderInterface
+class MessageProvider implements ProviderInterface
 {
     public function get(): Message
     {
