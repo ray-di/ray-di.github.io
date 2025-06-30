@@ -119,8 +119,8 @@ function includeMarkdownFile(string $filePath): string
 {
     $content = file_get_contents($filePath);
 
-    // Remove Jekyll front matter
-    $content = preg_replace('/^---\s*\n.*?\n---\s*\n/s', '', $content);
+    // Remove Jekyll front matter (handles optional whitespace/comments before, and flexible closing '---')
+    $content = preg_replace('/\A(?:\s*|<!--.*?-->\s*)*---\s*\n(.*?)\n---\s*(?:\n|$)/s', '', $content);
 
     // Clean up the content
     $content = trim($content);
