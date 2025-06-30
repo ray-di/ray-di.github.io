@@ -137,7 +137,7 @@ Most applications do not implement `Provider` interface directly, they use
 For example, the following Ray.Di module creates two `Provider`s:
 
 ```php
-class CountProvicer implements ProviderInterface
+class CountProvider implements ProviderInterface
 {
     public function get(): int
     {
@@ -157,15 +157,15 @@ class DemoModule extends AbstractModule
 {
    protected function configure(): void
    {
-       $this->bind()->annotatedWith(Count::class)->toProvider(CountProvicer::class);
-       $this->bind()->annotatedWith(Message::class)->toProvider(MessageProvicer::class);
+       $this->bind()->annotatedWith(Count::class)->toProvider(CountProvider::class);
+       $this->bind()->annotatedWith(Message::class)->toProvider(MessageProvider::class);
    }
 }
 ```
 
-*   `MessageProvicer` that calls the `get()` method and returns "hello
+*   `MessageProvider` that calls the `get()` method and returns "hello
     world"
-*   `CountProvicer` that calls the `get()` method and returns `3`
+*   `CountProvider` that calls the `get()` method and returns `3`
 
 ## Using Ray.Di
 
