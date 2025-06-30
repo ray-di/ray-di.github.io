@@ -1,633 +1,903 @@
 # Ray.Di
 
-> Ray.Di is a PHP dependency injection framework inspired by Google Guice. It provides a powerful and flexible way to manage dependencies in your PHP applications through constructor injection, setter injection, and assisted injection.
+> Ray.Di is a PHP dependency injection framework inspired by Google Guice. It automatically resolves object dependencies and enables flexible, testable code through compile-time dependency resolution.
 
-Ray.Di is a mature framework that has been actively maintained since 2015, supporting the latest PHP versions while maintaining backward compatibility. It follows the dependency injection pattern to create loosely coupled, testable, and maintainable code.
+Ray.Di has been actively maintained since 2015, supporting PHP 7.2+ with a focus on performance and developer experience. It uses code generation to minimize runtime overhead while providing powerful features like aspect-oriented programming (AOP).
 
-## Core Concepts
+## Why Ray.Di?
 
-- **Dependency Injection**: Dependencies are injected from outside rather than created internally
-- **Modules**: Configuration units that define how dependencies are resolved
-- **Bindings**: Map interfaces to their implementations
-- **Scopes**: Control the lifecycle of injected objects (Singleton, Prototype)
-- **AOP Support**: Aspect-oriented programming for cross-cutting concerns
+- **Compile-time safety**: Detects configuration errors before runtime
+- **Zero annotations**: Constructor injection works without special markers
+- **Performance optimized**: Generates efficient code for production
+- **Framework agnostic**: Integrates with any PHP application
 
-## Key Features
+## Essential Concepts
 
-- Constructor injection without annotations
-- Method injection with #[Inject] attribute
-- Assisted injection for runtime dependencies
-- Provider pattern support for lazy loading
-- Contextual bindings for different implementations
-- Built-in AOP support for method interception
-- Multi-bindings for plugin architectures
+- [Bindings](/manuals/1.0/en/Bindings.md): Learn how to wire interfaces to implementations
+- [Scopes](/manuals/1.0/en/Scopes.md): Control object lifecycles with Singleton and Prototype scopes
+- [Modules](/manuals/1.0/en/GettingStarted.md): Organize your bindings into reusable configuration units
+
+## Common Binding Patterns
+
+- [Linked Bindings](/manuals/1.0/en/LinkedBindings.md): The most common pattern - bind an interface to a concrete class
+- [Provider Bindings](/manuals/1.0/en/ProviderBindings.md): Create objects with complex initialization logic
+- [Instance Bindings](/manuals/1.0/en/InstanceBindings.md): Bind to pre-existing objects or values
+- [Constructor Bindings](/manuals/1.0/en/ConstructorBindings.md): Select specific constructors for injection
+
+## Advanced Techniques
+
+- [AOP](/manuals/1.0/en/AOP.md): Intercept method calls for logging, transactions, and security
+- [Contextual Bindings](/manuals/1.0/en/ContextualBindings.md): Different implementations for different use cases
+- [Injecting Providers](/manuals/1.0/en/InjectingProviders.md): Lazy loading and multiple instances
+- [Multibindings](/manuals/1.0/en/Multibindings.md): Create plugin systems with sets and maps
+
+## Production Ready
+
+- [Performance Boost](/manuals/1.0/en/PerformanceBoost.md): Use ScriptInjector for 10x faster production performance
+- [Integration](/manuals/1.0/en/Integration.md): Works with Laravel, Symfony, and other frameworks
+- [Backward Compatibility](/manuals/1.0/en/BackwardCompatibility.md): Semantic versioning with no BC breaks in minor versions
+
+## Optional
+
+- [All Best Practices](/manuals/1.0/en/BestPractices.md): Comprehensive guide to Ray.Di best practices
+- [Grapher](/manuals/1.0/en/Grapher.md): Visualize your dependency graph
+- [Additional Binding Types](/manuals/1.0/en/BindingAttributes.md): Qualifiers, untargeted bindings, and more
+- [Object Lifecycle](/manuals/1.0/en/ObjectLifeCycle.md): PostConstruct and other lifecycle hooks
+- [Injections](/manuals/1.0/en/Injections.md): Method, setter, and assisted injection patterns
 
 ## Getting Started
 
-- [Overview](/manuals/1.0/en/Overview.md): Overview of Ray.Di framework
-- [Motivation](/manuals/1.0/en/Motivation.md): Why use dependency injection
-- [Getting Started](/manuals/1.0/en/GettingStarted.md): Introduction to dependency injection with Ray.Di
-- [Installation](/manuals/1.0/en/Installation.md): How to install Ray.Di via Composer
-- [Mental Model](/manuals/1.0/en/MentalModel.md): Understanding Ray.Di as a map of keys to providers
-- [Tutorial](/manuals/1.0/en/Tutorial1.md): Step-by-step guide from manual DI to Ray.Di
-
-## Core Features
-
-- [Bindings](/manuals/1.0/en/Bindings.md): Core binding concepts
-- [Scopes](/manuals/1.0/en/Scopes.md): Managing object lifecycles
-- [Injections](/manuals/1.0/en/Injections.md): Different injection types
-
-## Binding Types
-
-- [Linked Bindings](/manuals/1.0/en/LinkedBindings.md): Map interfaces to implementations
-- [Instance Bindings](/manuals/1.0/en/InstanceBindings.md): Bind to specific instances
-- [Provider Bindings](/manuals/1.0/en/ProviderBindings.md): Use providers for complex object creation
-- [Constructor Bindings](/manuals/1.0/en/ConstructorBindings.md): Bind to specific constructors
-- [Untargeted Bindings](/manuals/1.0/en/UntargetedBindings.md): Bindings without specific targets
-- [Binding Attributes](/manuals/1.0/en/BindingAttributes.md): Use qualifiers for multiple bindings of same type
-- [Builtin Bindings](/manuals/1.0/en/BuiltinBindings.md): Built-in bindings provided by Ray.Di
-- [Null Object Binding](/manuals/1.0/en/NullObjectBinding.md): Null object pattern support
-
-## Performance & Tools
-
-- [Performance Boost](/manuals/1.0/en/PerformanceBoost.md): ScriptInjector and CachedInjector for production optimization
-- [Grapher](/manuals/1.0/en/Grapher.md): Visualize object graphs and dependencies
-- [Integration](/manuals/1.0/en/Integration.md): Integrating Ray.Di with other frameworks
-
-## Additional Resources
-
-- [Backward Compatibility](/manuals/1.0/en/BackwardCompatibility.md): Ray.Di's commitment to not breaking BC
-
-## Advanced Features
-
-- [AOP](/manuals/1.0/en/AOP.md): Method interception for cross-cutting concerns
-- [Injecting Providers](/manuals/1.0/en/InjectingProviders.md): Inject providers for multiple instances and lazy loading
-- [Multibindings](/manuals/1.0/en/Multibindings.md): Support for plugin architectures
-- [Contextual Bindings](/manuals/1.0/en/ContextualBindings.md): Different implementations based on context
-- [Object Life Cycle](/manuals/1.0/en/ObjectLifeCycle.md): PostConstruct for initialization after injection
+- [Installation](#installation):  Quick setup with Composer - `composer require ray/di`
+- [Overview](#overview):  Core concepts and architecture of dependency injection
+- [Tutorial](#tutorial1):  Build your first Ray.Di application step-by-step
+- [Mental Model](#mentalmodel):  Think of Ray.Di as a map from types to their providers
 
 ## Best Practices
 
-- [Best Practices Overview](/manuals/1.0/en/BestPractices.md): Overview of Ray.Di best practices
-- [Minimize Mutability](/manuals/1.0/en/bp/MinimizeMutability.md): Use constructor injection for immutable objects
-- [Inject Only Direct Dependencies](/manuals/1.0/en/bp/InjectOnlyDirectDependencies.md): Avoid injecting objects to get other objects
-- [Avoid Static State](/manuals/1.0/en/bp/AvoidStaticState.md): Static state and testability are enemies
-- [Organize Modules by Feature](/manuals/1.0/en/bp/OrganizeModulesByFeature.md): Group bindings by feature, not by type
-- [Avoid Conditional Logic in Modules](/manuals/1.0/en/bp/AvoidConditionalLogicInModules.md): Keep modules simple and predictable
-- [Modules Should Be Fast and Side Effect Free](/manuals/1.0/en/bp/ModulesShouldBeFastAndSideEffectFree.md): Module configuration best practices
-- [Document Public Bindings](/manuals/1.0/en/bp/DocumentPublicBindings.md): Documentation practices for bindings
-- [Don't Reuse Annotations](/manuals/1.0/en/bp/DontReuseAnnotations.md): Create specific annotations for each binding
-- [Injecting the Injector](/manuals/1.0/en/bp/InjectingTheInjector.md): When and how to inject the injector
-- [Cyclic Dependencies](/manuals/1.0/en/bp/CyclicDependencies.md): Handling circular dependencies
+- [Minimize Mutability](#minimizemutability):  Prefer constructor injection for immutable, thread-safe objects
+- [Inject Only Direct Dependencies](#injectonlydirectdependencies):  Don't inject factories just to get other objects
+- [Organize Modules by Feature](#organizemodulesbyfeature):  Group related bindings together, not by type
+- [Avoid Static State](#avoidstaticstate):  Static state makes testing difficult and should be injected instead
 
 ---
 
-# Aspect Oriented Programing
-_Intercepting methods with Ray.Di_
+1---
+layout: docs-en
+title: Installation
+category: Manual
+permalink: /manuals/1.0/en/installation.html
+---
+# Installation
 
-To complement dependency injection, Ray.Di supports *method interception*. This feature enables you to write code that is executed each time a _matching_ method is invoked. It's suited for cross cutting concerns ("aspects"), such as transactions, security and logging. Because interceptors divide a problem into aspects rather than objects, their use is called Aspect Oriented Programming (AOP).
+The recommended way to install Ray.Di is through [Composer](https://github.com/composer/composer).
 
-[Matcher](https://github.com/ray-di/Ray.Aop/blob/2.x/src/MatcherInterface.php) is a simple interface that either accepts or rejects a value. For Ray.Di AOP, you need two matchers: one that defines which classes participate, and another for the methods of those classes. 
-
-[MethodInterceptors](https://github.com/ray-di/Ray.Aop/blob/2.x/src/MethodInterceptor.php) are executed whenever a matching method is invoked. They have the opportunity to
-inspect the call: the method, its arguments, and the receiving instance. They can perform their cross-cutting logic and then delegate to the underlying method. Finally, they may inspect the return value or exception and return. Since interceptors may be applied to many methods and will receive many calls, their implementation should be efficient and unintrusive.
-
-## Example: Forbidding method calls on weekends
-
-To illustrate how method interceptors work with Ray.Di, we'll forbid calls to our pizza billing system on weekends. The delivery guys only work Monday thru Friday so we'll prevent pizza from being ordered when it can't be delivered! This example is structurally similar to use of AOP for authorization.
-
-To mark select methods as weekdays-only, we define an attribute:
-
-```php
-#[Attribute(Attribute::TARGET_METHOD)]
-final class NotOnWeekends
-{
-}
+```bash
+composer require ray/di ^2.0
 ```
 
-...and apply it to the methods that need to be intercepted:
+The GitHub repository is at [ray-di/Ray.Di](https://github.com/ray-di/Ray.Di)
 
-```php
-class BillingService implements BillingServiceInterface
-{
-    #[NotOnWeekends]
-    public function chargeOrder(PizzaOrder $order, CreditCard $creditCard)
-    {
+## Testing Ray.Di
+
+Here's how to install Ray.Di from source and run the unit tests and demos.
+
+```bash
+git clone https://github.com/ray-di/Ray.Di.git
+cd Ray.Di
+./vendor/bin/phpunit
+php demo-php8/run.php
 ```
 
-Next, we define the interceptor by implementing the `MethodInterceptor` interface. When we need to call through to the underlying method, we do so by calling `$invocation->proceed()`:
+<img src="/images/logo.svg" alt="Ray.Di logo" width="200" height="200">
+
+# Overview
+
+Ray.Di is a dependency injection (DI) framework for PHP. It automatically resolves object dependencies and enables flexible object graph construction according to the context.
+
+## Core Features
+
+### Dependency Resolution at Compile Time
+
+- Resolves dependencies by describing overall rules rather than individual object assembly (autowiring)
+- Detects dependency issues before execution
+- Minimizes runtime overhead through code generation
+
+### Flexible Object Graph Construction
+
+- Enables various contexts through the combination of independent modules
+- Allows dependency resolution according to the injected object; for example, changing dependencies based on the target method's attributes or the object's state (CDI: Contexts and Dependency Injection)
+- Injects different implementations of the same interface using `Qualifier`
+- Supports injection of lazily instantiated objects
+
+### Explicit Dependency Description
+
+- Describes dependency generation using raw PHP code
+- Utilizes attributes for self-documented dependency definitions
+- Separates cross-cutting concerns through integration with AOP
+
+## Stability and Reliability
+
+Since the release of version 2.0 in 2015, Ray.Di has expanded its features along with the evolution of PHP while maintaining backward compatibility by following semantic versioning.
+
+## Google Guice and Ray.Di
+
+Ray.Di is a PHP DI framework inspired by [Google Guice](https://github.com/google/guice). Based on the proven API design of Google Guice, it aims for PHP-like evolution. Most of the documents on this site are also quoted from Google Guice.
+
+---
+
+Using dependency injection offers many benefits, but doing it manually requires writing a lot of boilerplate code. Ray.Di is a framework that allows you to use dependency injection without writing such cumbersome code. For more details, please see the [Motivation](motivation.html) page.
+
+In short, Ray.Di eliminates the need to use factories or `new` in your PHP code. While you may still need to write factories, your code does not directly depend on them. Your code becomes easier to modify, unit test, and reuse in other contexts.
+
+# Ray.Di Tutorial 1
+In this tutorial, you will learn the basics of the DI pattern and how to start a Ray.Di project. We will change from a non-di code to a manual DI code, then to a code using Ray.Di to add functionality.
+
+## Preparation
+Create a project for the tutorial.
+
+
+
+```
+mkdir ray-tutorial
+cd ray-tutorial
+composer self-update
+composer init --name=ray/tutorial --require=ray/di:^2 --autoload=src -n
+composer update
+```
+
+Create `src/Greeter.php`.
+A program that greets `$users` one after another.
 
 ```php
+<?php
+namespace Ray\Tutorial;
 
-use Ray\Aop\MethodInterceptor;
-use Ray\Aop\MethodInvocation;
-
-class WeekendBlocker implements MethodInterceptor
+class Greeter
 {
-    public function invoke(MethodInvocation $invocation)
+    public function sayHello(): void
     {
-        $today = getdate();
-        if ($today['weekday'][0] === 'S') {
-            throw new \RuntimeException(
-                $invocation->getMethod()->getName() . " not allowed on weekends!"
-            );
+        $users = ['DI', 'AOP', 'REST'];
+        foreach ($users as $user) {
+            echo 'Hello ' . $user . '!' . PHP_EOL;
         }
-        return $invocation->proceed();
     }
 }
 ```
 
-Finally, we configure everything. In this case we match any class, but only the methods with our `#[NotOnWeekends]` attribute:
+Prepare a script in `bin/run.php` to run it.
 
 ```php
+<?php
+use Ray\Tutorial\Greeter;
+
+require dirname(__DIR__) . '/vendor/autoload.php';
+
+(new Greeter)->sayHello();
+```
+
+Let's run it.
+
+```php
+php bin/run.php
+
+Hello DI!
+Hello AOP!
+Hello REST!
+```
+
+## Dependency pull
+
+Consider making `$users` variable.
+
+For example, a global variable?
+
+```diff
+-       $users = ['DI', 'AOP', 'REST'];
++       $users = $GLOBALS['users'];
+```
+
+Too wild. Let's consider other ways.
+
+```php
+define("USERS", ['DI', 'AOP', 'REST']);
+
+$users = USERS;
+```
+```php
+class User
+{
+    public const NAMES = ['DI', 'AOP', 'REST'];
+};
+
+$users = User::NAMES;
+```
+
+```php
+$users = Config::get('users')
+```
+
+It is getting the necessary dependencies from the outside, It's "dependency pull" and in the end it is the same global as the `$GLOBALS` variable. It makes the coupling between objects tight and difficult to test.
+
+## Dependency Injection
+
+The DI pattern is one in which dependencies are injected from other sources, rather than being obtained from the code itself.
+
+```php
+class Greeter
+{
+    public function __construct(
+        private readonly Users $users
+    ) {}
+
+    public function sayHello(): void
+    {
+        foreach ($this->users as $user) {
+            echo 'Hello ' . $user . '!' . PHP_EOL;
+        }
+    }
+}
+```
+
+Inject not only the data you need, but also the output as a separate service.
+
+```diff
+    public function __construct(
+-       private readonly Users $users
++       private readonly Users $users,
++       private readonly PrinterInterface $printer
+    ) {}
+
+    public function sayHello()
+    {
+        foreach ($this->users as $user) {
+-            echo 'Hello ' . $user . '!' . PHP_EOL;
++            ($this->printer)($user);
+        }
+    }
+```
+
+Create the following classes
+
+`src/Users.php`
+
+```php
+<?php
+namespace Ray\Tutorial;
+
+use ArrayObject;
+
+final class Users extends ArrayObject
+{
+}
+```
+
+`src/PrinterInterface.php`
+
+```php
+<?php
+namespace Ray\Tutorial;
+
+interface PrinterInterface
+{
+    public function __invoke(string $user): void;
+}
+```
+
+`src/Printer.php`
+
+```php
+<?php
+namespace Ray\Tutorial;
+
+class Printer implements PrinterInterface
+{
+    public function __invoke(string $user): void
+    {
+        echo 'Hello ' . $user . '!' . PHP_EOL;
+    }
+}
+```
+
+`src/GreeterInterface.php`
+
+```php
+<?php
+namespace Ray\Tutorial;
+
+interface GreeterInterface
+{
+    public function sayHello(): void;
+}
+```
+
+`src/CleanGreeter.php`
+
+```php
+<?php
+namespace Ray\Tutorial;
+
+class CleanGreeter implements GreeterInterface
+{
+    public function __construct(
+        private readonly Users $users,
+        private readonly PrinterInterface $printer
+    ) {}
+
+    public function sayHello(): void
+    {
+        foreach ($this->users as $user) {
+            ($this->printer)($user);
+        }
+    }
+}
+```
+
+## Manual DI
+
+Create and run a script `bin/run_di.php` to do this.
+
+```php
+<?php
+
+use Ray\Tutorial\CleanGreeter;
+use Ray\Tutorial\Printer;
+use Ray\Tutorial\Users;
+
+require dirname(__DIR__) . '/vendor/autoload.php';
+
+$greeter = new CleanGreeter(
+    new Users(['DI', 'AOP', 'REST']),
+    new Printer
+);
+
+$greeter->sayHello();
+```
+
+While the number of files may seem to increase in number and overall complexity, the individual scripts are so simple that it is difficult to make them any simpler. Each class has only one responsibility [^srp], relies on abstractions rather than implementations [^dip], and is easy to test, extend, and reuse.
+
+[^srp]: [Single Responsibility Principle (SRP)](https://ja.wikipedia.org/wiki/SOLID)
+[^dip]: [Dependency Inversion Principle (DIP)](https://ja.wikipedia.org/wiki/%E4%BE%9D%E5%AD%98%E6%80%A7%E9%80%86%E8%BB%A2%E3%81%AE%E5%8E%9F%E5%89%87)
+
+### Compile Time and Runtime
+
+Code under `bin/` constitutes a dependency at **compile time**, while code under `src/` is executed at **run time**. PHP is a scripting language, but this distinction between compile time and run time can be considered.
+
+### Constructor Injection
+
+DI code passes dependencies externally and receives them in the constructor.
+
+```php
+$instance = new A(
+    new B,
+    new C(
+        new D(
+            new E, new F, new G
+        )
+    )
+);
+```
+
+B and C needed to generate A are passed to the constructor from outside A (without being obtained from inside A); D to generate C, E,F,G to generate D... and dependencies require other dependencies, and objects generate an object graph [^og] containing dependent objects.
+
+As the size of the project grows, manual DI using such factory code becomes a reality with problems such as deep nested dependency resolution, instance management such as singletons, reusability, and maintainability. Ray.Di solves that dependency problem.
+
+[^og]: "In computer science, object-oriented applications have a complex network of interrelated objects. Objects are connected to each other either by being owned by one object or by containing other objects (or their references). This object net is called an object graph." [Object Graph](https://en.wikipedia.org/wiki/Object_graph)
+
+### Module
+
+A module is a set of bindings. There are several types of binding, but here we will use the most basic, link binding, which binds an interface to a class, and instance binding, which binds to an actual instance, such as a value object.
+
+Create `src/AppModule.php`.
+
+```php
+<?php
+namespace Ray\Tutorial;
 
 use Ray\Di\AbstractModule;
 
-class WeekendModule extends AbstractModule
+class AppModule extends AbstractModule
 {
-    protected function configure()
+    protected function configure(): void
     {
-        $this->bind(BillingServiceInterface::class)->to(BillingService::class);
-        $this->bindInterceptor(
-            $this->matcher->any(),                           // any class
-            $this->matcher->annotatedWith('NotOnWeekends'),  // #[NotOnWeekends] attributed method
-            [WeekendBlocker::class]                          // apply WeekendBlocker interceptor
-        );
-    }
-}
-
-$injector = new Injector(new WeekendModule);
-$billing = $injector->getInstance(BillingServiceInterface::class);
-try {
-    echo $billing->chargeOrder();
-} catch (\RuntimeException $e) {
-    echo $e->getMessage() . "\n";
-    exit(1);
-}
-```
-Putting it all together, (and waiting until Saturday), we see the method is intercepted and our order is rejected:
-
-```php
-RuntimeException: chargeOrder not allowed on weekends! in /apps/pizza/WeekendBlocker.php on line 14
-
-Call Stack:
-    0.0022     228296   1. {main}() /apps/pizza/main.php:0
-    0.0054     317424   2. Ray\Aop\Weaver->chargeOrder() /apps/pizza/main.php:14
-    0.0054     317608   3. Ray\Aop\Weaver->__call() /libs/Ray.Aop/src/Weaver.php:14
-    0.0055     318384   4. Ray\Aop\ReflectiveMethodInvocation->proceed() /libs/Ray.Aop/src/Weaver.php:68
-    0.0056     318784   5. Ray\Aop\Sample\WeekendBlocker->invoke() /libs/Ray.Aop/src/ReflectiveMethodInvocation.php:65
-```
-
-## Disable interceptors
-
-To disable the interceptor, bind NullInterceptor.
-
-```php
-use Ray\Aop\NullInterceptor;
-
-protected function configure()
-{
-    // ...
-    $this->bind(LoggerInterface::class)->to(NullInterceptor::class);
-}
-```
-
-## Limitations
-
-Behind the scenes, method interception is implemented by generating bytecode at
-runtime. Ray.Di dynamically creates a subclass that applies interceptors by
-overriding methods. 
-
-This approach imposes limits on what classes and methods can be intercepted:
-
-*   Classes must be non-final
-*   Methods must be public
-*   Methods must be non-final
-*   Instances must be created by Ray.Di. 
-
-## AOP Alliance
-
-The method interceptor API implemented by Ray.Di is mostly same as  a public
-specification called [AOP Alliance in Java](http://aopalliance.sourceforge.net/).
-
-# Injecting Providers
-
-With normal dependency injection, each type gets exactly *one instance* of each
-of its dependent types. The `RealBillingService` gets one `CreditCardProcessor`
-and one `TransactionLog`. Sometimes you want more than one instance of your
-dependent types. When this flexibility is necessary, Ray.Di binds a provider.
-Providers produce a value when the `get()` method is invoked:
-
-```php
-/**
- * @template T
- */
-interface ProviderInterface
-{
-    /**
-     * @return T
-     */
-    public function get();
-}
-```
-
-The type provided by the provider is specified by the `#[Set]` attribute.
-
-```php
-class RealBillingService implements BillingServiceInterface
-{
-    /**
-     * @param ProviderInterface<TransactionLogInterface>      $processorProvider
-     * @param ProviderInterface<CreditCardProcessorInterface> $transactionLogProvider
-     */
-    public __construct(
-        #[Set(TransactionLogInterface::class)] private ProviderInterface $processorProvider,
-        #[Set(CreditCardProcessorInterface::class)] private ProviderInterface $transactionLogProvider
-    ) {}
-
-    public chargeOrder(PizzaOrder $order, CreditCard $creditCard): Receipt
-    {
-        $transactionLog = $this->transactionLogProvider->get();
-        $processor = $this->processorProvider->get();
-        
-        /* use the processor and transaction log here */
+        $this->bind(Users::class)->toInstance(new Users(['DI', 'AOP', 'REST']));
+        $this->bind(PrinterInterface::class)->to(Printer::class);
+        $this->bind(GreeterInterface::class)->to(CleanGreeter::class);
     }
 }
 ```
 
-To support generics in static analysis, you need to set `@param` in phpdoc to `ProviderInterface<TransactionLogInterface>` or `ProviderInterface<Cre ditCardProcessorInterface>` and so on. The type of the instance obtained by the `get()` method is specified and checked by static analysis.
-
-## Providers for multiple instances
-
-Use providers when you need multiple instances of the same type. Suppose your
-application saves a summary entry and a details when a pizza charge fails. With
-providers, you can get a new entry whenever you need one:
+Create and run `bin/run_di.php` to run.
 
 ```php
-class LogFileTransactionLog implements TransactionLogInterface
+<?php
+
+use Ray\Di\Injector;
+use Ray\Tutorial\AppModule;
+use Ray\Tutorial\GreeterInterface;
+
+require dirname(__DIR__) . '/vendor/autoload.php';
+
+$module = new AppModule();
+$injector = new Injector($module);
+$greeter = $injector->getInstance(GreeterInterface::class);
+$greeter->sayHello();
+```
+
+Did it work? If something is wrong, please compare it with [tutorial1](https://github.com/ray-di/tutorial1/tree/master/src).
+
+## Dependency Replacement
+
+Sometimes you want to change the bindings depending on the context of execution, such as only for unit testing, only for development, and so on.
+
+For example, suppose you have a test-only binding `src/TestModule.php`.
+
+```php
+<?php
+
+namespace Ray\Tutorial;
+
+use Ray\Di\AbstractModule;
+
+final class TestModule extends AbstractModule
 {
-    public function __construct(
-        #[Set(TransactionLogInterface::class)] private readonly ProviderInterface $logFileProvider
-    ) {}
-    
-    public logChargeResult(ChargeResult $result): void {
-        $summaryEntry = $this->logFileProvider->get();
-        $summaryEntry->setText("Charge " + (result.wasSuccessful() ? "success" : "failure"));
-        $summaryEntry->save();
-        
-        if (! $result->wasSuccessful()) {
-            $detailEntry = $this->logFileProvider->get();
-            $detailEntry->setText("Failure result: " + result);
-            $detailEntry->save();
-        }
+    protected function configure(): void
+    {
+        $this->bind(Users::class)->toInstance(new Users(['TEST1', 'TEST2']));
     }
 }
 ```
 
-## Providers for lazy loading
+Modify the `bin/run_di.php` script to override this binding.
 
-If you've got a dependency on a type that is particularly *expensive to
-produce*, you can use providers to defer that work. This is especially useful
-when you don't always need the dependency:
+```diff
+use Ray\Tutorial\AppModule;
++use Ray\Tutorial\TestModule;
+use Ray\Tutorial\GreeterInterface;
 
-```php
-class LogFileTransactionLog implements TransactionLogInterface
-{
-    public function __construct(
-        #[Set(Connection::class)] private ProviderInterface $connectionProvider
-    ) {}
-    
-    public function logChargeResult(ChargeResult $result) {
-        /* only write failed charges to the database */
-        if (! $result->wasSuccessful()) {
-            $connection = $connectionProvider->get();
-        }
-    }
+require dirname(__DIR__) . '/vendor/autoload.php';
+
+$module = new AppModule();
++$module->override(new TestModule());
 ```
 
-## Providers for Mixing Scopes
+Let's run it.
 
-Directly injecting an object with a _narrower_ scope usually causes unintended
-behavior in your application. In the example below, suppose you have a singleton
-`ConsoleTransactionLog` that depends on the request-scoped current user. If you
-were to inject the user directly into the `ConsoleTransactionLog` constructor,
-the user would only be evaluated once for the lifetime of the application. This
-behavior isn't correct because the user changes from request to request.
-Instead, you should use a Provider. Since Providers produce values on-demand,
-they enable you to mix scopes safely:
-
-```php
-class ConsoleTransactionLog implements TransactionLogInterface
-{
-    public function __construct(
-        #[Set(User::class)] private readonly ProviderInterface $userProvider
-    ) {}
-    
-    public function logConnectException(UnreachableException $e): void
-    {
-        $user = $this->userProvider->get();
-        echo "Connection failed for " . $user . ": " . $e->getMessage();
-    }
-}
+```
+Hello TEST1!
+Hello TEST2!
 ```
 
-# Multibindings
+## Dependency on Dependency
 
-_Overview of Multibinder, MapBinder_
+Next, the greeting message, which is now fixed and retained in the Printer, is also changed to be injected to support multiple languages.
 
-Multibinder is intended for plugin-type architectures.
-
-## Multibinding
-
-Using `Multibinder` to host plugins.
-
-### Multibinder
-
-Multibindings make it easy to support plugins in your application. Made popular
-by [IDEs](https://plugins.jetbrains.com/phpstorm) and [browsers](https://chrome.google.com/webstore/category/extensions), this pattern exposes APIs
-for extending the behaviour of an application.
-
-Neither the plugin consumer nor the plugin author need write much setup code for
-extensible applications with Ray.Di. Simply define an interface, bind
-implementations, and inject sets of implementations! Any module can create a new
-Multibinder to contribute bindings to a set of implementations. To illustrate,
-we'll use plugins to summarize ugly URIs like `http://bit.ly/1mzgW1` into
-something readable on Twitter.
-
-First, we define an interface that plugin authors can implement. This is usually
-an interface that lends itself to several implementations. For this example, we
-would write a different implementation for each website that we could summarize.
+Create `src/IntlPrinter.php`.
 
 ```php
-interface UriSummarizerInterface
-{
-    /**
-     * Returns a short summary of the URI, or null if this summarizer doesn't
-     * know how to summarize the URI.
-     */
-    public function summarize(Uri $uri): string;
-}
-```
+<?php
+namespace Ray\Tutorial;
 
-Next, we'll get our plugin authors to implement the interface. Here's an
-implementation that shortens Flickr photo URLs:
-
-```php
-class FlickrPhotoSummarizer implements UriSummarizer
-{
-    public function __construct(
-        private readonly PhotoPaternMatcherInterface $matcher
-    ) {}
-
-    public function summarize(Uri $uri): ?string
-    {
-        $match = $this->matcher->match($uri);
-        if (! $match) {
-            return null;
-        }
-        $id = $this->matcher->group(1);
-        $photo = Photo::loockup($id);
-
-        return $photo->getTitle();
-    }
-  }
-}
-```
-
-The plugin author registers their implementation using a multibinder. Some
-plugins may bind multiple implementations, or implementations of several
-extension-point interfaces.
-
-```php
-class FlickrPluginModule extends AbstractModule
-{
-    public function configure(): void 
-    {
-        $uriBinder = Multibinder::newInstance($this, UriSummarizerInterface::class);
-        $uriBinder->addBinding()->to(FlickrPhotoSummarizer::class);
-
-        // ...bind plugin dependencies, such as our Flickr API key
-   }
-}
-```
-
-Now we can consume the services exposed by our plugins. In this case, we're
-summarizing tweets:
-
-```php
-class TweetPrettifier
-{
-    /**
-     * @param Map<UriSummarizerInterface> $summarizers
-     */
-    public function __construct(
-        #[Set(UriSummarizer::class)] private readonyl Map $summarizers;
-        private readonly EmoticonImagifier $emoticonImagifier;
-    ) {}
-    
-    public function prettifyTweet(String tweetMessage): Html
-    {
-        // split out the URIs and call prettifyUri() for each
-    }
-
-    public function prettifyUri(Uri $uri): string
-    {
-        // loop through the implementations, looking for one that supports this URI
-        foreach ($this->summarizer as summarizer) {
-            $summary = $summarizer->summarize($uri);
-            if ($summary != null) {
-                return $summary;
-            }
-       }
-
-        // no summarizer found, just return the URI itself
-        return $uri->toString();
-    }
-}
-```
-
-_**Note:** The method `Multibinder::newInstance($module, $type)` can be confusing.
-This operation creates a new binder, but doesn't override any existing bindings.
-A binder created this way contributes to the existing Set of implementations for
-that type. It would create a new set only if one is not already bound._
-
-Finally we must register the plugins themselves. The simplest mechanism to do so
-is to list them programatically:
-
-```php
-class PrettyTweets
-{
-    public function __invoke(): void
-    {
-        $injector = new Injector(
-            new GoogleMapsPluginModule(),
-            new BitlyPluginModule(),
-            new FlickrPluginModule()
-            // ...      
-        );
-
-        $injector->getInstance(Frontend::class)->start();
-  }
-}
-(new PrettyTweets)();
-```
-
-### MapBinder
-
-You can name the classes you add in the multibinder.
-
-```php
-class FlickrPluginModule extends AbstractModule
-{
-    public function configure(): void 
-    {
-        $uriBinder = Multibinder::newInstance($this, UriSummarizerInterface::class);
-        $uriBinder->addBinding('flickr')->to(FlickrPhotoSummarizer::class);
-
-        // ...bind plugin dependencies, such as our Flickr API key
-   }
-}
-```
-In the application, you can retrieve a `Map` injected by specifying attributes such as ``#[Set(UriSummarizer::class)]`` with the name as it was when specified by the binding.
-
-```php
-
-class TweetPrettifier
-{
-    /**
-     * @param Map<UriSummarizerInterface> $summarizers
-     */
-    public function __construct(
-        #[Set(UriSummarizer::class)] private readonly Map $summarizers;
-    ) {}
-
-    public doSomething(): void
-    {
-        $filickerSummarizer = $this->summarizers['flicker'];
-        assert($filickerSummarizer instanceof FlickrPhotoSummarizer);
-    }    
-}
-```
-
-## Set binding
-
-The `setBinding()` method overrides any previous binding.
-
-```php
-$UriBinder = Multibinder::newInstance($this, UriSummarizerInterface::class);
-$UriBinder->setBinding('flickr')->(FlickrPhotoSummarizer::class);
-```
-
-## Map
-
-`Map` objects are treated as generics in static analysis. If the injected interface is T, it is written as `Map<T>`.
-
-```php
-/** @param Map<UriSummarizerInterface> $summarizers **/
-```
-
-## Annotation
-
-Since it is not possible to annotate the argument, annotate the property to be assigned with the same name and annotate the property with `@Set`.
-
-```php
-class TweetPrettifier
-{
-    /** @Set(UriSummarizer::class) */
-    private $summarizers;
-    
-    /**
-     * @param Map<UriSummarizerInterface> $summarizers
-     */
-    public function __construct(Map $summarizers) {
-        $this->summarizers = $summarizers;
-    }
-}
-```
-
-# Contextual Provider Bindings
-
-You may want to create an object using the context when binding with Provider. For example, you want to inject different connection destinations on the same DB interface. In such a case, we bind it by specifying the context (string) with `toProvider ()`.
-
-
-```php
-$dbConfig = ['user' => $userDsn, 'job'=> $jobDsn, 'log' => $logDsn];
-$this->bind()->annotatedWith('db_config')->toInstance(dbConfig);
-$this->bind(Connection::class)->annotatedWith('usr_db')->toProvider(DbalProvider::class, 'user');
-$this->bind(Connection::class)->annotatedWith('job_db')->toProvider(DbalProvider::class, 'job');
-$this->bind(Connection::class)->annotatedWith('log_db')->toProvider(DbalProvider::class, 'log');
-```
-
-Providers are created for each context.
-
-```php
-use Ray\Di\Di\Inject;
 use Ray\Di\Di\Named;
 
-class DbalProvider implements ProviderInterface, SetContextInterface
+class IntlPrinter implements PrinterInterface
 {
-    private $dbConfigs;
+    public function __construct(
+        #[Message] private string $message
+    ){}
 
-    public function setContext($context)
+    public function __invoke(string $user): void
     {
-        $this->context = $context;
-    }
-
-    public function __construct(#[Named('db_config') array $dbConfigs)
-    {
-        $this->dbConfigs = $dbConfigs;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function get()
-    {
-        $config = $this->dbConfigs[$this->context];
-        $conn = DriverManager::getConnection($config);
-
-        return $conn;
+        printf($this->message, $user);
     }
 }
 ```
 
-It is the same interface, but you can receive different connections made by `Provider`.
+The constructor takes a message string for the greeting, but to identify this bundle [attribute bundle](https://ray-di.github.io/manuals/1.0/ja/binding_attributes.html) for the `#[Message]`attribute, `src/Message.php`.
 
 ```php
-public function __construct(
-    #[Named('user')] private readonly Connection $userDb,
-    #[Named('job')] private readonly Connection $jobDb,
-    #[Named('log') private readonly Connection $logDb)
-) {}
-```
+<?php
+namespace Ray\Tutorial;
 
-# Object Life Cycle
+use Attribute;
+use Ray\Di\Di\Qualifier;
 
-`#[PostConstruct]` is used on methods that need to get executed after dependency injection has finalized to perform any extra initialization.
-
-```php
-use Ray\Di\Di\PostConstruct;
-```
-```php
-#[PostConstruct]
-public function init()
+#[Attribute, Qualifier]
+class Message
 {
-    //....
 }
 ```
 
-# Ray.Di Best Practices
+Change the binding.
 
-*   [Minimize mutability](bp/minimize_mutability.html)
-*   [Inject only direct dependencies](bp/inject_only_direct_dependencies.html)
-*   [Use the Injector as little as possible (preferably only once)](bp/injecting_the_injector.html)
-*   Avoid cyclic dependencies
-*   [Avoid static state](bp/avoid_static_state.html)
-*   [Modules should be fast and side-effect free](bp/modules_should_be_fast_and_side_effect_free.html)
-*   [Avoid conditional logic in modules](bp/avoid_conditional_logic_in_modules.html)
-*   [Don't reuse binding attributes (aka `#[Qualifiers]`)](bp/dont_reuse_annotations.html)
-*   [Organize modules by feature, not by class type](bp/organize_modules_by_feature.html)
-*   [Document the public bindings provided by modules](bp/document_public_bindings.html)
+```diff
+class AppModule extends AbstractModule
+{
+    protected function configure(): void
+    {
+        $this->bind(Users::class)->toInstance(new Users(['DI', 'AOP', 'REST']));
+-       $this->bind(PrinterInterface::class)->to(Printer::class);
++       $this->bind(PrinterInterface::class)->to(IntlPrinter::class);
++       $this->bind()->annotatedWith(Message::class)->toInstance('Hello %s!' . PHP_EOL);
+        $this->bind(GreeterInterface::class)->to(CleanGreeter::class);
+    }
+}
+```
+
+Run it to make sure it does not change.
+
+Then try the error. Comment out the `Message::class` binding in the `configure()` method.
+
+```diff
+-        $this->bind()->annotatedWith(Message::class)->toInstance('Hello %s!' . PHP_EOL);
++        // $this->bind()->annotatedWith(Message::class)->toInstance('Hello %s!' . PHP_EOL);
+```
+
+This means that Ray.Di does not know what to inject into the dependencies attributed as `#[Message]`.
+
+When I run it, I get the following error
+
+```
+PHP Fatal error:  Uncaught exception 'Ray\Di\Exception\Unbound' with message '-Ray\Tutorial\Message'
+- dependency '' with name 'Ray\Tutorial\Message' used in /tmp/tutorial/src/IntlPrinter.php:8 ($message)
+- dependency 'Ray\Tutorial\PrinterInterface' with name '' /tmp/tutorial/src/CleanGreeter.php:6 ($printer)
+```
+
+This is an error that `$message` in `IntlPrinter.php:8` cannot resolve its dependency, so `$printer` in `CleanGreeter.php:6` which depends on it also cannot resolve its dependency and the injection failed. Thus, when a dependency of a dependency cannot be resolved, the nesting of that dependency is also displayed.
+
+Finally, let's create the following bundle as `src/SpanishModule.php` and overwrite it in the same way as TestModule.
+
+```php
+<?php
+namespace Ray\Tutorial;
+
+use Ray\Di\AbstractModule;
+
+class SpanishModule extends AbstractModule
+{
+    protected function configure(): void
+    {
+        $this->bind()->annotatedWith(Message::class)->toInstance('¡Hola %s!' . PHP_EOL);
+    }
+}
+```
+
+```diff
+use Ray\Tutorial\AppModule;
+-use Ray\Tutorial\TestModule;
++use Ray\Tutorial\SpanishModule;
+use Ray\Tutorial\GreeterInterface;
+
+require dirname(__DIR__) . '/vendor/autoload.php';
+
+$module = new AppModule();
+-$module->override(new TestModule());
++$module->override(new SpanishModule());
+```
+
+Have you changed to the Spanish greeting as follows?
+
+```
+¡Hola DI!
+¡Hola AOP!
+¡Hola REST!
+```
+
+## Summary
+
+We have seen the basics of the DI pattern and Ray.Di.
+Dependencies are injected recursively from the outside rather than obtained by user code from within, and an object graph is generated.
+
+At compile time, the relationship building between objects through dependency binding is complete, and at the runtime, the running code depends only on the interface. By following the DI pattern, the SRP principle [^srp] and the DIP principle [^dip] can be followed by nature.
+
+The responsibility of securing dependencies has been removed from the code, making it loosely coupled and simple. The code is stable yet flexible, open to extensions but closed to modifications. [^ocp]
+
+[^ocp]: [OCP](https://ja.wikipedia.org/wiki/%E9%96%8B%E6%94%BE/%E9%96%89%E9%8E%96%E5%8E%9F%E5%89%87)
+¥
+---
+
+# Ray.Di Mental Model
+
+_Learn about `Key`, `Provider` and how Ray.Di is just a map_
+
+When you are reading about "Dependency Injection", you often see many buzzwords ("Inversion of
+control", "Hollywood principle") that make it sound confusing. But
+underneath the jargon of dependency injection, the concepts aren't very
+complicated. In fact, you might have written something very similar already!
+This page walks through a simplified model of Ray.Di implementation, which
+should make it easier to think about how it works.
+
+
+
+## Ray.Di is a map
+
+Fundamentally, Ray.Di helps you create and retrieve objects for your application
+to use. These objects that your application needs are called **dependencies**.
+
+You can think of Ray.Di as being a map[^Ray.Di-map]. Your application code
+declares the dependencies it needs, and Ray.Di fetches them for you from its map.
+Each entry in the "Ray.Di map" has two parts:
+
+*   **Ray.Di key**: a key in the map which is used to fetch a particular value
+    from the map.
+*   **Provider**: a value in the map which is used to create objects for your
+    application.
+
+Ray.Di keys and Providers are explained below.
+
+[^Ray.Di-map]: The actual implementation of Ray.Di is far more complicated, but a
+map is a reasonable approximation for how Ray.Di behaves.
+
+### Ray.Di keys
+
+Ray.Di uses `Key` to identify a dependency that can be resolved using the
+"Ray.Di map".
+
+The `Greeter` class used in the [Getting Started](#gettingstarted) declares two
+dependencies in its constructor and those dependencies are represented as `Key`
+in Ray.Di:
+
+*   `#[Message] string` --> `$map[$messageKey]`
+*   `#[Count] int` --> `$map[$countKey]`
+
+The simplest form of a `Key` represents a type in php:
+
+```php
+// Identifies a dependency that is an instance of string.
+/** @var string $databaseKey */
+$databaseKey = $map[$key];
+```
+
+However, applications often have dependencies that are of the same type:
+
+```php
+class Message
+{
+    public function __construct(
+    	  public readonly string $text
+    ){}
+}
+
+class MultilingualGreeter
+{
+    public function __construct(
+      private readonly Message $englishGreeting,
+      private readonly Message $spanishGreeting
+    ) {}
+}
+```
+
+Ray.Di uses [binding attributes](#bindingattributes) to distinguish dependencies
+that are of the same type, that is to make the type more specific:
+
+```php
+class MultilingualGreeter
+{
+    public function __construct(
+      #[English] private readonly Message $englishGreeting,
+      #[Spanish] private readonly Message $spanishGreeting
+    ) {}
+}
+```
+
+`Key` with binding attribute can be created as:
+
+```php
+$englishGreetingKey = $map[Message::class . English::class];
+$spanishGreetingKey = $map[Message::class . Spanish::class];
+```
+
+When an application calls `$injector->getInstance(MultilingualGreeter::class)` to
+create an instance of `MultilingualGreeter`. This is the equivalent of doing:
+
+```php
+// Ray.Di internally does this for you so you don't have to wire up those
+// dependencies manually.
+$english = $injector->getInstance(Message::class, English::class));
+$spanish = $injector->getInstance(Message::class, Spanish::class));
+$greeter = new MultilingualGreeter($english, $spanish);
+```
+
+To summarize: **Ray.Di `Key` is a type combined with an optional binding
+attribute used to identify dependencies.**
+
+### Ray.Di `Provider`s
+
+Ray.Di uses
+[`Provider`](https://google.github.io/Ray.Di/api-docs/latest/javadoc/com/google/inject/Provider.html)
+to represent factories in the "Ray.Di map" that are capable of creating objects
+to satisfy dependencies.
+
+`Provider` is an interface with a single method:
+
+```php
+interface Provider
+{
+  /** Provides an instance/
+  public function get();
+}
+```
+
+Each class that implements `Provider` is a bit of code that knows how to give
+you an instance of `T`. It could call `new T()`, it could construct `T` in some
+other way, or it could return you a precomputed instance from a cache.
+
+Most applications do not implement `Provider` interface directly, they use
+`Module` to configure Ray.Di injector and Ray.Di injector internally creates
+`Provider`s for all the object it knows how to create.
+
+For example, the following Ray.Di module creates two `Provider`s:
+
+```php
+class countProvicer implements ProviderInterface
+{
+    public function get(): int
+    {
+        return 3;
+    }
+}
+
+class messageProvider implements ProviderInterface
+{
+    public function get(): Message
+    {
+        return new Message('hello world');
+    }
+}
+
+class DemoModule extends AbstractModule
+{
+   protected function configure(): void
+   {
+       $this->bind()->annotatedWith(Count::class)->toProvider(CountProvicer::class);
+       $this->bind()->annotatedWith(Message::class)->toProvider(MessageProvicer::class);
+   }
+}
+```
+
+*   `MessageProvicer` that calls the `get()` method and returns "hello
+    world"
+*   `CountProvicer` that calls the `get()` method and returns `3`
+
+## Using Ray.Di
+
+There are two parts to using Ray.Di:
+
+1.  **Configuration**: your application adds things into the "Ray.Di map".
+1.  **Injection**: your application asks Ray.Di to create and retrieve objects
+    from the map.
+
+Configuration and injection are explained below.
+
+### Configuration
+
+Ray.Di maps are configured using Ray.Di modules. A **Ray.Di module** is a unit of
+configuration logic that adds things into the Ray.Di map. There are two ways to
+do this:
+
+*   Using the Ray.Di Domain Specific Language (DSL).
+
+Conceptually, these APIs simply provide ways to manipulate the Ray.Di map. The
+manipulations they do are pretty straightforward. Here are some example
+translations, shown using PHP syntax for brevity and clarity:
+
+| Ray.Di DSL syntax                   | Mental model                                                                       |
+| ---------------------------------- | ---------------------------------------------------------------------------------- |
+| `bind($key)->toInstance($value)`  | `$map[$key] = $value;`  <br>(instance binding)          |
+| `bind($key)->toProvider($provider)` | `$map[$key] = fn => $value;` <br>(provider  binding) |
+| `bind(key)->to(anotherKey)`       | `$map[$key] = $map[$anotherKey];` <br>(linked binding) |
+
+`DemoModule` adds two entries into the Ray.Di map:
+
+*   `#[Message] string` --> `fn() => (new MessageProvicer)->get()`
+*   `#[Count] int` --> `fn() => (new CountProvicer)->get()`
+
+### Injection
+
+You don't *pull* things out of a map, you *declare* that you need them. This is
+the essence of dependency injection. If you need something, you don't go out and
+get it from somewhere, or even ask a class to return you something. Instead, you
+simply declare that you can't do your work without it, and rely on Ray.Di to give
+you what you need.
+
+This model is backwards from how most people think about code: it's a more
+*declarative* model rather than an *imperative* one. This is why dependency
+injection is often described as a kind of *inversion of control* (IoC).
+
+Some ways of declaring that you need something:
+
+1. An argument to a constructor:
+
+    ```php
+    class Foo
+    {
+      // We need a database, from somewhere
+      public function __construct(
+            private Database $database
+       ) {}
+    }
+    ```
+
+2. An argument to a `DatabaseProvider::get()` method:
+
+    ```php
+    class DatabaseProvider implements ProviderInterface
+    {
+        public function __construct(
+            #[Dsn] private string $dsn
+        ){}
+      
+        public function get(): Database
+        {
+            return new Database($this->dsn);
+        }
+    }
+    ```
+
+This example is intentionally the same as the example `Foo` class from
+[Getting Started Guide](GettingStarted#what-is-dependency-injection).
+Unlike Guice, Ray.Di does not require the `Inject` attribute to be added to the constructor.
+
+## Dependencies form a graph
+
+When injecting a thing that has dependencies of its own, Ray.Di recursively
+injects the dependencies. You can imagine that in order to inject an instance of
+`Foo` as shown above, Ray.Di creates `Provider` implementations that look like
+these:
+
+```php
+class FooProvider implements Provider
+{
+    public function get(): Foo
+    {
+        global $map;
+        
+        $databaseProvider = $map[Database::class]);
+        $database = $databaseProvider->get();
+        
+        return new Foo($database);
+    }
+}
+
+class DatabaseProvider implements Provider
+{
+    public function get(): Database
+    {
+        global $map;
+        
+        $dsnProvider = $map[Dsn::class];
+        $dsn = $dsnProvider->get();
+        
+        return new Database($dsn);
+    }
+}  
+
+class DsnProvider implements Provider
+{
+    public function get(): string
+    {
+        return getenv(DB_DSN);
+    }
+}  
+```
+
+Dependencies form a *directed graph*, and injection works by doing a depth-first
+traversal of the graph from the object you want up through all its dependencies.
+
+A Ray.Di `Injector` object represents the entire dependency graph. To create an
+`Injector`, Ray.Di needs to validate that the entire graph works. There can't be
+any "dangling" nodes where a dependency is needed but not provided.[^3]
+If the bound is incomplete somewhere in the graph, Ray.Di will throw an `Unbound` exception.
+
+[^3]: The reverse case is not an error: it's fine to provide something even if
+nothing ever uses it—it's just dead code in that case. That said, just
+like any dead code, it's best to delete providers if nobody uses them
+anymore.
+
+## What's next?
+
+Learn how to use [`Scopes`](scopes.html) to manage the lifecycle of objects created
+by Ray.Di and the many different ways to
+[add entries into the Ray.Di map](bindings.html).
 
 # Minimize mutability
 
@@ -707,17 +977,6 @@ class ShowBudgets
    ) {}
 ```
 
-# Avoid static state
-
-Static state and testability are enemies. Your tests should be fast and free of
-side-effects. But non-constant values held by static fields are a pain to
-manage. It's tricky to reliably tear down static singletons that are mocked by
-tests, and this interferes with other tests.
-
-Although *static state* is bad, there's nothing wrong with the static *keyword*.
-Static classes are okay (preferred even!) and for pure functions (sorting, math,
-etc.), static is just fine.
-
 # Organize modules by feature, not by class type
 
 Group bindings into features. Ideally it should be possible to enable/disable an
@@ -733,392 +992,13 @@ the Foo backend.
 
 This principle is also known as "organize modules vertically, not horizontally".
 
-# Avoid conditional logic in modules
-
-It’s tempting to create modules that have moving parts and can be configured to
-operate differently for different environments:
-
-```php
-class FooModule extends AbstractModule
-{
-  public function __construct(
-    private readonly ?string $fooServer
-  }{}
-
-  protected function configure(): void
-  {
-    if ($this->fooServer != null) {
-        $this->bind(String::class)->annotatedWith(ServerName::class)->toInstance($this->fooServer);
-        $this->bind(FooService::class)->to(RemoteFooService::class);
-    } else {
-        $this->bind(FooService::class)->to(InMemoryFooService::class);
-    }
-  }
-}
-```
-
-Conditional logic in itself isn't too bad. But problems arise when
-configurations are untested. In this example, the`InMemoryFooService` is used
-for development and `RemoteFooService` is used in production. But without
-testing this specific case, it's impossible to be sure that `RemoteFooService`
-works in the integrated application.
-
-To overcome this, **minimize the number of distinct configurations** in your
-applications. If you split production and development into distinct modules, it
-is easier to be sure that the entire production codepath is tested. In this
-case, we split `FooModule` into `RemoteFooModule` and `InMemoryFooModule`. This
-also prevents production classes from having a compile-time dependency on test
-code.
-
-Another, related, issue with the example above: sometimes there's a binding for
-`#[ServerName]`, and sometimes that binding is not there. You should avoid
-sometimes binding a key, and other times not.
-
-# Modules should be fast and side-effect free
-
-Rather than using an external XML file for configuration, Ray.Di modules are written using regular PHP code. PHP is familiar, works with your IDE, and survives refactoring.
-
-But the full power of the PHP language comes at a cost: it's easy to do _too much_ in a module. It's tempting to connect to a database connection or to start an HTTP server in your Ray.Di module. Don't do this! Doing heavy-lifting in a module poses problems:
-
-*   **Modules start up, but they don't shut down.** Should you open a database connection in your module, you won't have any hook to close it.
-*   **Modules should be tested.** If a module opens a database as a course of execution, it becomes difficult to write unit tests for it.
-*   **Modules can be overridden.** Ray.Di modules support `overrides`, allowing a production service to be substituted with a lightweight or test one. When the production service is created as a part of module execution, such overrides are ineffective.
-
-Rather than doing work in the module itself, define an interface that can do the work at the proper level of abstraction. In our applications we use this interface:
-
-```php
-interface ServiceInterface
-{
-    /**
-     * Starts the service. This method blocks until the service has completely started.
-     */
-    public function start(): void;
-    
-    /**
-     * Stops the service. This method blocks until the service has completely shut down.
-     */
-    public function stop(): void;
-}
-```
-
-After creating the Injector, we finish bootstrapping our application by starting its services. We also add shutdown hooks to cleanly release resources when the application is stopped.
-
-```php
-class Main
-{
-    public function __invoke()
-        $injector = new Injector([
-            new DatabaseModule(),
-            new WebserverModule(),
-            // ..
-        ]);
-        $databaseConnectionPool = $injector->getInstance(ServiceInterface::class, DatabaseService::class);
-        $databaseConnectionPool->start();
-        $this->addShutdownHook($databaseConnectionPool);
-
-        $webserver = $injector->getInstance(ServiceInterface::class, WebserverService::class);
-        $webserver->start();
-        $this->addShutdownHook($webserver);
-    );
-}
-```
-
-# Document the public bindings provided by modules
-
-To document a Ray.Di module, a good strategy is to describe the public bindings
-that that module installs, for example:
-
-```php
-/**
- * Provides FooServiceClient and derived bindings
- *
- * [...]
- *
- * The following bindings are provided:
- *
- *  FooServiceClient
- *  FooServiceClientAuthenticator
- */
-final class FooServiceClientModule extends AbstractModule
-{
-  // ...
-}
-```
-
-# Don't reuse binding attributes (aka `#[Qualifier]`)
-
-Sometimes, of course, it makes sense to bind some highly-related bindings with the same attributes. E.g. `#[ServerName]`
-
-That said, most binding attributes should only qualify one binding. And you should definitely not reuse a binding attributes for *unrelated* bindings.
-
-When in doubt, don't reuse attributes: creating one is straightfoward!
-
-To avoid some boilerplate, sometimes it makes sense to use attribute parameters to create distinct annotation instances from a single declaration. For example:
-
-```php
-enum Thing
-{
-    case FOO;
-    case BAR;
-    case BAZ;
-}
-
-#[Attribute, \Ray\Di\Di\Qualifier]
-final class MyThing
-{
-    public function __construct(
-        public readonly Thing $value
-    ) {}
-}
-```
-
-You can then use `#[MyThing(Thing::FOO)]`, `#[MyThing(Thing::BAR)]`, and `#[MyThing(Thing::BAZ)]` rather than defining each of them as separate attribute types.
-
-# Use the Injector as little as possible (preferably only once)
-
-Ray.Di has a [built-in](../built_in_bindings.html) binding for the `Injector` but it should be used sparsely.
-
-Don't pass injectors into other injected objects through the constructor (which is also called "injecting the injector"). You should declare your dependencies statically.
-
-By injecting the injector, Ray.Di will not know in advance if the dependency can be resolved.
-This is because you can get instances directly from the injector.
-If the dependencies are not set up correctly and the injector is not injected, the dependency resolution failure can be detected in the compilation of Ray.Di.
-However, if you are injecting an injector, Ray.Di may raise an `Unbound` exception at runtime (when the code executes `getInstance()` lazily) and the dependency resolution may fail.
-
-# Avoid Circular Dependencies
-
-## What are circular dependencies?
-
-Say that your application has a few classes including a `Store`, a `Boss`, and a
-`Clerk`.
-
-```java
-public class Store {
-  private final Boss boss;
-  //...
-
-  @Inject public Store(Boss boss) {
-     this.boss = boss;
-     //...
-  }
-
-  public void incomingCustomer(Customer customer) {...}
-  public Customer getNextCustomer() {...}
-}
-
-public class Boss {
-  private final Clerk clerk;
-  @Inject public Boss(Clerk clerk) {
-    this.clerk = clerk;
-  }
-}
-
-public class Clerk {
-  // Nothing interesting here
-}
-```
-
-Right now, the dependency chain is all good: constructing a `Store` results in
-constructing a `Boss`, which results in constructing a `Clerk`. However, to get
-the `Clerk` to get a `Customer` to do the selling, it will need a reference to
-the `Store` to get those customer:
-
-```java
-public class Store {
-  private final Boss boss;
-  //...
-
-  @Inject public Store(Boss boss) {
-     this.boss = boss;
-     //...
-  }
-  public void incomingCustomer(Customer customer) {...}
-  public Customer getNextCustomer() {...}
-}
-
-public class Boss {
-  private final Clerk clerk;
-  @Inject public Boss(Clerk clerk) {
-    this.clerk = clerk;
-  }
-}
-
-public class Clerk {
-  private final Store shop;
-  @Inject Clerk(Store shop) {
-    this.shop = shop;
-  }
-
-  void doSale() {
-    Customer sucker = shop.getNextCustomer();
-    //...
-  }
-}
-```
-
-which leads to a cycle: `Clerk` -> `Store` -> `Boss` -> `Clerk`. In trying to
-construct a `Clerk`, an `Store` will be constructed, which needs a `Boss`, which
-needs a `Clerk` again!
-
-## Ways to avoid circular dependencies
-
-### Eliminate the cycle (Recommended)
-
-Cycles often reflect insufficiently granular decomposition. To eliminate such
-cycles, extract the Dependency Case into a separate class.
-
-Take the above `Store` example, the work of managing the incoming customers can
-be extracted into another class, say `CustomerLine`, and that can be injected
-into the `Clerk` and `Store`.
-
-```java
-public class Store {
-  private final Boss boss;
-  private final CustomerLine line;
-  //...
-
-  @Inject public Store(Boss boss, CustomerLine line) {
-     this.boss = boss;
-     this.line = line;
-     //...
-  }
-
-  public void incomingCustomer(Customer customer) { line.add(customer); }
-}
-
-public class Clerk {
-  private final CustomerLine line;
-
-  @Inject Clerk(CustomerLine line) {
-    this.line = line;
-  }
-
-  void doSale() {
-    Customer sucker = line.getNextCustomer();
-    //...
-  }
-}
-```
-
-While both `Store` and `Clerk` depend on the `CustomerLine`, there's no cycle in
-the dependency graph (although you may want to make sure that the `Store` and
-`Clerk` both use the same `CustomerLine` instance). This also means that your
-`Clerk` will be able to sell cars when your shop has a big tent sale: just
-inject a different `CustomerLine`.
-
-### Break the cycle with a Provider
-
-[Injecting a Guice provider](InjectingProviders)
-will allow you to add a _seam_ in the dependency graph. The `Clerk` will still
-depend on the `Store`, but the `Clerk` doesn't look at the `Store` until it
-needs a `Store`.
-
-```java
-public class Clerk {
-  private final Provider<Store> shopProvider;
-  @Inject Clerk(Provider<Store> shopProvider) {
-    this.shopProvider = shopProvider;
-  }
-
-  void doSale() {
-    Customer sucker = shopProvider.get().getNextCustomer();
-    //...
-  }
-}
-```
-
-Note here, that unless `Store` is bound as a
-[`Singleton`](Scopes#singleton) or in some
-other scope to be reused, the `shopProvider.get()` call will end up constructing
-a new `Store`, which will construct a new `Boss`, which will construct a new
-`Clerk` again!
-
-### Use factory methods to tie two objects together
-
-When your dependencies are tied together a bit closer, untangling them with the
-above methods won't work. Situations like this come up when using something like
-a [View/Presenter](https://en.wikipedia.org/wiki/Model-view-presenter) paradigm:
-
-```java
-public class FooPresenter {
-  @Inject public FooPresenter(FooView view) {
-    //...
-  }
-
-  public void doSomething() {
-    view.doSomethingCool();
-  }
-}
-
-public class FooView {
-  @Inject public FooView(FooPresenter presenter) {
-    //...
-  }
-
-  public void userDidSomething() {
-    presenter.theyDidSomething();
-  }
-  //...
-}
-```
-
-Each of those objects needs the other object. Here, you can use
-[AssistedInject](AssistedInject) to get
-around it:
-
-```java
-public class FooPresenter {
-  private final FooView view;
-  @Inject public FooPresenter(FooView.Factory viewMaker) {
-    view = viewMaker.create(this);
-  }
-
-  public void doSomething() {
-  //...
-    view.doSomethingCool();
-  }
-}
-
-public class FooView {
-  @Inject public FooView(@Assisted FooPresenter presenter) {...}
-
-  public void userDidSomething() {
-    presenter.theyDidSomething();
-  }
-
-  public static interface Factory {
-    FooView create(FooPresenter presenter)
-  }
-}
-```
-
-Such situations also come up when attempting to use Guice to manifest business
-object models, which may have cycles that reflect different types of
-relationships.
-[AssistedInject](AssistedInject) is also
-quite good for such cases.
-
-## Circular proxy feature
-
-In cases where one of the dependencies in the circular chain is an interface
-type, Guice can work around the circular dependency chain by generating a proxy
-at runtime to break the cycle. However, this support is really limited and can
-break unexpectedly if the type is changed to a non-interface type.
-
-To prevent unexpected circular dependency chains in your code, we recommend that
-you disable Guice's circular proxy feature. To do so, install a module that
-calls `binder().disableCircularProxies()`:
-
-```java {.good}
-final class ApplicationModule extends AbstractModule {
-  @Override
-  protected void configure() {
-    ...
-
-    binder().disableCircularProxies();
-  }
-}
-```
-
-TIP: You can also install `Modules.disableCircularProxiesModule()` to disable
-circular proxy in Guice.
+# Avoid static state
+
+Static state and testability are enemies. Your tests should be fast and free of
+side-effects. But non-constant values held by static fields are a pain to
+manage. It's tricky to reliably tear down static singletons that are mocked by
+tests, and this interferes with other tests.
+
+Although *static state* is bad, there's nothing wrong with the static *keyword*.
+Static classes are okay (preferred even!) and for pure functions (sorting, math,
+etc.), static is just fine.

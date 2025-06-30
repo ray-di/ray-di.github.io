@@ -1,81 +1,60 @@
 # Ray.Di
 
-> Ray.Di is a PHP dependency injection framework inspired by Google Guice. It provides a powerful and flexible way to manage dependencies in your PHP applications through constructor injection, setter injection, and assisted injection.
+> Ray.Di is a PHP dependency injection framework inspired by Google Guice. It automatically resolves object dependencies and enables flexible, testable code through compile-time dependency resolution.
 
-Ray.Di is a mature framework that has been actively maintained since 2015, supporting the latest PHP versions while maintaining backward compatibility. It follows the dependency injection pattern to create loosely coupled, testable, and maintainable code.
+Ray.Di has been actively maintained since 2015, supporting PHP 7.2+ with a focus on performance and developer experience. It uses code generation to minimize runtime overhead while providing powerful features like aspect-oriented programming (AOP).
 
-## Core Concepts
+## Why Ray.Di?
 
-- **Dependency Injection**: Dependencies are injected from outside rather than created internally
-- **Modules**: Configuration units that define how dependencies are resolved
-- **Bindings**: Map interfaces to their implementations
-- **Scopes**: Control the lifecycle of injected objects (Singleton, Prototype)
-- **AOP Support**: Aspect-oriented programming for cross-cutting concerns
-
-## Key Features
-
-- Constructor injection without annotations
-- Method injection with #[Inject] attribute
-- Assisted injection for runtime dependencies
-- Provider pattern support for lazy loading
-- Contextual bindings for different implementations
-- Built-in AOP support for method interception
-- Multi-bindings for plugin architectures
+- **Compile-time safety**: Detects configuration errors before runtime
+- **Zero annotations**: Constructor injection works without special markers
+- **Performance optimized**: Generates efficient code for production
+- **Framework agnostic**: Integrates with any PHP application
 
 ## Getting Started
 
-- [Overview](/manuals/1.0/en/Overview.md): Overview of Ray.Di framework
-- [Motivation](/manuals/1.0/en/Motivation.md): Why use dependency injection
-- [Getting Started](/manuals/1.0/en/GettingStarted.md): Introduction to dependency injection with Ray.Di
-- [Installation](/manuals/1.0/en/Installation.md): How to install Ray.Di via Composer
-- [Mental Model](/manuals/1.0/en/MentalModel.md): Understanding Ray.Di as a map of keys to providers
-- [Tutorial](/manuals/1.0/en/Tutorial1.md): Step-by-step guide from manual DI to Ray.Di
+- [Installation](/manuals/1.0/en/Installation.md): Quick setup with Composer - `composer require ray/di`
+- [Overview](/manuals/1.0/en/Overview.md): Core concepts and architecture of dependency injection
+- [Tutorial](/manuals/1.0/en/Tutorial1.md): Build your first Ray.Di application step-by-step
+- [Mental Model](/manuals/1.0/en/MentalModel.md): Think of Ray.Di as a map from types to their providers
 
-## Core Features
+## Essential Concepts
 
-- [Bindings](/manuals/1.0/en/Bindings.md): Core binding concepts
-- [Scopes](/manuals/1.0/en/Scopes.md): Managing object lifecycles
-- [Injections](/manuals/1.0/en/Injections.md): Different injection types
+- [Bindings](/manuals/1.0/en/Bindings.md): Learn how to wire interfaces to implementations
+- [Scopes](/manuals/1.0/en/Scopes.md): Control object lifecycles with Singleton and Prototype scopes
+- [Modules](/manuals/1.0/en/GettingStarted.md): Organize your bindings into reusable configuration units
 
-## Binding Types
+## Common Binding Patterns
 
-- [Linked Bindings](/manuals/1.0/en/LinkedBindings.md): Map interfaces to implementations
-- [Instance Bindings](/manuals/1.0/en/InstanceBindings.md): Bind to specific instances
-- [Provider Bindings](/manuals/1.0/en/ProviderBindings.md): Use providers for complex object creation
-- [Constructor Bindings](/manuals/1.0/en/ConstructorBindings.md): Bind to specific constructors
-- [Untargeted Bindings](/manuals/1.0/en/UntargetedBindings.md): Bindings without specific targets
-- [Binding Attributes](/manuals/1.0/en/BindingAttributes.md): Use qualifiers for multiple bindings of same type
-- [Builtin Bindings](/manuals/1.0/en/BuiltinBindings.md): Built-in bindings provided by Ray.Di
-- [Null Object Binding](/manuals/1.0/en/NullObjectBinding.md): Null object pattern support
+- [Linked Bindings](/manuals/1.0/en/LinkedBindings.md): The most common pattern - bind an interface to a concrete class
+- [Provider Bindings](/manuals/1.0/en/ProviderBindings.md): Create objects with complex initialization logic
+- [Instance Bindings](/manuals/1.0/en/InstanceBindings.md): Bind to pre-existing objects or values
+- [Constructor Bindings](/manuals/1.0/en/ConstructorBindings.md): Select specific constructors for injection
 
-## Advanced Features
+## Advanced Techniques
 
-- [AOP](/manuals/1.0/en/AOP.md): Method interception for cross-cutting concerns
-- [Injecting Providers](/manuals/1.0/en/InjectingProviders.md): Inject providers for multiple instances and lazy loading
-- [Multibindings](/manuals/1.0/en/Multibindings.md): Support for plugin architectures
-- [Contextual Bindings](/manuals/1.0/en/ContextualBindings.md): Different implementations based on context
-- [Object Life Cycle](/manuals/1.0/en/ObjectLifeCycle.md): PostConstruct for initialization after injection
+- [AOP](/manuals/1.0/en/AOP.md): Intercept method calls for logging, transactions, and security
+- [Contextual Bindings](/manuals/1.0/en/ContextualBindings.md): Different implementations for different use cases
+- [Injecting Providers](/manuals/1.0/en/InjectingProviders.md): Lazy loading and multiple instances
+- [Multibindings](/manuals/1.0/en/Multibindings.md): Create plugin systems with sets and maps
 
 ## Best Practices
 
-- [Best Practices Overview](/manuals/1.0/en/BestPractices.md): Overview of Ray.Di best practices
-- [Minimize Mutability](/manuals/1.0/en/bp/MinimizeMutability.md): Use constructor injection for immutable objects
-- [Inject Only Direct Dependencies](/manuals/1.0/en/bp/InjectOnlyDirectDependencies.md): Avoid injecting objects to get other objects
-- [Avoid Static State](/manuals/1.0/en/bp/AvoidStaticState.md): Static state and testability are enemies
-- [Organize Modules by Feature](/manuals/1.0/en/bp/OrganizeModulesByFeature.md): Group bindings by feature, not by type
-- [Avoid Conditional Logic in Modules](/manuals/1.0/en/bp/AvoidConditionalLogicInModules.md): Keep modules simple and predictable
-- [Modules Should Be Fast and Side Effect Free](/manuals/1.0/en/bp/ModulesShouldBeFastAndSideEffectFree.md): Module configuration best practices
-- [Document Public Bindings](/manuals/1.0/en/bp/DocumentPublicBindings.md): Documentation practices for bindings
-- [Don't Reuse Annotations](/manuals/1.0/en/bp/DontReuseAnnotations.md): Create specific annotations for each binding
-- [Injecting the Injector](/manuals/1.0/en/bp/InjectingTheInjector.md): When and how to inject the injector
-- [Cyclic Dependencies](/manuals/1.0/en/bp/CyclicDependencies.md): Handling circular dependencies
+- [Minimize Mutability](/manuals/1.0/en/bp/MinimizeMutability.md): Prefer constructor injection for immutable, thread-safe objects
+- [Inject Only Direct Dependencies](/manuals/1.0/en/bp/InjectOnlyDirectDependencies.md): Don't inject factories just to get other objects
+- [Organize Modules by Feature](/manuals/1.0/en/bp/OrganizeModulesByFeature.md): Group related bindings together, not by type
+- [Avoid Static State](/manuals/1.0/en/bp/AvoidStaticState.md): Static state makes testing difficult and should be injected instead
 
-## Performance & Tools
+## Production Ready
 
-- [Performance Boost](/manuals/1.0/en/PerformanceBoost.md): ScriptInjector and CachedInjector for production optimization
-- [Grapher](/manuals/1.0/en/Grapher.md): Visualize object graphs and dependencies
-- [Integration](/manuals/1.0/en/Integration.md): Integrating Ray.Di with other frameworks
+- [Performance Boost](/manuals/1.0/en/PerformanceBoost.md): Use ScriptInjector for 10x faster production performance
+- [Integration](/manuals/1.0/en/Integration.md): Works with Laravel, Symfony, and other frameworks
+- [Backward Compatibility](/manuals/1.0/en/BackwardCompatibility.md): Semantic versioning with no BC breaks in minor versions
 
-## Additional Resources
+## Optional
 
-- [Backward Compatibility](/manuals/1.0/en/BackwardCompatibility.md): Ray.Di's commitment to not breaking BC
+- [All Best Practices](/manuals/1.0/en/BestPractices.md): Comprehensive guide to Ray.Di best practices
+- [Grapher](/manuals/1.0/en/Grapher.md): Visualize your dependency graph
+- [Additional Binding Types](/manuals/1.0/en/BindingAttributes.md): Qualifiers, untargeted bindings, and more
+- [Object Lifecycle](/manuals/1.0/en/ObjectLifeCycle.md): PostConstruct and other lifecycle hooks
+- [Injections](/manuals/1.0/en/Injections.md): Method, setter, and assisted injection patterns
