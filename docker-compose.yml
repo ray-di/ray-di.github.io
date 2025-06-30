@@ -9,3 +9,9 @@ services:
       - .:/app
     ports:
       - 4000:4000
+    command: >
+      /bin/bash -c "
+        bundle exec jekyll build &&
+        ./bin/copy_markdown_files.sh &&
+        bundle exec jekyll serve --host 0.0.0.0
+      "
