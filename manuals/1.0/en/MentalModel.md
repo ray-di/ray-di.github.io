@@ -121,7 +121,7 @@ to satisfy dependencies.
 ```php
 interface Provider
 {
-  /** Provides an instance/
+  /** Provides an instance */
   public function get();
 }
 ```
