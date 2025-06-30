@@ -129,7 +129,7 @@ function includeMarkdownFile(string $filePath): string
     // Clean up the content
     $content = trim($content);
 
-    // Convert relative links to absolute ones (basic conversion)
+    // Convert relative links to section references, handling anchors and query parameters
     $content = preg_replace_callback(
         '/\[([^\]]+)\]\(([^)]+)\)/',
         function ($matches) {
@@ -137,17 +137,31 @@ function includeMarkdownFile(string $filePath): string
             $url = $matches[2];
 
             // Skip external links
-            if (strpos($url, 'http') === 0) {
+            if (preg_match('#^(?:[a-z][a-z0-9+\-.]*:)?//#i', $url)) {
                 return $matches[0];
             }
 
-            // Convert relative markdown links to section references
-            if (strpos($url, '.md') !== false) {
-                // Simple conversion - could be enhanced
-                $sectionName = basename($url, '.md');
+            // Only process .md links (with or without anchors/query)
+            if (preg_match('/\.md(\?|#|$)/i', $url)) {
+                // Split off anchor and query if present
+                $urlParts = parse_url($url);
+                $file = $urlParts['path'] ?? $url;
+                $anchor = $urlParts['fragment'] ?? '';
+                // Ignore query parameters for anchor generation, but preserve them in the output if present
+                $query = isset($urlParts['query']) ? '?' . $urlParts['query'] : '';
+
+                // Generate section name from file name
+                $sectionName = basename($file, '.md');
                 $sectionName = str_replace(['-', '_'], ' ', $sectionName);
                 $sectionName = ucwords($sectionName);
-                return "[$text](#" . strtolower(str_replace(' ', '-', $sectionName)) . ")";
+                $sectionAnchor = strtolower(str_replace(' ', '-', $sectionName));
+
+                // If original link had an anchor, append it
+                if ($anchor !== '') {
+                    $sectionAnchor .= '-' . strtolower(str_replace([' ', '_'], '-', $anchor));
+                }
+
+                return "[$text](#" . $sectionAnchor . ")";
             }
 
             return $matches[0];
