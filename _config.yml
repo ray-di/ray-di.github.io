@@ -9,3 +9,23 @@ markdown: kramdown
 redcarpet:
   extensions: ["autolink", "no_intra_emphasis", "fenced_code_blocks", "autolink", "strikethrough", "superscript", "with_toc_data", "tables"]
 highlighter: rouge
+
+# Include markdown files as static files for AI/llms.txt compatibility
+include:
+  - "manuals"
+
+# Exclude from processing but include as static files
+keep_files:
+  - "manuals"
+
+# Default settings for different file types
+defaults:
+  - scope:
+      path: "manuals/**/*.md"
+    values:
+      sitemap: false
+  - scope:
+      path: "manuals"
+      type: "pages"
+    values:
+      sitemap: false

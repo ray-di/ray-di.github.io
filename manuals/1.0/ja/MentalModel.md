@@ -108,7 +108,7 @@ interface ProviderInterface
 以下は 2 つの `ProviderInterface` の実装例です。
 
 ```php
-class countProvicer implements ProviderInterface
+class CountProvicer implements ProviderInterface
 {
     public function get(): int
     {
@@ -116,7 +116,7 @@ class countProvicer implements ProviderInterface
     }
 }
 
-class messageProvider implements ProviderInterface
+class MessageProvider implements ProviderInterface
 {
     public function get(): string
     {

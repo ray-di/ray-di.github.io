@@ -1,0 +1,60 @@
+# Ray.Di
+
+> Ray.Di is a PHP dependency injection framework inspired by Google Guice. It automatically resolves object dependencies and enables flexible, testable code through compile-time dependency resolution.
+
+Ray.Di has been actively maintained since 2015, supporting PHP 7.2+ with a focus on performance and developer experience. It uses code generation to minimize runtime overhead while providing powerful features like aspect-oriented programming (AOP).
+
+## Why Ray.Di?
+
+- **Compile-time safety**: Detects configuration errors before runtime
+- **Zero annotations**: Constructor injection works without special markers
+- **Performance optimized**: Generates efficient code for production
+- **Framework agnostic**: Integrates with any PHP application
+
+## Getting Started
+
+- [Installation](/manuals/1.0/en/Installation.md): Quick setup with Composer - `composer require ray/di`
+- [Overview](/manuals/1.0/en/Overview.md): Core concepts and architecture of dependency injection
+- [Tutorial](/manuals/1.0/en/Tutorial1.md): Build your first Ray.Di application step-by-step
+- [Mental Model](/manuals/1.0/en/MentalModel.md): Think of Ray.Di as a map from types to their providers
+
+## Essential Concepts
+
+- [Bindings](/manuals/1.0/en/Bindings.md): Learn how to wire interfaces to implementations
+- [Scopes](/manuals/1.0/en/Scopes.md): Control object lifecycles with Singleton and Prototype scopes
+- [Modules](/manuals/1.0/en/GettingStarted.md): Organize your bindings into reusable configuration units
+
+## Common Binding Patterns
+
+- [Linked Bindings](/manuals/1.0/en/LinkedBindings.md): The most common pattern - bind an interface to a concrete class
+- [Provider Bindings](/manuals/1.0/en/ProviderBindings.md): Create objects with complex initialization logic
+- [Instance Bindings](/manuals/1.0/en/InstanceBindings.md): Bind to pre-existing objects or values
+- [Constructor Bindings](/manuals/1.0/en/ConstructorBindings.md): Select specific constructors for injection
+
+## Advanced Techniques
+
+- [AOP](/manuals/1.0/en/AOP.md): Intercept method calls for logging, transactions, and security
+- [Contextual Bindings](/manuals/1.0/en/ContextualBindings.md): Different implementations for different use cases
+- [Injecting Providers](/manuals/1.0/en/InjectingProviders.md): Lazy loading and multiple instances
+- [Multibindings](/manuals/1.0/en/Multibindings.md): Create plugin systems with sets and maps
+
+## Best Practices
+
+- [Minimize Mutability](/manuals/1.0/en/bp/MinimizeMutability.md): Prefer constructor injection for immutable, thread-safe objects
+- [Inject Only Direct Dependencies](/manuals/1.0/en/bp/InjectOnlyDirectDependencies.md): Don't inject factories just to get other objects
+- [Organize Modules by Feature](/manuals/1.0/en/bp/OrganizeModulesByFeature.md): Group related bindings together, not by type
+- [Avoid Static State](/manuals/1.0/en/bp/AvoidStaticState.md): Static state makes testing difficult and should be injected instead
+
+## Production Ready
+
+- [Performance Boost](/manuals/1.0/en/PerformanceBoost.md): Use ScriptInjector for 10x faster production performance
+- [Integration](/manuals/1.0/en/Integration.md): Works with Laravel, Symfony, and other frameworks
+- [Backward Compatibility](/manuals/1.0/en/BackwardCompatibility.md): Semantic versioning with no BC breaks in minor versions
+
+## Optional
+
+- [All Best Practices](/manuals/1.0/en/BestPractices.md): Comprehensive guide to Ray.Di best practices
+- [Grapher](/manuals/1.0/en/Grapher.md): Visualize your dependency graph
+- [Additional Binding Types](/manuals/1.0/en/BindingAttributes.md): Qualifiers, untargeted bindings, and more
+- [Object Lifecycle](/manuals/1.0/en/ObjectLifeCycle.md): PostConstruct and other lifecycle hooks
+- [Injections](/manuals/1.0/en/Injections.md): Method, setter, and assisted injection patterns
