@@ -4,8 +4,8 @@ title: BC
 category: Manual
 permalink: /manuals/1.0/ja/backward_compatibility.html
 ---
-# Backward Compatibility
+# 後方互換性
 
-We will not break backward compatibility.
+後方互換性を破ることはありません。
 
-Ray.Di 2.0 was first released in 2015 and since then we've been supporting the latest PHP and adding features; we may no longer support PHP that has become deprecated, but we have never broken backwards compatibility, and we plan to continue to do so.
+Ray.Di 2.0 は 2015 年に初めてリリースされて以来、最新の PHP をサポートしつつ機能追加を続けてきました。すでに非推奨となった PHP のサポートは終了することがありますが、後方互換性を破ったことは一度もありません。これからもその方針を守り続ける予定です。
