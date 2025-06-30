@@ -1,17 +1,34 @@
 require 'fileutils'
 require 'yaml'
 
+def convert_to_markdown_filename(base_name)
+  # Generic kebab-case to CamelCase converter
+  # This handles both underscore and hyphen separators
+  base_name.split(/[_-]/).map(&:capitalize).join + '.md'
+end
+
 def extract_order_from_contents(language)
   # Read contents.html to get the proper order
   contents_file = File.expand_path("../_includes/manuals/1.0/#{language}/contents.html", __dir__)
-  return nil unless File.exist?(contents_file)
+  unless File.exist?(contents_file)
+    puts "Warning: Contents file not found: #{contents_file}"
+    return nil
+  end
   
   contents = File.read(contents_file)
   
   # Extract permalinks from nav items
   permalinks = contents.scan(/href="\/manuals\/1\.0\/#{language}\/([^"]+\.html)"/).flatten
   
-  # Convert HTML filenames to markdown filenames (kebab-case to CamelCase)
+  # Validate that we found some permalinks
+  if permalinks.empty?
+    puts "Warning: No permalinks found in #{contents_file}. Navigation structure may have changed."
+    return nil
+  end
+  
+  puts "Found #{permalinks.length} pages in navigation order"
+  
+  # Convert HTML filenames to markdown filenames
   markdown_files = permalinks.map do |permalink|
     # Remove .html extension
     base = permalink.sub('.html', '')
@@ -20,54 +37,17 @@ def extract_order_from_contents(language)
     skip_pages = ['ai-assistant', 'index', '1page']
     next nil if skip_pages.include?(base)
     
-    # Convert kebab-case to CamelCase for markdown files
-    # Special cases first
-    case base
-    when 'getting_started'
-      'GettingStarted.md'
-    when 'mental_model'
-      'MentalModel.md'
-    when 'linked_bindings'
-      'LinkedBindings.md'
-    when 'binding_attributes'
-      'BindingAttributes.md'
-    when 'instance_bindings'
-      'InstanceBindings.md'
-    when 'provider_bindings'
-      'ProviderBindings.md'
-    when 'untargeted_bindings'
-      'UntargetedBindings.md'
-    when 'constructor_bindings'
-      'ConstructorBindings.md'
-    when 'builtin_bindings'
-      'BuiltinBindings.md'
-    when 'contextual_bindings'
-      'ContextualBindings.md'
-    when 'null_object_binding'
-      'NullObjectBinding.md'
-    when 'injecting_providers'
-      'InjectingProviders.md'
-    when 'object_life_cycle'
-      'ObjectLifeCycle.md'
-    when 'best_practices'
-      'BestPractices.md'
-    when 'performance_boost'
-      'PerformanceBoost.md'
-    when 'backward_compatibility'
-      'BackwardCompatibility.md'
-    else
-      # For simple cases, just capitalize first letter
-      base.split('_').map(&:capitalize).join + '.md'
-    end
+    # Convert kebab-case to CamelCase
+    convert_to_markdown_filename(base)
   end.compact
   
   markdown_files
 end
 
 def strip_frontmatter(content)
-  # Remove Jekyll frontmatter from the beginning of the content
-  # Handle both normal --- delimiters and any corrupted ones
-  content.gsub(/\A.*?---\s*\n.*?\n---\s*\n/m, '').gsub(/\A\d*---\s*\n.*?\n---\s*\n/m, '')
+  # Remove Jekyll frontmatter only from the very beginning of the file
+  # Handle both normal frontmatter and any corrupted patterns
+  content.sub(/\A\d*---\s*\n.*?\n---\s*\n/m, '')
 end
 
 def generate_combined_file(language, intro_message)
@@ -145,7 +125,13 @@ def generate_combined_file(language, intro_message)
           
           next if stripped_content.strip.empty?
           
-          combined_file.write("\n### " + stripped_content + "\n")
+          # Remove leading heading if present to avoid duplicate headings
+          cleaned_content = stripped_content.lstrip
+          if cleaned_content =~ /\A\#{1,6}\s+(.+)/
+            cleaned_content = $1.lstrip
+          end
+          
+          combined_file.write("\n### " + cleaned_content + "\n")
           puts "  Added BP: #{File.basename(bp_file)}"
         rescue => e
           puts "  Error processing BP #{bp_file}: #{e.message}"

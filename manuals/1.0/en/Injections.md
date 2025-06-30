@@ -94,7 +94,7 @@ class PayPalCreditCardProcessor implements CreditCardProcessorInterface
     private string $apiKey = self::SANDBOX_API_KEY;
     
     #[Inject(optional: true)]
-    public setApiKey(#[Named('paypal-apikey') string $apiKey): void
+    public function setApiKey(#[Named('paypal-apikey')] string $apiKey): void
     {
        $this->apiKey = $apiKey;
     }

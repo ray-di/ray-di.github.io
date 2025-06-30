@@ -133,10 +133,10 @@ To bootstrap your application, you'll need to create a Ray.Di `Injector` withone
 ```php
 final class MyWebServer {
     public function __construct(
-        private readonyly RequestLoggingInterface $requestLogging,
-        private readonyly RequestHandlerInterface $requestHandler,
-        private readonyly AuthenticationInterface $authentication,
-        private readonyly Database $database
+        private readonly RequestLoggingInterface $requestLogging,
+        private readonly RequestHandlerInterface $requestHandler,
+        private readonly AuthenticationInterface $authentication,
+        private readonly Database $database
     ) {}
 
     public function start(): void
@@ -220,14 +220,14 @@ class DemoModule extends AbstractModule
 class Greeter
 {
     public function __construct(
-        #[Message] private string $messag,
+        #[Message] private string $message,
         #[Count] private int $count
     ) {}
 
     public function sayHello(): void
     {
         for ($i = 0; $i < $this->count ; $i++) {
-            echo $this->messag . PHP_EOL;
+            echo $this->message . PHP_EOL;
         }
     }
 }

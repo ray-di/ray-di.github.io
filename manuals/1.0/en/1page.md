@@ -83,7 +83,7 @@ class RealBillingService implements BillingServiceInterface
         } catch (UnreachableException $e) {
             $transactionLog->logConnectException($e);
 
-            return ReceiptforSystemFailure($e->getMessage());
+            return Receipt::forSystemFailure($e->getMessage());
         }
     }
 }
@@ -248,9 +248,9 @@ class RealBillingServiceTest extends TestCase
     public function setUp(): void
     {
         $this->order = new PizzaOrder(100);
-        $this->$creditCard = new CreditCard("1234", 11, 2010);
-        $this->$transactionLog = new InMemoryTransactionLog();
-        $this->$processor = new FakeCreditCardProcessor();      
+        $this->creditCard = new CreditCard("1234", 11, 2010);
+        $this->transactionLog = new InMemoryTransactionLog();
+        $this->processor = new FakeCreditCardProcessor();      
     }
     
     public function testSuccessfulCharge()
@@ -258,7 +258,7 @@ class RealBillingServiceTest extends TestCase
         $billingService= new RealBillingService($this->processor, $this->transactionLog);
         $receipt = $billingService->chargeOrder($this->order, $this->creditCard);
         
-        $this->assertTrue($receipt.hasSuccessfulCharge());
+        $this->assertTrue($receipt->hasSuccessfulCharge());
         $this->assertSame(100, $receipt->getAmountOfCharge());
         $this->assertSame($this->creditCard, $this->processor->getCardOfOnlyCharge());
         $this->assertSame(100, $this->processor->getAmountOfOnlyCharge());
@@ -477,10 +477,10 @@ To bootstrap your application, you'll need to create a Ray.Di `Injector` withone
 ```php
 final class MyWebServer {
     public function __construct(
-        private readonyly RequestLoggingInterface $requestLogging,
-        private readonyly RequestHandlerInterface $requestHandler,
-        private readonyly AuthenticationInterface $authentication,
-        private readonyly Database $database
+        private readonly RequestLoggingInterface $requestLogging,
+        private readonly RequestHandlerInterface $requestHandler,
+        private readonly AuthenticationInterface $authentication,
+        private readonly Database $database
     ) {}
 
     public function start(): void
@@ -564,14 +564,14 @@ class DemoModule extends AbstractModule
 class Greeter
 {
     public function __construct(
-        #[Message] private string $messag,
+        #[Message] private string $message,
         #[Count] private int $count
     ) {}
 
     public function sayHello(): void
     {
         for ($i = 0; $i < $this->count ; $i++) {
-            echo $this->messag . PHP_EOL;
+            echo $this->message . PHP_EOL;
         }
     }
 }
@@ -943,7 +943,7 @@ class TweetModule extends AbstractModule
     {
         $this->bind(TweetClient::class);
         $this->bind(TweeterInterface::class)->to(SmsTweeter::class)->in(Scope::SINGLETON);
-        $this->bind(UrlShortenerInterface)->toProvider(TinyUrlShortener::class);
+        $this->bind(UrlShortenerInterface::class)->toProvider(TinyUrlShortener::class);
         $this->bind('')->annotatedWith(Username::class)->toInstance("koriym");
     }
 }
@@ -1117,7 +1117,7 @@ Since annotations cannot be applied to arguments, the first argument of a custom
  */
 public function setCreditCardProcessor(
 	 CreditCardProcessorInterface $processor
-   OtherDepedeciyInterface $depedency
+   OtherDependencyInterface $dependency
 ){
 ```
 
@@ -1158,7 +1158,7 @@ interface ProviderInterface
     public function get();
 }
 ```
-Our provider implementation class has dependencies of its own, which it receives via a contructor.
+Our provider implementation class has dependencies of its own, which it receives via a constructor.
 It implements the Provider interface to define what's returned with complete type safety:
 
 ```php
@@ -1291,9 +1291,9 @@ Specify the method name ($methodName) and qualifier ($named) of the setter injec
     ->addOptionalMethod($methodName, $named);
 ```
 
-**postCosntruct**
+**postConstruct**
 
-Ray.Di will invoke that constructor and setter method to satisfy the binding and invoke in `$postCosntruct` method after all dependencies are injected.
+Ray.Di will invoke that constructor and setter method to satisfy the binding and invoke in `$postConstruct` method after all dependencies are injected.
 
 ### PDO Example
 
@@ -1404,7 +1404,7 @@ class FlickrPhotoSummarizer implements UriSummarizer
             return null;
         }
         $id = $this->matcher->group(1);
-        $photo = Photo::loockup($id);
+        $photo = Photo::lookup($id);
 
         return $photo->getTitle();
     }
@@ -1439,7 +1439,7 @@ class TweetPrettifier
      * @param Map<UriSummarizerInterface> $summarizers
      */
     public function __construct(
-        #[Set(UriSummarizer::class)] private readonyl Map $summarizers;
+        #[Set(UriSummarizer::class)] private readonly Map $summarizers;
         private readonly EmoticonImagifier $emoticonImagifier;
     ) {}
     
@@ -1521,8 +1521,8 @@ class TweetPrettifier
 
     public doSomething(): void
     {
-        $filickerSummarizer = $this->summarizers['flicker'];
-        assert($filickerSummarizer instanceof FlickrPhotoSummarizer);
+        $flickrSummarizer = $this->summarizers['flickr'];
+        assert($flickrSummarizer instanceof FlickrPhotoSummarizer);
     }    
 }
 ```
@@ -1533,7 +1533,7 @@ The `setBinding()` method overrides any previous binding.
 
 ```php
 $UriBinder = Multibinder::newInstance($this, UriSummarizerInterface::class);
-$UriBinder->setBinding('flickr')->(FlickrPhotoSummarizer::class);
+$UriBinder->setBinding('flickr')->to(FlickrPhotoSummarizer::class);
 ```
 
 ## Map
@@ -1618,7 +1618,7 @@ It is the same interface, but you can receive different connections made by `Pro
 public function __construct(
     #[Named('user')] private readonly Connection $userDb,
     #[Named('job')] private readonly Connection $jobDb,
-    #[Named('log') private readonly Connection $logDb)
+    #[Named('log')] private readonly Connection $logDb
 ) {}
 ```
 
@@ -1728,7 +1728,7 @@ class PayPalCreditCardProcessor implements CreditCardProcessorInterface
     private string $apiKey = self::SANDBOX_API_KEY;
     
     #[Inject(optional: true)]
-    public setApiKey(#[Named('paypal-apikey') string $apiKey): void
+    public function setApiKey(#[Named('paypal-apikey')] string $apiKey): void
     {
        $this->apiKey = $apiKey;
     }
@@ -2180,508 +2180,22 @@ Ray.Di 2.0 was first released in 2015 and since then we've been supporting the l
 ## Best Practices Details
 
 
-### # Avoid conditional logic in modules
+### Avoid conditional logic in modules
 
-It’s tempting to create modules that have moving parts and can be configured to
-operate differently for different environments:
+### Avoid static state
 
-```php
-class FooModule extends AbstractModule
-{
-  public function __construct(
-    private readonly ?string $fooServer
-  }{}
+### Avoid Circular Dependencies
 
-  protected function configure(): void
-  {
-    if ($this->fooServer != null) {
-        $this->bind(String::class)->annotatedWith(ServerName::class)->toInstance($this->fooServer);
-        $this->bind(FooService::class)->to(RemoteFooService::class);
-    } else {
-        $this->bind(FooService::class)->to(InMemoryFooService::class);
-    }
-  }
-}
-```
+### Document the public bindings provided by modules
 
-Conditional logic in itself isn't too bad. But problems arise when
-configurations are untested. In this example, the`InMemoryFooService` is used
-for development and `RemoteFooService` is used in production. But without
-testing this specific case, it's impossible to be sure that `RemoteFooService`
-works in the integrated application.
+### Don't reuse binding attributes (aka `#[Qualifier]`)
 
-To overcome this, **minimize the number of distinct configurations** in your
-applications. If you split production and development into distinct modules, it
-is easier to be sure that the entire production codepath is tested. In this
-case, we split `FooModule` into `RemoteFooModule` and `InMemoryFooModule`. This
-also prevents production classes from having a compile-time dependency on test
-code.
+### Inject only direct dependencies
 
-Another, related, issue with the example above: sometimes there's a binding for
-`#[ServerName]`, and sometimes that binding is not there. You should avoid
-sometimes binding a key, and other times not.
+### Use the Injector as little as possible (preferably only once)
 
+### Minimize mutability
 
-### # Avoid static state
+### Modules should be fast and side-effect free
 
-Static state and testability are enemies. Your tests should be fast and free of
-side-effects. But non-constant values held by static fields are a pain to
-manage. It's tricky to reliably tear down static singletons that are mocked by
-tests, and this interferes with other tests.
-
-Although *static state* is bad, there's nothing wrong with the static *keyword*.
-Static classes are okay (preferred even!) and for pure functions (sorting, math,
-etc.), static is just fine.
-
-
-### # Avoid Circular Dependencies
-
-## What are circular dependencies?
-
-Say that your application has a few classes including a `Store`, a `Boss`, and a
-`Clerk`.
-
-```java
-public class Store {
-  private final Boss boss;
-  //...
-
-  @Inject public Store(Boss boss) {
-     this.boss = boss;
-     //...
-  }
-
-  public void incomingCustomer(Customer customer) {...}
-  public Customer getNextCustomer() {...}
-}
-
-public class Boss {
-  private final Clerk clerk;
-  @Inject public Boss(Clerk clerk) {
-    this.clerk = clerk;
-  }
-}
-
-public class Clerk {
-  // Nothing interesting here
-}
-```
-
-Right now, the dependency chain is all good: constructing a `Store` results in
-constructing a `Boss`, which results in constructing a `Clerk`. However, to get
-the `Clerk` to get a `Customer` to do the selling, it will need a reference to
-the `Store` to get those customer:
-
-```java
-public class Store {
-  private final Boss boss;
-  //...
-
-  @Inject public Store(Boss boss) {
-     this.boss = boss;
-     //...
-  }
-  public void incomingCustomer(Customer customer) {...}
-  public Customer getNextCustomer() {...}
-}
-
-public class Boss {
-  private final Clerk clerk;
-  @Inject public Boss(Clerk clerk) {
-    this.clerk = clerk;
-  }
-}
-
-public class Clerk {
-  private final Store shop;
-  @Inject Clerk(Store shop) {
-    this.shop = shop;
-  }
-
-  void doSale() {
-    Customer sucker = shop.getNextCustomer();
-    //...
-  }
-}
-```
-
-which leads to a cycle: `Clerk` -> `Store` -> `Boss` -> `Clerk`. In trying to
-construct a `Clerk`, an `Store` will be constructed, which needs a `Boss`, which
-needs a `Clerk` again!
-
-## Ways to avoid circular dependencies
-
-### Eliminate the cycle (Recommended)
-
-Cycles often reflect insufficiently granular decomposition. To eliminate such
-cycles, extract the Dependency Case into a separate class.
-
-Take the above `Store` example, the work of managing the incoming customers can
-be extracted into another class, say `CustomerLine`, and that can be injected
-into the `Clerk` and `Store`.
-
-```java
-public class Store {
-  private final Boss boss;
-  private final CustomerLine line;
-  //...
-
-  @Inject public Store(Boss boss, CustomerLine line) {
-     this.boss = boss;
-     this.line = line;
-     //...
-  }
-
-  public void incomingCustomer(Customer customer) { line.add(customer); }
-}
-
-public class Clerk {
-  private final CustomerLine line;
-
-  @Inject Clerk(CustomerLine line) {
-    this.line = line;
-  }
-
-  void doSale() {
-    Customer sucker = line.getNextCustomer();
-    //...
-  }
-}
-```
-
-While both `Store` and `Clerk` depend on the `CustomerLine`, there's no cycle in
-the dependency graph (although you may want to make sure that the `Store` and
-`Clerk` both use the same `CustomerLine` instance). This also means that your
-`Clerk` will be able to sell cars when your shop has a big tent sale: just
-inject a different `CustomerLine`.
-
-### Break the cycle with a Provider
-
-[Injecting a Guice provider](InjectingProviders)
-will allow you to add a _seam_ in the dependency graph. The `Clerk` will still
-depend on the `Store`, but the `Clerk` doesn't look at the `Store` until it
-needs a `Store`.
-
-```java
-public class Clerk {
-  private final Provider<Store> shopProvider;
-  @Inject Clerk(Provider<Store> shopProvider) {
-    this.shopProvider = shopProvider;
-  }
-
-  void doSale() {
-    Customer sucker = shopProvider.get().getNextCustomer();
-    //...
-  }
-}
-```
-
-Note here, that unless `Store` is bound as a
-[`Singleton`](Scopes#singleton) or in some
-other scope to be reused, the `shopProvider.get()` call will end up constructing
-a new `Store`, which will construct a new `Boss`, which will construct a new
-`Clerk` again!
-
-### Use factory methods to tie two objects together
-
-When your dependencies are tied together a bit closer, untangling them with the
-above methods won't work. Situations like this come up when using something like
-a [View/Presenter](https://en.wikipedia.org/wiki/Model-view-presenter) paradigm:
-
-```java
-public class FooPresenter {
-  @Inject public FooPresenter(FooView view) {
-    //...
-  }
-
-  public void doSomething() {
-    view.doSomethingCool();
-  }
-}
-
-public class FooView {
-  @Inject public FooView(FooPresenter presenter) {
-    //...
-  }
-
-  public void userDidSomething() {
-    presenter.theyDidSomething();
-  }
-  //...
-}
-```
-
-Each of those objects needs the other object. Here, you can use
-[AssistedInject](AssistedInject) to get
-around it:
-
-```java
-public class FooPresenter {
-  private final FooView view;
-  @Inject public FooPresenter(FooView.Factory viewMaker) {
-    view = viewMaker.create(this);
-  }
-
-  public void doSomething() {
-  //...
-    view.doSomethingCool();
-  }
-}
-
-public class FooView {
-  @Inject public FooView(@Assisted FooPresenter presenter) {...}
-
-  public void userDidSomething() {
-    presenter.theyDidSomething();
-  }
-
-  public static interface Factory {
-    FooView create(FooPresenter presenter)
-  }
-}
-```
-
-Such situations also come up when attempting to use Guice to manifest business
-object models, which may have cycles that reflect different types of
-relationships.
-[AssistedInject](AssistedInject) is also
-quite good for such cases.
-
-## Circular proxy feature
-
-In cases where one of the dependencies in the circular chain is an interface
-type, Guice can work around the circular dependency chain by generating a proxy
-at runtime to break the cycle. However, this support is really limited and can
-break unexpectedly if the type is changed to a non-interface type.
-
-To prevent unexpected circular dependency chains in your code, we recommend that
-you disable Guice's circular proxy feature. To do so, install a module that
-calls `binder().disableCircularProxies()`:
-
-```java {.good}
-final class ApplicationModule extends AbstractModule {
-  @Override
-  protected void configure() {
-    ...
-
-    binder().disableCircularProxies();
-  }
-}
-```
-
-TIP: You can also install `Modules.disableCircularProxiesModule()` to disable
-circular proxy in Guice.
-
-
-### # Document the public bindings provided by modules
-
-To document a Ray.Di module, a good strategy is to describe the public bindings
-that that module installs, for example:
-
-```php
-/**
- * Provides FooServiceClient and derived bindings
- *
- * [...]
- *
- * The following bindings are provided:
- *
- *  FooServiceClient
- *  FooServiceClientAuthenticator
- */
-final class FooServiceClientModule extends AbstractModule
-{
-  // ...
-}
-```
-
-
-
-
-### # Don't reuse binding attributes (aka `#[Qualifier]`)
-
-Sometimes, of course, it makes sense to bind some highly-related bindings with the same attributes. E.g. `#[ServerName]`
-
-That said, most binding attributes should only qualify one binding. And you should definitely not reuse a binding attributes for *unrelated* bindings.
-
-When in doubt, don't reuse attributes: creating one is straightfoward!
-
-To avoid some boilerplate, sometimes it makes sense to use attribute parameters to create distinct annotation instances from a single declaration. For example:
-
-```php
-enum Thing
-{
-    case FOO;
-    case BAR;
-    case BAZ;
-}
-
-#[Attribute, \Ray\Di\Di\Qualifier]
-final class MyThing
-{
-    public function __construct(
-        public readonly Thing $value
-    ) {}
-}
-```
-
-You can then use `#[MyThing(Thing::FOO)]`, `#[MyThing(Thing::BAR)]`, and `#[MyThing(Thing::BAZ)]` rather than defining each of them as separate attribute types.
-
-
-### # Inject only direct dependencies
-
-Avoid injecting an object only as a means to get at another object. For example, don't inject a `Customer` as a means to get at an `Account`:
-
-```php
-class ShowBudgets
-{
-    private readonly Account $account;
-
-    public function __construct(Customer $customer)
-    {
-        $this->account = $customer->getPurchasingAccount();
-    }
-```
-
-Instead, inject the dependency directly. This makes testing easier; the test case doesn't need to concern itself with the customer. Use an `Provider` class to create the binding for `Account` that uses the binding for `Customer`:
-
-```php
-class CustomersModule extends AbstractModule
-{
-    protected function configure()
-    {
-        $this->bind(Account::class)->toProvider(PurchasingAccountProvider::class);
-    }
-}
-
-class PurchasingAccountProvider implements ProviderInterface
-{
-    public function __construct(
-        private readonly Customer $customer
-    ) {}
-    
-    public function get(): Account
-    {
-        return $this->customer->getPurchasingAccount();
-    }
-}
-```
-
-By injecting the dependency directly, our code is simpler.
-
-```php
-class ShowBudgets
-{
-    public function __construct(
-        private readonly Account $account
-   ) {}
-```
-
-
-### # Use the Injector as little as possible (preferably only once)
-
-Ray.Di has a [built-in](../built_in_bindings.html) binding for the `Injector` but it should be used sparsely.
-
-Don't pass injectors into other injected objects through the constructor (which is also called "injecting the injector"). You should declare your dependencies statically.
-
-By injecting the injector, Ray.Di will not know in advance if the dependency can be resolved.
-This is because you can get instances directly from the injector.
-If the dependencies are not set up correctly and the injector is not injected, the dependency resolution failure can be detected in the compilation of Ray.Di.
-However, if you are injecting an injector, Ray.Di may raise an `Unbound` exception at runtime (when the code executes `getInstance()` lazily) and the dependency resolution may fail.
-
-
-### # Minimize mutability
-
-Wherever possible, use constructor injection to create immutable objects.
-Immutable objects are simple, shareable, and can be composed. Follow this
-pattern to define your injectable types:
-
-```php
-class RealPaymentService implements PaymentServiceInterface
-{
-    public function __construct(
-        private readnonly PaymentQueue $paymentQueue,
-        private readnonly Notifier $notifier;
-    ){}
-```
-
-All fields of this class are readonly and initialized by a constructor.
-
-## Injecting methods
-
-*Constructor injection* has some limitations:
-
-*   Injected constructors may not be optional.
-*   It cannot be used unless objects are created by Ray.Di.
-*   Subclasses must call `parent()` with all dependencies. This makes constructor
-    injection cumbersome, especially as the injected base class changes.
-
-*Setter injection* is most useful when you need to initialize an instance that
-is not constructed by Ray.Di.
-
-
-### # Modules should be fast and side-effect free
-
-Rather than using an external XML file for configuration, Ray.Di modules are written using regular PHP code. PHP is familiar, works with your IDE, and survives refactoring.
-
-But the full power of the PHP language comes at a cost: it's easy to do _too much_ in a module. It's tempting to connect to a database connection or to start an HTTP server in your Ray.Di module. Don't do this! Doing heavy-lifting in a module poses problems:
-
-*   **Modules start up, but they don't shut down.** Should you open a database connection in your module, you won't have any hook to close it.
-*   **Modules should be tested.** If a module opens a database as a course of execution, it becomes difficult to write unit tests for it.
-*   **Modules can be overridden.** Ray.Di modules support `overrides`, allowing a production service to be substituted with a lightweight or test one. When the production service is created as a part of module execution, such overrides are ineffective.
-
-Rather than doing work in the module itself, define an interface that can do the work at the proper level of abstraction. In our applications we use this interface:
-
-```php
-interface ServiceInterface
-{
-    /**
-     * Starts the service. This method blocks until the service has completely started.
-     */
-    public function start(): void;
-    
-    /**
-     * Stops the service. This method blocks until the service has completely shut down.
-     */
-    public function stop(): void;
-}
-```
-
-After creating the Injector, we finish bootstrapping our application by starting its services. We also add shutdown hooks to cleanly release resources when the application is stopped.
-
-```php
-class Main
-{
-    public function __invoke()
-        $injector = new Injector([
-            new DatabaseModule(),
-            new WebserverModule(),
-            // ..
-        ]);
-        $databaseConnectionPool = $injector->getInstance(ServiceInterface::class, DatabaseService::class);
-        $databaseConnectionPool->start();
-        $this->addShutdownHook($databaseConnectionPool);
-
-        $webserver = $injector->getInstance(ServiceInterface::class, WebserverService::class);
-        $webserver->start();
-        $this->addShutdownHook($webserver);
-    );
-}
-```
-
-
-### # Organize modules by feature, not by class type
-
-Group bindings into features. Ideally it should be possible to enable/disable an
-entire working feature by simply installing or not installing a single module in
-the injector.
-
-For example, don't just make a `FiltersModule` that has bindings for all the
-classes that implement `Filter` in it, and a `GraphsModule` that has all the
-classes that implement `Graph`, etc. Instead, try to organize modules by
-feature, for example an `AuthenticationModule` that authenticates requests made
-to your server, or a `FooBackendModule` that lets your server make requests to
-the Foo backend.
-
-This principle is also known as "organize modules vertically, not horizontally".
-
+### Organize modules by feature, not by class type

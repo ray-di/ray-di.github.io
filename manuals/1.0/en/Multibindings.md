@@ -59,7 +59,7 @@ class FlickrPhotoSummarizer implements UriSummarizer
             return null;
         }
         $id = $this->matcher->group(1);
-        $photo = Photo::loockup($id);
+        $photo = Photo::lookup($id);
 
         return $photo->getTitle();
     }
@@ -94,7 +94,7 @@ class TweetPrettifier
      * @param Map<UriSummarizerInterface> $summarizers
      */
     public function __construct(
-        #[Set(UriSummarizer::class)] private readonyl Map $summarizers;
+        #[Set(UriSummarizer::class)] private readonly Map $summarizers;
         private readonly EmoticonImagifier $emoticonImagifier;
     ) {}
     
@@ -176,8 +176,8 @@ class TweetPrettifier
 
     public doSomething(): void
     {
-        $filickerSummarizer = $this->summarizers['flicker'];
-        assert($filickerSummarizer instanceof FlickrPhotoSummarizer);
+        $flickrSummarizer = $this->summarizers['flickr'];
+        assert($flickrSummarizer instanceof FlickrPhotoSummarizer);
     }    
 }
 ```
@@ -188,7 +188,7 @@ The `setBinding()` method overrides any previous binding.
 
 ```php
 $UriBinder = Multibinder::newInstance($this, UriSummarizerInterface::class);
-$UriBinder->setBinding('flickr')->(FlickrPhotoSummarizer::class);
+$UriBinder->setBinding('flickr')->to(FlickrPhotoSummarizer::class);
 ```
 
 ## Map

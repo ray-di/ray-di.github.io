@@ -37,7 +37,7 @@ class RealBillingService implements BillingServiceInterface
         #[Set(CreditCardProcessorInterface::class)] private ProviderInterface $transactionLogProvider
     ) {}
 
-    public chargeOrder(PizzaOrder $order, CreditCard $creditCard): Receipt
+    public function chargeOrder(PizzaOrder $order, CreditCard $creditCard): Receipt
     {
         $transactionLog = $this->transactionLogProvider->get();
         $processor = $this->processorProvider->get();

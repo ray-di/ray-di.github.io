@@ -21,7 +21,7 @@ interface ProviderInterface
     public function get();
 }
 ```
-Our provider implementation class has dependencies of its own, which it receives via a contructor.
+Our provider implementation class has dependencies of its own, which it receives via a constructor.
 It implements the Provider interface to define what's returned with complete type safety:
 
 ```php

@@ -56,6 +56,6 @@ It is the same interface, but you can receive different connections made by `Pro
 public function __construct(
     #[Named('user')] private readonly Connection $userDb,
     #[Named('job')] private readonly Connection $jobDb,
-    #[Named('log') private readonly Connection $logDb)
+    #[Named('log')] private readonly Connection $logDb
 ) {}
 ```

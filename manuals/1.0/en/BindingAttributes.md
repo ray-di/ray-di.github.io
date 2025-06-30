@@ -139,6 +139,6 @@ Since annotations cannot be applied to arguments, the first argument of a custom
  */
 public function setCreditCardProcessor(
 	 CreditCardProcessorInterface $processor
-   OtherDepedeciyInterface $depedency
+   OtherDependencyInterface $dependency
 ){
 ```

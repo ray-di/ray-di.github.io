@@ -22,4 +22,9 @@ bundle exec jekyll build\n\
 bundle exec jekyll serve --host 0.0.0.0 --watch' > /app/entrypoint.sh && \
 chmod +x /app/entrypoint.sh
 
+# Create a non-root user for security
+RUN groupadd -r jekyll && useradd -r -g jekyll jekyll
+RUN chown -R jekyll:jekyll /app
+USER jekyll
+
 CMD ["/app/entrypoint.sh"]

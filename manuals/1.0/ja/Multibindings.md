@@ -76,7 +76,7 @@ class TweetPrettifier
      * @param Map<UriSummarizerInterface> $summarizers
      */
     public function __construct(
-        #[Set(UriSummarizer::class)] private readonyl Map $summarizers;
+        #[Set(UriSummarizer::class)] private readonly Map $summarizers;
         private readonly EmoticonImagifier $emoticonImagifier;
     ) {}
     
@@ -158,8 +158,8 @@ class TweetPrettifier
 
     public doSomething(): void
     {
-        $filickerSummarizer = $this->summarizers['flicker'];
-        assert($filickerSummarizer instanceof FlickrPhotoSummarizer);
+        $flickrSummarizer = $this->summarizers['flickr'];
+        assert($flickrSummarizer instanceof FlickrPhotoSummarizer);
     }    
 }
 ```

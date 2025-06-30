@@ -76,7 +76,7 @@ class RealBillingService implements BillingServiceInterface
         } catch (UnreachableException $e) {
             $transactionLog->logConnectException($e);
 
-            return ReceiptforSystemFailure($e->getMessage());
+            return Receipt::forSystemFailure($e->getMessage());
         }
     }
 }
@@ -191,7 +191,7 @@ class RealBillingService implements BillingServiceInterface
         private readonly TransactionLog $transactionLog
     ) {}
     
-    public chargeOrder(PizzaOrder $order, CreditCard $creditCard): Receipt
+    public function chargeOrder(PizzaOrder $order, CreditCard $creditCard): Receipt
     {
         try {
             $result = $this->processor->charge($creditCard, $order->getAmount());
@@ -222,9 +222,9 @@ class RealBillingServiceTest extends TestCase
     public function setUp(): void
     {
         $this->order = new PizzaOrder(100);
-        $this->$creditCard = new CreditCard("1234", 11, 2010);
-        $this->$transactionLog = new InMemoryTransactionLog();
-        $this->$processor = new FakeCreditCardProcessor();      
+        $this->creditCard = new CreditCard("1234", 11, 2010);
+        $this->transactionLog = new InMemoryTransactionLog();
+        $this->processor = new FakeCreditCardProcessor();      
     }
     
     public function testSuccessfulCharge()
@@ -232,7 +232,7 @@ class RealBillingServiceTest extends TestCase
         $billingService= new RealBillingService($this->processor, $this->transactionLog);
         $receipt = $billingService->chargeOrder($this->order, $this->creditCard);
         
-        $this->assertTrue($receipt.hasSuccessfulCharge());
+        $this->assertTrue($receipt->hasSuccessfulCharge());
         $this->assertSame(100, $receipt->getAmountOfCharge());
         $this->assertSame($this->creditCard, $this->processor->getCardOfOnlyCharge());
         $this->assertSame(100, $this->processor->getAmountOfOnlyCharge());
@@ -439,10 +439,10 @@ class DemoModule extends AbstractModule
 ```php
 final class MyWebServer {
     public function __construct(
-        private readonyly RequestLoggingInterface $requestLogging,
-        private readonyly RequestHandlerInterface $requestHandler,
-        private readonyly AuthenticationInterface $authentication,
-        private readonyly Database $database
+        private readonly RequestLoggingInterface $requestLogging,
+        private readonly RequestHandlerInterface $requestHandler,
+        private readonly AuthenticationInterface $authentication,
+        private readonly Database $database
     ) {}
 
     public function start(): void
@@ -664,7 +664,7 @@ interface ProviderInterface
 以下は 2 つの `ProviderInterface` の実装例です。
 
 ```php
-class CountProvicer implements ProviderInterface
+class CountProvider implements ProviderInterface
 {
     public function get(): int
     {
@@ -684,8 +684,8 @@ class DemoModule extends AbstractModule
 {
    protected function configure(): void
    {
-       $this->bind()->annotatedWith(Count::class)->toProvider(CountProvicer::class);
-       $this->bind()->annotatedWith(Message::class)->toProvider(MessageProvicer::class);
+       $this->bind()->annotatedWith(Count::class)->toProvider(CountProvider::class);
+       $this->bind()->annotatedWith(Message::class)->toProvider(MessageProvider::class);
    }
 }
 ```
@@ -1327,7 +1327,7 @@ class TweetPrettifier
      * @param Map<UriSummarizerInterface> $summarizers
      */
     public function __construct(
-        #[Set(UriSummarizer::class)] private readonyl Map $summarizers;
+        #[Set(UriSummarizer::class)] private readonly Map $summarizers;
         private readonly EmoticonImagifier $emoticonImagifier;
     ) {}
     
@@ -1409,8 +1409,8 @@ class TweetPrettifier
 
     public doSomething(): void
     {
-        $filickerSummarizer = $this->summarizers['flicker'];
-        assert($filickerSummarizer instanceof FlickrPhotoSummarizer);
+        $flickrSummarizer = $this->summarizers['flickr'];
+        assert($flickrSummarizer instanceof FlickrPhotoSummarizer);
     }    
 }
 ```
@@ -1662,7 +1662,7 @@ class RealBillingService implements BillingServiceInterface
         #[Set(CreditCardProcessorInterface::class)] private ProviderInterface $transactionLogProvider
     ) {}
 
-    public chargeOrder(PizzaOrder $order, CreditCard $creditCard): Receipt
+    public function chargeOrder(PizzaOrder $order, CreditCard $creditCard): Receipt
     {
         $transactionLog = $this->transactionLogProvider->get();
         $processor = $this->processorProvider->get();
@@ -2533,266 +2533,20 @@ DIパターンとRay.Diの基本を見てきました。
 ## Best Practices Details
 
 
-### # モジュールの条件付きロジックは避ける
+### モジュールの条件付きロジックは避ける
 
-環境ごとに異なる動作を設定できるような動的なモジュールを作りたくなる事があります。
+### 静的状態を避ける
 
-```php
-class FooModule extends AbstractModule
-{
-  public function __construct(
-    private readonly ?string $fooServer
-  }{}
+### モジュールが提供する束縛を文書化する
 
-  protected function configure(): void
-  {
-    if ($this->fooServer != null) {
-        $this->bind(String::class)->annotatedWith(ServerName::class)->toInstance($this->fooServer);
-        $this->bind(FooService::class)->to(RemoteFooService::class);
-    } else {
-        $this->bind(FooService::class)->to(InMemoryFooService::class);
-    }
-  }
-}
-```
+### 束縛アトリビュートを再利用しない (`#[Qualifier]`)
 
-条件付きロジック自体はそれほど悪いものではありません。 しかし、構成が未検証の場合に問題が発生します。
-この例では、`InMemoryFooService` を開発用に使用し、`RemoteFooService` を本番用に使用しますが、その本番用の特定のケースをテストしないと、統合アプリケーションで `RemoteFooService` が動作することを確認することはできません。
+### 直接依存するものだけを注入する
 
-この問題を解決するには、アプリケーションの**個別の設定の数を最小限**にします。本番環境と開発環境を個別のモジュールに分割すれば、本番環境のコードパス全体をテストすることが容易になります。
-この例では、`FooModule` を `RemoteFooModule` と `InMemoryFooModule` に分割します。これにより、実運用中のクラスがテストコードにコンパイル時に依存するのを防ぐこともできます。
+### インジェクターはなるべく使用しない (できれば1回だけ)
 
-もうひとつ、上の例に関連する問題です。`#[ServerName]`に対する束縛があるときとないときがあります。そのようにあるキーが束縛されたりしてなかったりする事があるのは避けるべきでしょう。
+### ミュータビリティの最小化
 
+### モジュールは高速で副作用がないこと
 
-### # 静的状態を避ける
-
-静的な状態とテスト容易性は敵同士です。テストは高速で副作用のないものであるべきです。しかし、静的なプロパティで保持される定数でない値を管理するのは面倒です。
-テストでモックされた静的な値を確実に削除するのは難しいですし、他のテストの邪魔にもなります。
-
-**静的状態**は悪いことですが、**静的**というキーワードは何も問題ではありません。
-静的なクラスは問題ありませんし（むしろ好ましい！）、純粋な関数（ソートや数学など）については、静的であることがむしろ好ましいのです。
-
-### # モジュールが提供する束縛を文書化する
-
-Ray.Diモジュールのドキュメンテーションとして、そのモジュールが提供する束縛を記述します。
-
-```php
-/**
- * Provides FooServiceClient and derived bindings
- *
- * [...]
- *
- * The following bindings are provided:
- *
- *  FooServiceClient
- *  FooServiceClientAuthenticator
- */
-final class FooServiceClientModule extends AbstractModule
-{
-  // ...
-}
-```
-
-
-
-
-### # 束縛アトリビュートを再利用しない (`#[Qualifier]`)
-
-もちろん、関連性の高い束縛を同じアトリビュートでバインドすることは適切です。 例) `#[ServerName]`
-
-しかしながら、ほとんどの束縛アトリビュートは1つの束縛だけを対象にします。
-また、束縛アトリビュートを *無関係* の束縛に再利用することは絶対に避けてください。
-
-迷ったときは、アトリビュートを再利用しないことです。作成するのは簡単です!
-
-ボイラープレートコードを避けるために、アトリビュートの引数を使用して１つのアトリビュートから複数の区別をすれば良いでしょう。
-
-例えば
-
-```php
-enum Thing
-{
-    case FOO;
-    case BAR;
-    case BAZ;
-}
-
-#[Attribute, \Ray\Di\Di\Qualifier]
-final class MyThing
-{
-    public function __construct(
-        public readonly Thing $value
-    ) {}
-}
-```
-
-それぞれを別々のアトリビュートを定義する代わりに、 `#[MyThing(Thing::FOO)]`, `#[MyThing(Thing::BAR)]`, `#[MyThing(Thing::BAZ)]`などと引数で区別します。
-
-
-### # 直接依存するものだけを注入する
-
-他のオブジェクトを取得するためだけに、オブジェクトを注入することは避けてください。
-例えば、 `Account` を取得するために `Customer` をインジェクトするのはやめましょう。
-
-```php
-class ShowBudgets
-{
-    private readonly Account $account;
-
-    public function __construct(Customer $customer)
-    {
-        $this->account = $customer->getPurchasingAccount();
-    }
-}
-```
-
-その代わり、依存関係を直接インジェクトします。
-これにより、テストケースは `Customer` を気にする必要がなくなり、テストが容易になります。
-`Provider` クラスを使用して、 `Customer` の束縛を使用する `Account` の束縛を作成します。
-
-```php
-use Ray\Di\AbstractModule;
-use Ray\Di\ProviderInterface;
-
-class CustomersModule extends AbstractModule
-{
-    protected function configure()
-    {
-        $this->bind(Account::class)->toProvider(PurchasingAccountProvider::class);
-    }
-}
-
-class PurchasingAccountProvider implements ProviderInterface
-{
-    public function __construct(
-        private readonly Customer $customer
-    ) {}
-    
-    public function get(): Account
-    {
-        return $this->customer->getPurchasingAccount();
-    }
-}
-```
-
-依存関係を直接注入することで、コードがよりシンプルになります。
-
-```php
-class ShowBudgets
-{
-    public function __construct(
-        private readonly Account $account
-   ) {}
-}
-```
-
-
-### # インジェクターはなるべく使用しない (できれば1回だけ)
-
-Ray.Diは `Injector` の[ビルトイン束縛](../builtin_bindings.html)がありますが、あまり使用しないでください。
-
-コンストラクターを通して、他の注入オブジェクトにインジェクターを渡さないようにしましょう。 (これは "インジェクターを注入する" とも呼ばれます)
-依存関係は静的に宣言した方が良いでしょう。
-
-インジェクターを注入することで、事前にRay.Diが依存関係の解決が可能か知ることができなくなります。
-なぜなら、インジェクターから直接インスタンスを取得できるからです。
-依存関係が正しく設定されていなくて、インジェクターを注入していない場合には、Ray.Diのコンパイルで依存解決の失敗を検知できます。
-しかし、もしインジェクターを注入している場合には、Ray.Diは実行時（コードが`getInstance()`を遅延実行する時）に、`Unbound`例外が出て依存解決が失敗するかもしれません。
-
-
-### # ミュータビリティの最小化
-
-可能な限り、コンストラクターインジェクションを使用して、イミュータブルオブジェクトを作成します。
-イミュータブルオブジェクトはシンプルで、共有可能で、合成できます。
-このパターンに従って、注入可能な型を定義してください。
-
-```php
-class RealPaymentService implements PaymentServiceInterface
-{
-    public function __construct(
-        private readnonly PaymentQueue $paymentQueue,
-        private readnonly Notifier $notifier;
-    ){}
-}
-```
-
-このクラスのすべてのフィールドは読み取り専用で、コンストラクターによって初期化されます。
-
-## 注入方法
-
-*コンストラクターインジェクション*には、いくつかの制限があります。
-
-* 注入するオブジェクトはオプションにできません。
-* Ray.Di が作成したオブジェクトでなければ使用できません。
-* サブクラスは、すべての依存関係を使い `parent()` を呼び出す必要があります。これは、特に注入された基底クラスが変更された場合に、コンストラクターインジェクションを面倒なものにします。
-
-*セッターインジェクション*は、Ray.Di によって構築されていないインスタンスを初期化する場合に最も便利です。
-
-
-### # モジュールは高速で副作用がないこと
-
-Ray.Diのモジュールは、設定に外部XMLファイルを使用せずに通常のPHPコードで記述します。
-PHPは使い慣れ、お使いのIDEで動作し、リファクタリングに耐えることができます。
-
-しかし、PHPが自由に使える利点の代償としてモジュール内で多くのことをやりすぎてしまいがちです。
-例えば、Ray.Diモジュールの中でデータベースの接続やHTTPサーバーの起動をすることです。
-しかし、それはやめましょう。このような処理をモジュールの中で実行するには以下の問題があります。
-
-* **モジュールは起動するが、シャットダウンしません。** モジュール内でデータベース接続を開いた場合、それを閉じるためのフックがありません。
-* **モジュールはテストをする必要があります。** モジュールの実行過程でデータベースを開くと、そのモジュールの単体テストを書くのが難しくなります。
-* **モジュールはオーバーライドが可能です。** Ray.Diモジュールは `オーバーライド` をサポートしており、本番サービスを軽量サービスやテストサービスで代用することができます。モジュール実行の一部として本番サービスが作成される場合、このようなオーバーライドは効果的ではありません。
-
-モジュール自体で作業を行うのではなく、適切な抽象度で作業を行えるようなインターフェースを定義しましょう。
-例えば、次のようなインターフェースを定義します。
-
-```php
-interface ServiceInterface
-{
-    /**
-     * Starts the service. This method blocks until the service has completely started.
-     */
-    public function start(): void;
-    
-    /**
-     * Stops the service. This method blocks until the service has completely shut down.
-     */
-    public function stop(): void;
-}
-```
-
-Injector を作成した後、サービスを開始してアプリケーションのブートストラップを完了します。
-また、アプリケーションを停止したときにリソースをきれいに解放するためにシャットダウンフックを追加します。
-
-```php
-class Main
-{
-    public function __invoke()
-        $injector = new Injector([
-            new DatabaseModule(),
-            new WebserverModule(),
-            // ..
-        ]);
-        $databaseConnectionPool = $injector->getInstance(ServiceInterface::class, DatabaseService::class);
-        $databaseConnectionPool->start();
-        $this->addShutdownHook($databaseConnectionPool);
-
-        $webserver = $injector->getInstance(ServiceInterface::class, WebserverService::class);
-        $webserver->start();
-        $this->addShutdownHook($webserver);
-    );
-}
-```
-
-
-### # クラスタイプではなく、機能別にモジュールを整理する
-
-束縛を機能別にまとめます。
-理想は、モジュールをインストールするか否かで機能全体の有効化/無効化ができることです。
-
-例えば、`Filter` を実装するすべてのクラスの束縛を含む `FiltersModule` や `Graph` を実装するすべてのクラスを含む `GraphsModule` などは作らないようにしましょう。
-
-その代わりに例えば、サーバーへのリクエストを認証する`AuthenticationModule`や、サーバーからFooバックエンドへのリクエストを可能にする`FooBackendModule`のように機能でまとめまめられたモジュールを作りましょう。
-
-この原則は、「モジュールを水平ではなく、垂直に配置する(organize modules vertically, not horizontally)」としても知られています。
-
+### クラスタイプではなく、機能別にモジュールを整理する

@@ -131,10 +131,10 @@ class DemoModule extends AbstractModule
 ```php
 final class MyWebServer {
     public function __construct(
-        private readonyly RequestLoggingInterface $requestLogging,
-        private readonyly RequestHandlerInterface $requestHandler,
-        private readonyly AuthenticationInterface $authentication,
-        private readonyly Database $database
+        private readonly RequestLoggingInterface $requestLogging,
+        private readonly RequestHandlerInterface $requestHandler,
+        private readonly AuthenticationInterface $authentication,
+        private readonly Database $database
     ) {}
 
     public function start(): void
