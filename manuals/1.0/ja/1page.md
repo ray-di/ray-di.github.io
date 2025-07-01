@@ -450,15 +450,19 @@ final class MyWebServer {
         //　...
     }
     
+    
     public function __invoke(): void
     {
         // サーバーを構築するために必要なすべての依存関係を持つインジェクターを作成します。
-        $injector = new Injector([
-            new RequestLoggingModule(),
-            new RequestHandlerModule(),
-            new AuthenticationModule(),
-            new DatabaseModule()
-        ]);
+        $injector = new Injector(class extends AbstractModule {
+            protected function configure(): void
+            {
+                $this->install(new RequestLoggingModule());
+                $this->install(new RequestHandlerModule());
+                $this->install(new AuthenticationModule());
+                $this->install(new DatabaseModule());
+            }
+        };
     
         // サーバーのインスタンスを作成してアプリケーションをブートストラップし
         // 受信したリクエストを処理するためにサーバーを開始します。
@@ -1327,8 +1331,8 @@ class TweetPrettifier
      * @param Map<UriSummarizerInterface> $summarizers
      */
     public function __construct(
-        #[Set(UriSummarizer::class)] private readonly Map $summarizers;
-        private readonly EmoticonImagifier $emoticonImagifier;
+        #[Set(UriSummarizerInterface::class)] private readonly Map $summarizers,
+        private readonly EmoticonImagifier $emoticonImagifier
     ) {}
     
     public function prettifyTweet(String tweetMessage): Html
@@ -1365,16 +1369,23 @@ class PrettyTweets
     public function __invoke(): void
     {
         $injector = new Injector(
-            new GoogleMapsPluginModule(),
-            new BitlyPluginModule(),
-            new FlickrPluginModule()
-            // ...      
+            new class extends AbstracModule {
+                protected function configure(): void
+                {
+                    $this->install(new TweetModule());
+                    $this->install(new FlickrPluginModule());
+                    $this->install(new GoogleMapsPluginModule());
+                    $this->install(new BitlyPluginModule());
+                    // ... any other plugins
+                }
+            }
         );
 
         $injector->getInstance(Frontend::class)->start();
   }
 }
 (new PrettyTweets)();
+```
 ```
 
 ### マップバインダー
