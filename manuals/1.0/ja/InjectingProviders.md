@@ -61,7 +61,7 @@ class LogFileTransactionLog implements TransactionLogInterface
         #[Set(TransactionLogInterface::class)] private readonly ProviderInterface $logFileProvider
     ) {}
     
-    public logChargeResult(ChargeResult $result): void {
+    public function logChargeResult(ChargeResult $result): void {
         $summaryEntry = $this->logFileProvider->get();
         $summaryEntry->setText("Charge " . ($result->wasSuccessful() ? "success" : "failure"));
         $summaryEntry->save();

@@ -91,7 +91,7 @@ class CreditCardProcessorFactory
 {
     private static CreditCardProcessor $instance;
     
-    public static setInstance(CreditCardProcessor $processor): void 
+    public static function setInstance(CreditCardProcessor $processor): void 
     {
         self::$instance = $processor;
     }
@@ -164,8 +164,8 @@ class RealBillingServiceTest extends TestCase
 
         $this->assertTrue($receipt->hasSuccessfulCharge());
         $this->assertEquals(100, $receipt->getAmountOfCharge());
-        $this->assertEquals($creditCard, $processor->getCardOfOnlyCharge());
-        $this->assertEquals(100, $processor->getAmountOfOnlyCharge());
+        $this->assertEquals($this->creditCard, $this->processor->getCardOfOnlyCharge());
+        $this->assertEquals(100, $this->processor->getAmountOfOnlyCharge());
         $this->assertTrue($this->transactionLog->wasSuccessLogged());
     }
 }
@@ -378,7 +378,7 @@ class Greeter
     public function sayHello(): void
     {
         for ($i=0; $i < $this->count; $i++) {
-            echo $message;
+            echo $this->message;
         }
     }
 }
@@ -1273,7 +1273,7 @@ interface UriSummarizerInterface
 class FlickrPhotoSummarizer implements UriSummarizer
 {
     public function __construct(
-        private readonly PhotoPaternMatcherInterface $matcher
+        private readonly PhotoPatternMatcherInterface $matcher
     ) {}
 
     public function summarize(Uri $uri): ?string
@@ -1327,7 +1327,7 @@ class TweetPrettifier
     public function prettifyUri(Uri $uri): string
     {
         // 実装をループし、このURIをサポートするものを探します
-        for ($this->summarizer as summarizer) {
+        foreach ($this->summarizers as $summarizer) {
             $summary = $summarizer->summarize($uri);
             if ($summary != null) {
                 return $summary;
@@ -1676,7 +1676,7 @@ class LogFileTransactionLog implements TransactionLogInterface
         #[Set(TransactionLogInterface::class)] private readonly ProviderInterface $logFileProvider
     ) {}
     
-    public logChargeResult(ChargeResult $result): void {
+    public function logChargeResult(ChargeResult $result): void {
         $summaryEntry = $this->logFileProvider->get();
         $summaryEntry->setText("Charge " . ($result->wasSuccessful() ? "success" : "failure"));
         $summaryEntry->save();

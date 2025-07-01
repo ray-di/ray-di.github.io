@@ -62,7 +62,7 @@ class CreditCardProcessorFactory
 {
     private static CreditCardProcessor $instance;
     
-    public static setInstance(CreditCardProcessor $processor): void 
+    public static function setInstance(CreditCardProcessor $processor): void 
     {
         self::$instance = $processor;
     }
@@ -135,8 +135,8 @@ class RealBillingServiceTest extends TestCase
 
         $this->assertTrue($receipt->hasSuccessfulCharge());
         $this->assertEquals(100, $receipt->getAmountOfCharge());
-        $this->assertEquals($creditCard, $processor->getCardOfOnlyCharge());
-        $this->assertEquals(100, $processor->getAmountOfOnlyCharge());
+        $this->assertEquals($this->creditCard, $this->processor->getCardOfOnlyCharge());
+        $this->assertEquals(100, $this->processor->getAmountOfOnlyCharge());
         $this->assertTrue($this->transactionLog->wasSuccessLogged());
     }
 }

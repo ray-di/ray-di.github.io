@@ -34,7 +34,7 @@ interface UriSummarizerInterface
 class FlickrPhotoSummarizer implements UriSummarizer
 {
     public function __construct(
-        private readonly PhotoPaternMatcherInterface $matcher
+        private readonly PhotoPatternMatcherInterface $matcher
     ) {}
 
     public function summarize(Uri $uri): ?string
@@ -88,7 +88,7 @@ class TweetPrettifier
     public function prettifyUri(Uri $uri): string
     {
         // 実装をループし、このURIをサポートするものを探します
-        for ($this->summarizer as summarizer) {
+        foreach ($this->summarizers as $summarizer) {
             $summary = $summarizer->summarize($uri);
             if ($summary != null) {
                 return $summary;
