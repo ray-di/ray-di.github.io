@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 
 # Copy markdown files to _site directory for llms.txt standard compliance
 # This script should be run after Jekyll build
