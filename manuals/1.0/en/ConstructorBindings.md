@@ -58,9 +58,9 @@ Specify the method name ($methodName) and qualifier ($named) of the setter injec
     ->addOptionalMethod($methodName, $named);
 ```
 
-**postCosntruct**
+**postConstruct**
 
-Ray.Di will invoke that constructor and setter method to satisfy the binding and invoke in `$postCosntruct` method after all dependencies are injected.
+Ray.Di will invoke that constructor and setter method to satisfy the binding and invoke in `$postConstruct` method after all dependencies are injected.
 
 ### PDO Example
 

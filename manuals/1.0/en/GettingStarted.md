@@ -67,7 +67,7 @@ Here is an example of a class that uses constructor injection:
 class Greeter
 {
     // Greeter declares that it needs a string message and an integer
-    // representing the number of time the message to be printed.
+    // representing the number of times the message is to be printed.
     public function __construct(
         #[Message] readonly string $message,
         #[Count] readonly int $count
@@ -76,7 +76,7 @@ class Greeter
     public function sayHello(): void
     {
         for ($i=0; $i < $this->count; $i++) {
-            echo $message;
+            echo $this->message;
         }
     }
 }
@@ -133,10 +133,10 @@ To bootstrap your application, you'll need to create a Ray.Di `Injector` withone
 ```php
 final class MyWebServer {
     public function __construct(
-        private readonyly RequestLoggingInterface $requestLogging,
-        private readonyly RequestHandlerInterface $requestHandler,
-        private readonyly AuthenticationInterface $authentication,
-        private readonyly Database $database
+        private readonly RequestLoggingInterface $requestLogging,
+        private readonly RequestHandlerInterface $requestHandler,
+        private readonly AuthenticationInterface $authentication,
+        private readonly Database $database
     ) {}
 
     public function start(): void
@@ -148,12 +148,16 @@ final class MyWebServer {
     {
         // Creates an injector that has all the necessary dependencies needed to
         // build a functional server.
-        $injector = new Injector([
-            new RequestLoggingModule(),
-            new RequestHandlerModule(),
-            new AuthenticationModule(),
-            new DatabaseModule()
-        ]);
+        $injector = new Injector(new class extends AbstractModule {
+            protected function configure(): void
+            {
+                // Install the modules that provide the necessary dependencies.
+                $this->install(new RequestLoggingModule());
+                $this->install(new RequestHandlerModule());
+                $this->install(new AuthenticationModule());
+                $this->install(new DatabaseModule());
+            }
+        });
     
         // Bootstrap the application by creating an instance of the server then
         // start the server to handle incoming requests.
@@ -220,14 +224,14 @@ class DemoModule extends AbstractModule
 class Greeter
 {
     public function __construct(
-        #[Message] private string $messag,
+        #[Message] private string $message,
         #[Count] private int $count
     ) {}
 
     public function sayHello(): void
     {
         for ($i = 0; $i < $this->count ; $i++) {
-            echo $this->messag . PHP_EOL;
+            echo $this->message . PHP_EOL;
         }
     }
 }

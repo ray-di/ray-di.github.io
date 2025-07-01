@@ -45,7 +45,7 @@ class RealBillingService implements BillingServiceInterface
         } catch (UnreachableException $e) {
             $transactionLog->logConnectException($e);
 
-            return ReceiptforSystemFailure($e->getMessage());
+            return Receipt::forSystemFailure($e->getMessage());
         }
     }
 }
@@ -62,7 +62,7 @@ class CreditCardProcessorFactory
 {
     private static CreditCardProcessor $instance;
     
-    public static setInstance(CreditCardProcessor $processor): void 
+    public static function setInstance(CreditCardProcessor $processor): void 
     {
         self::$instance = $processor;
     }
@@ -118,7 +118,7 @@ class RealBillingServiceTest extends TestCase
         $this->order = new PizzaOrder(100);
         $this->creditCard = new CreditCard('1234', 11, 2010);
         $this->processor = new FakeCreditCardProcessor();
-        TransactionLogFactory::setInstance($transactionLog);
+        TransactionLogFactory::setInstance($this->transactionLog);
         CreditCardProcessorFactory::setInstance($this->processor);
     }
     
@@ -135,8 +135,8 @@ class RealBillingServiceTest extends TestCase
 
         $this->assertTrue($receipt->hasSuccessfulCharge());
         $this->assertEquals(100, $receipt->getAmountOfCharge());
-        $this->assertEquals($creditCard, $processor->getCardOfOnlyCharge());
-        $this->assertEquals(100, $processor->getAmountOfOnlyCharge());
+        $this->assertEquals($this->creditCard, $this->processor->getCardOfOnlyCharge());
+        $this->assertEquals(100, $this->processor->getAmountOfOnlyCharge());
         $this->assertTrue($this->transactionLog->wasSuccessLogged());
     }
 }
@@ -160,11 +160,11 @@ class RealBillingService implements BillingServiceInterface
         private readonly TransactionLog $transactionLog
     ) {}
     
-    public chargeOrder(PizzaOrder $order, CreditCard $creditCard): Receipt
+    public function chargeOrder(PizzaOrder $order, CreditCard $creditCard): Receipt
     {
         try {
             $result = $this->processor->charge($creditCard, $order->getAmount());
-            $this->transactionLog->logChargeResult(result);
+            $this->transactionLog->logChargeResult($result);
         
             return $result->wasSuccessful()
                 ? Receipt::forSuccessfulCharge($order->getAmount())
@@ -191,9 +191,9 @@ class RealBillingServiceTest extends TestCase
     public function setUp(): void
     {
         $this->order = new PizzaOrder(100);
-        $this->$creditCard = new CreditCard("1234", 11, 2010);
-        $this->$transactionLog = new InMemoryTransactionLog();
-        $this->$processor = new FakeCreditCardProcessor();      
+        $this->creditCard = new CreditCard("1234", 11, 2010);
+        $this->transactionLog = new InMemoryTransactionLog();
+        $this->processor = new FakeCreditCardProcessor();      
     }
     
     public function testSuccessfulCharge()
@@ -201,7 +201,7 @@ class RealBillingServiceTest extends TestCase
         $billingService= new RealBillingService($this->processor, $this->transactionLog);
         $receipt = $billingService->chargeOrder($this->order, $this->creditCard);
         
-        $this->assertTrue($receipt.hasSuccessfulCharge());
+        $this->assertTrue($receipt->hasSuccessfulCharge());
         $this->assertSame(100, $receipt->getAmountOfCharge());
         $this->assertSame($this->creditCard, $this->processor->getCardOfOnlyCharge());
         $this->assertSame(100, $this->processor->getAmountOfOnlyCharge());

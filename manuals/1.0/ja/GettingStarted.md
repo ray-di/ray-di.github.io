@@ -73,7 +73,7 @@ class Greeter
     public function sayHello(): void
     {
         for ($i=0; $i < $this->count; $i++) {
-            echo $message;
+            echo $this->message;
         }
     }
 }
@@ -131,10 +131,10 @@ class DemoModule extends AbstractModule
 ```php
 final class MyWebServer {
     public function __construct(
-        private readonyly RequestLoggingInterface $requestLogging,
-        private readonyly RequestHandlerInterface $requestHandler,
-        private readonyly AuthenticationInterface $authentication,
-        private readonyly Database $database
+        private readonly RequestLoggingInterface $requestLogging,
+        private readonly RequestHandlerInterface $requestHandler,
+        private readonly AuthenticationInterface $authentication,
+        private readonly Database $database
     ) {}
 
     public function start(): void
@@ -142,15 +142,19 @@ final class MyWebServer {
         //　...
     }
     
+    
     public function __invoke(): void
     {
         // サーバーを構築するために必要なすべての依存関係を持つインジェクターを作成します。
-        $injector = new Injector([
-            new RequestLoggingModule(),
-            new RequestHandlerModule(),
-            new AuthenticationModule(),
-            new DatabaseModule()
-        ]);
+        $injector = new Injector(new class extends AbstractModule {
+            protected function configure(): void
+            {
+                $this->install(new RequestLoggingModule());
+                $this->install(new RequestHandlerModule());
+                $this->install(new AuthenticationModule());
+                $this->install(new DatabaseModule());
+            }
+        });
     
         // サーバーのインスタンスを作成してアプリケーションをブートストラップし
         // 受信したリクエストを処理するためにサーバーを開始します。

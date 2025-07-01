@@ -31,15 +31,15 @@ The type provided by the provider is specified by the `#[Set]` attribute.
 class RealBillingService implements BillingServiceInterface
 {
     /**
-     * @param ProviderInterface<TransactionLogInterface>      $processorProvider
-     * @param ProviderInterface<CreditCardProcessorInterface> $transactionLogProvider
+     * @param ProviderInterface<CreditCardProcessorInterface> $processorProvider
+     * @param ProviderInterface<TransactionLogInterface>      $transactionLogProvider
      */
-    public __construct(
-        #[Set(TransactionLogInterface::class)] private ProviderInterface $processorProvider,
-        #[Set(CreditCardProcessorInterface::class)] private ProviderInterface $transactionLogProvider
+    public function __construct(
+        #[Set(CreditCardProcessorInterface::class)] private ProviderInterface $processorProvider,
+        #[Set(TransactionLogInterface::class)] private ProviderInterface $transactionLogProvider
     ) {}
 
-    public chargeOrder(PizzaOrder $order, CreditCard $creditCard): Receipt
+    public function chargeOrder(PizzaOrder $order, CreditCard $creditCard): Receipt
     {
         $transactionLog = $this->transactionLogProvider->get();
         $processor = $this->processorProvider->get();
@@ -64,7 +64,7 @@ class LogFileTransactionLog implements TransactionLogInterface
         #[Set(TransactionLogInterface::class)] private readonly ProviderInterface $logFileProvider
     ) {}
     
-    public logChargeResult(ChargeResult $result): void {
+    public function logChargeResult(ChargeResult $result): void {
         $summaryEntry = $this->logFileProvider->get();
         $summaryEntry->setText("Charge " + (result.wasSuccessful() ? "success" : "failure"));
         $summaryEntry->save();

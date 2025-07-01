@@ -14,8 +14,8 @@ permalink: /manuals/1.0/ja/bp/minimize_mutability.html
 class RealPaymentService implements PaymentServiceInterface
 {
     public function __construct(
-        private readnonly PaymentQueue $paymentQueue,
-        private readnonly Notifier $notifier;
+        private readonly PaymentQueue $paymentQueue,
+        private readonly Notifier $notifier
     ){}
 }
 ```

@@ -85,7 +85,7 @@ This injection done by AOP is powerful and useful for injecting objects that are
 Occasionally it's convenient to use a dependency when it exists and to fall back
 to a default when it doesn't. Method and field injections may be optional, which
 causes Ray.Di to silently ignore them when the dependencies aren't available. To
-use optional injection, apply the `#[Inject(optional: true)`attribute:
+use optional injection, apply the `#[Inject(optional: true)]`attribute:
 
 ```php
 class PayPalCreditCardProcessor implements CreditCardProcessorInterface
@@ -94,7 +94,7 @@ class PayPalCreditCardProcessor implements CreditCardProcessorInterface
     private string $apiKey = self::SANDBOX_API_KEY;
     
     #[Inject(optional: true)]
-    public setApiKey(#[Named('paypal-apikey') string $apiKey): void
+    public function setApiKey(#[Named('paypal-apikey')] string $apiKey): void
     {
        $this->apiKey = $apiKey;
     }

@@ -115,7 +115,7 @@ $this->bind(CreditCardProcessorInterface::class)
     ->to(CheckoutCreditCardProcessor::class);
 ```
 
-You need to put the `#[Named]` attribuet in order to specify the parameter.
+Add the `#[Named]` attribute to the parameter you want to qualify.
 
 ```php
 use Ray\Di\Di\Inject;
@@ -138,7 +138,7 @@ Since annotations cannot be applied to arguments, the first argument of a custom
  * @Paypal('processor')
  */
 public function setCreditCardProcessor(
-	 CreditCardProcessorInterface $processor
-   OtherDepedeciyInterface $depedency
+    CreditCardProcessorInterface $processor
+    OtherDependencyInterface $dependency
 ){
 ```

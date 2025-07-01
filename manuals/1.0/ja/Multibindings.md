@@ -34,7 +34,7 @@ interface UriSummarizerInterface
 class FlickrPhotoSummarizer implements UriSummarizer
 {
     public function __construct(
-        private readonly PhotoPaternMatcherInterface $matcher
+        private readonly PhotoPatternMatcherInterface $matcher
     ) {}
 
     public function summarize(Uri $uri): ?string
@@ -76,8 +76,8 @@ class TweetPrettifier
      * @param Map<UriSummarizerInterface> $summarizers
      */
     public function __construct(
-        #[Set(UriSummarizer::class)] private readonyl Map $summarizers;
-        private readonly EmoticonImagifier $emoticonImagifier;
+        #[Set(UriSummarizerInterface::class)] private readonly Map $summarizers,
+        private readonly EmoticonImagifier $emoticonImagifier
     ) {}
     
     public function prettifyTweet(String tweetMessage): Html
@@ -88,7 +88,7 @@ class TweetPrettifier
     public function prettifyUri(Uri $uri): string
     {
         // 実装をループし、このURIをサポートするものを探します
-        for ($this->summarizer as summarizer) {
+        foreach ($this->summarizers as $summarizer) {
             $summary = $summarizer->summarize($uri);
             if ($summary != null) {
                 return $summary;
@@ -114,10 +114,16 @@ class PrettyTweets
     public function __invoke(): void
     {
         $injector = new Injector(
-            new GoogleMapsPluginModule(),
-            new BitlyPluginModule(),
-            new FlickrPluginModule()
-            // ...      
+            new class extends AbstractModule {
+                protected function configure(): void
+                {
+                    $this->install(new TweetModule());
+                    $this->install(new FlickrPluginModule());
+                    $this->install(new GoogleMapsPluginModule());
+                    $this->install(new BitlyPluginModule());
+                    // ... any other plugins
+                }
+            }
         );
 
         $injector->getInstance(Frontend::class)->start();
@@ -153,13 +159,13 @@ class TweetPrettifier
      * @param Map<UriSummarizerInterface> $summarizers
      */
     public function __construct(
-        #[Set(UriSummarizer::class)] private readonly Map $summarizers;
+        #[Set(UriSummarizer::class)] private readonly Map $summarizers
     ) {}
 
-    public doSomething(): void
+    public function doSomething(): void
     {
-        $filickerSummarizer = $this->summarizers['flicker'];
-        assert($filickerSummarizer instanceof FlickrPhotoSummarizer);
+        $flickrSummarizer = $this->summarizers['flickr'];
+        assert($flickrSummarizer instanceof FlickrPhotoSummarizer);
     }    
 }
 ```
@@ -172,7 +178,7 @@ class TweetPrettifier
 
 ```php
 $uriBinder = Multibinder::newInstance($this, UriSummarizerInterface::class);
-$uriBinder->setBinding('flickr')->(FlickrPhotoSummarizer::class);
+$uriBinder->setBinding('flickr')->to(FlickrPhotoSummarizer::class);
 ```
 
 ## Map

@@ -197,8 +197,8 @@ translations, shown using PHP syntax for brevity and clarity:
 
 `DemoModule` adds two entries into the Ray.Di map:
 
-*   `#[Message] string` --> `fn() => (new MessageProvicer)->get()`
-*   `#[Count] int` --> `fn() => (new CountProvicer)->get()`
+*   `#[Message] string` --> `fn() => (new MessageProvider)->get()`
+*   `#[Count] int` --> `fn() => (new CountProvider)->get()`
 
 ### Injection
 
