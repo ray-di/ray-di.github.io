@@ -11,7 +11,7 @@ DEST_DIR="_site/manuals"
 echo "Copying markdown files for llms.txt compliance..."
 
 # Find all .md files in manuals directory and copy them to _site
-find "$SOURCE_DIR" -name "*.md" -type f | while read -r file; do
+find "$SOURCE_DIR" -name "*.md" -type f -print0 | while IFS= read -r -d '' file; do
     # Get relative path
     relative_path="${file#$SOURCE_DIR/}"
     dest_file="$DEST_DIR/$relative_path"
