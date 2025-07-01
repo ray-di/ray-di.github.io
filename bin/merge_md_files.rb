@@ -53,12 +53,25 @@ end
 def generate_combined_file(language, intro_message)
   source_folder = File.expand_path("../manuals/1.0/#{language}/", __dir__)
   output_file = "manuals/1.0/#{language}/1page.md"
-  files_processed = 0
 
   puts "Processing #{language} documentation..."
   raise "Source folder does not exist!" unless File.directory?(source_folder)
 
-  # Get file order from contents.html
+  file_order = determine_file_order(language, source_folder)
+
+  File.open(output_file, "w") do |combined_file|
+    write_header(combined_file, language, intro_message)
+    files_processed = process_main_files(combined_file, source_folder, file_order)
+    files_processed += process_best_practices(combined_file, source_folder)
+    
+    puts "Generated: #{output_file}"
+    puts "Total sections: #{files_processed}"
+  end
+end
+
+private
+
+def determine_file_order(language, source_folder)
   file_order = extract_order_from_contents(language)
   
   if file_order.nil? || file_order.empty?
@@ -68,86 +81,93 @@ def generate_combined_file(language, intro_message)
                     .reject { |f| f == "1page.md" || f == "ai-assistant.md" }
                     .sort
   end
+  
+  file_order
+end
 
-  # Generate the combined file
-  File.open(output_file, "w") do |combined_file|
-    # Write header
-    header = <<~EOS
-      ---
-      layout: docs-#{language}
-      title: Ray.Di Complete Manual
-      category: Manual
-      permalink: /manuals/1.0/#{language}/1page.html
-      ---
-      
-      # Ray.Di Complete Manual
-      
-    EOS
+def write_header(combined_file, language, intro_message)
+  header = <<~EOS
+    ---
+    layout: docs-#{language}
+    title: Ray.Di Complete Manual
+    category: Manual
+    permalink: /manuals/1.0/#{language}/1page.html
+    ---
     
-    combined_file.write(header)
-    combined_file.write(intro_message + "\n\n")
-    combined_file.write("***\n\n")
+    # Ray.Di Complete Manual
+    
+  EOS
+  
+  combined_file.write(header)
+  combined_file.write(intro_message + "\n\n")
+  combined_file.write("***\n\n")
+end
 
-    # Process each file in order
-    file_order.each_with_index do |filename, index|
-      filepath = File.join(source_folder, filename)
-      
-      if File.exist?(filepath)
-        begin
-          content = File.read(filepath)
-          stripped_content = strip_frontmatter(content)
-          
-          # Skip empty files
-          next if stripped_content.strip.empty?
-          
-          # Add a separator between sections (except for the first one)
-          combined_file.write("\n***\n\n") if index > 0
-          
-          combined_file.write(stripped_content + "\n")
-          puts "  Added: #{filename}"
-          files_processed += 1
-        rescue => e
-          puts "  Error processing #{filename}: #{e.message}"
-        end
-      else
-        puts "  Warning: File not found: #{filename}"
-      end
-    end
+def process_main_files(combined_file, source_folder, file_order)
+  files_processed = 0
+  
+  file_order.each_with_index do |filename, index|
+    filepath = File.join(source_folder, filename)
     
-    # Add best practices section at the end
-    bp_folder = File.join(source_folder, "bp")
-    if Dir.exist?(bp_folder)
-      combined_file.write("\n***\n\n## Best Practices Details\n\n")
-      
-      bp_files = Dir.glob(File.join(bp_folder, "*.md")).sort
-      bp_files.each do |bp_file|
-        begin
-          content = File.read(bp_file)
-          stripped_content = strip_frontmatter(content)
-          
-          next if stripped_content.strip.empty?
-          
-          # Convert leading heading to level 3 if present, preserving the content
-          cleaned_content = stripped_content.lstrip
-          if cleaned_content =~ /\A(\#{1,6})\s+(.+?)\n(.*)/m
-            heading_text = $2
-            remaining_content = $3
-            combined_file.write("\n### #{heading_text}\n\n#{remaining_content}\n")
-          else
-            # No heading found, add generic heading
-            combined_file.write("\n### #{File.basename(bp_file, '.md').gsub(/([A-Z])/, ' \1').strip}\n\n#{cleaned_content}\n")
-          end
-          puts "  Added BP: #{File.basename(bp_file)}"
-          files_processed += 1
-        rescue => e
-          puts "  Error processing BP #{bp_file}: #{e.message}"
-        end
+    if File.exist?(filepath)
+      begin
+        content = File.read(filepath)
+        stripped_content = strip_frontmatter(content)
+        
+        # Skip empty files
+        next if stripped_content.strip.empty?
+        
+        # Add a separator between sections (except for the first one)
+        combined_file.write("\n***\n\n") if index > 0
+        
+        combined_file.write(stripped_content + "\n")
+        puts "  Added: #{filename}"
+        files_processed += 1
+      rescue => e
+        puts "  Error processing #{filename}: #{e.message}"
       end
+    else
+      puts "  Warning: File not found: #{filename}"
     end
   end
+  
+  files_processed
+end
 
-  puts "Generated: #{output_file}"
-  puts "Total sections: #{files_processed}"
+def process_best_practices(combined_file, source_folder)
+  files_processed = 0
+  bp_folder = File.join(source_folder, "bp")
+  
+  return files_processed unless Dir.exist?(bp_folder)
+  
+  combined_file.write("\n***\n\n## Best Practices Details\n\n")
+  
+  bp_files = Dir.glob(File.join(bp_folder, "*.md")).sort
+  bp_files.each do |bp_file|
+    begin
+      content = File.read(bp_file)
+      stripped_content = strip_frontmatter(content)
+      
+      next if stripped_content.strip.empty?
+      
+      # Convert leading heading to level 3 if present, preserving the content
+      cleaned_content = stripped_content.lstrip
+      if cleaned_content =~ /\A(\#{1,6})\s+(.+?)\n(.*)/m
+        heading_text = $2
+        remaining_content = $3
+        combined_file.write("\n### #{heading_text}\n\n#{remaining_content}\n")
+      else
+        # No heading found, add generic heading
+        combined_file.write("\n### #{File.basename(bp_file, '.md').gsub(/([A-Z])/, ' \1').strip}\n\n#{cleaned_content}\n")
+      end
+      puts "  Added BP: #{File.basename(bp_file)}"
+      files_processed += 1
+    rescue => e
+      puts "  Error processing BP #{bp_file}: #{e.message}"
+    end
+  end
+  
+  files_processed
 end
 
 # Generate combined files for both languages
