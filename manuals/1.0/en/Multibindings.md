@@ -46,10 +46,10 @@ Next, we'll get our plugin authors to implement the interface. Here's an
 implementation that shortens Flickr photo URLs:
 
 ```php
-class FlickrPhotoSummarizer implements UriSummarizer
+class FlickrPhotoSummarizer implements UriSummarizerInterface
 {
     public function __construct(
-        private readonly PhotoPaternMatcherInterface $matcher
+        private readonly PhotoPatternMatcherInterface $matcher
     ) {}
 
     public function summarize(Uri $uri): ?string
@@ -95,7 +95,7 @@ class TweetPrettifier
      */
     public function __construct(
         #[Set(UriSummarizerInterface::class)] private readonly Map $summarizers
-        private readonly EmoticonImagifier $emoticonImagifier
+        private readonly EmoticonImagifier $emoticonImagifier,
     ) {}
     
     public function prettifyTweet(String tweetMessage): Html
@@ -106,7 +106,7 @@ class TweetPrettifier
     public function prettifyUri(Uri $uri): string
     {
         // loop through the implementations, looking for one that supports this URI
-        foreach ($this->summarizer as summarizer) {
+        foreach ($this->summarizers as $summarizer) {
             $summary = $summarizer->summarize($uri);
             if ($summary != null) {
                 return $summary;

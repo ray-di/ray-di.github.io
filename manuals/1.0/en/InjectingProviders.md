@@ -39,7 +39,7 @@ class RealBillingService implements BillingServiceInterface
         #[Set(TransactionLogInterface::class)] private ProviderInterface $transactionLogProvider
     ) {}
 
-    public chargeOrder(PizzaOrder $order, CreditCard $creditCard): Receipt
+    public function chargeOrder(PizzaOrder $order, CreditCard $creditCard): Receipt
     {
         $transactionLog = $this->transactionLogProvider->get();
         $processor = $this->processorProvider->get();
@@ -64,7 +64,7 @@ class LogFileTransactionLog implements TransactionLogInterface
         #[Set(TransactionLogInterface::class)] private readonly ProviderInterface $logFileProvider
     ) {}
     
-    public logChargeResult(ChargeResult $result): void {
+    public function logChargeResult(ChargeResult $result): void {
         $summaryEntry = $this->logFileProvider->get();
         $summaryEntry->setText("Charge " + (result.wasSuccessful() ? "success" : "failure"));
         $summaryEntry->save();

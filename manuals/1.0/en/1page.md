@@ -103,7 +103,7 @@ class CreditCardProcessorFactory
 {
     private static CreditCardProcessor $instance;
     
-    public static setInstance(CreditCardProcessor $processor): void 
+    public static function setInstance(CreditCardProcessor $processor): void 
     {
         self::$instance = $processor;
     }
@@ -176,8 +176,8 @@ class RealBillingServiceTest extends TestCase
 
         $this->assertTrue($receipt->hasSuccessfulCharge());
         $this->assertEquals(100, $receipt->getAmountOfCharge());
-        $this->assertEquals($creditCard, $processor->getCardOfOnlyCharge());
-        $this->assertEquals(100, $processor->getAmountOfOnlyCharge());
+        $this->assertEquals($this->creditCard, $this->processor->getCardOfOnlyCharge());
+        $this->assertEquals(100, $this->processor->getAmountOfOnlyCharge());
         $this->assertTrue($this->transactionLog->wasSuccessLogged());
     }
 }
@@ -417,7 +417,7 @@ class Greeter
     public function sayHello(): void
     {
         for ($i=0; $i < $this->count; $i++) {
-            echo $message;
+            echo $this->message;
         }
     }
 }
@@ -1378,10 +1378,10 @@ Next, we'll get our plugin authors to implement the interface. Here's an
 implementation that shortens Flickr photo URLs:
 
 ```php
-class FlickrPhotoSummarizer implements UriSummarizer
+class FlickrPhotoSummarizer implements UriSummarizerInterface
 {
     public function __construct(
-        private readonly PhotoPaternMatcherInterface $matcher
+        private readonly PhotoPatternMatcherInterface $matcher
     ) {}
 
     public function summarize(Uri $uri): ?string
@@ -1427,7 +1427,7 @@ class TweetPrettifier
      */
     public function __construct(
         #[Set(UriSummarizerInterface::class)] private readonly Map $summarizers
-        private readonly EmoticonImagifier $emoticonImagifier
+        private readonly EmoticonImagifier $emoticonImagifier,
     ) {}
     
     public function prettifyTweet(String tweetMessage): Html
@@ -1438,7 +1438,7 @@ class TweetPrettifier
     public function prettifyUri(Uri $uri): string
     {
         // loop through the implementations, looking for one that supports this URI
-        foreach ($this->summarizer as summarizer) {
+        foreach ($this->summarizers as $summarizer) {
             $summary = $summarizer->summarize($uri);
             if ($summary != null) {
                 return $summary;
@@ -1762,7 +1762,7 @@ class RealBillingService implements BillingServiceInterface
         #[Set(TransactionLogInterface::class)] private ProviderInterface $transactionLogProvider
     ) {}
 
-    public chargeOrder(PizzaOrder $order, CreditCard $creditCard): Receipt
+    public function chargeOrder(PizzaOrder $order, CreditCard $creditCard): Receipt
     {
         $transactionLog = $this->transactionLogProvider->get();
         $processor = $this->processorProvider->get();
@@ -1787,7 +1787,7 @@ class LogFileTransactionLog implements TransactionLogInterface
         #[Set(TransactionLogInterface::class)] private readonly ProviderInterface $logFileProvider
     ) {}
     
-    public logChargeResult(ChargeResult $result): void {
+    public function logChargeResult(ChargeResult $result): void {
         $summaryEntry = $this->logFileProvider->get();
         $summaryEntry->setText("Charge " + (result.wasSuccessful() ? "success" : "failure"));
         $summaryEntry->save();

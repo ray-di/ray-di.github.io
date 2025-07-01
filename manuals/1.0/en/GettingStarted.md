@@ -76,7 +76,7 @@ class Greeter
     public function sayHello(): void
     {
         for ($i=0; $i < $this->count; $i++) {
-            echo $message;
+            echo $this->message;
         }
     }
 }
