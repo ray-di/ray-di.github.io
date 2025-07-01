@@ -15,7 +15,7 @@ class RealPaymentService implements PaymentServiceInterface
 {
     public function __construct(
         private readonly PaymentQueue $paymentQueue,
-        private readonly Notifier $notifier;
+        private readonly Notifier $notifier
     ){}
 }
 ```
