@@ -1386,7 +1386,6 @@ class PrettyTweets
 }
 (new PrettyTweets)();
 ```
-```
 
 ### マップバインダー
 
@@ -1621,7 +1620,7 @@ class HorizontalScaleDbProvider implements ProviderInterface
 ## オプションのインジェクション
 
 依存関係が存在する場合はそれを使用し、存在しない場合はデフォルトにフォールバックするのが便利な場合があります。セッターインジェクションはオプションで、依存関係が利用できないとき、Ray.Diはそれらを黙って無視するようになります。
-オプションインジェクションを使用するには、 `#[Inject(optional: true)`属性を加えます。
+オプションインジェクションを使用するには、 `#[Inject(optional: true)]`属性を加えます。
 
 ```php
 class PayPalCreditCardProcessor implements CreditCardProcessorInterface
@@ -1758,7 +1757,7 @@ class ConsoleTransactionLog implements TransactionLogInterface
 
 # Object Life Cycle
 
-依存性注入が完了した後に`[PostConstruct]`メソッドがコールされます。注入された依存で初期化を実行するのに役立ちます。
+依存性注入が完了した後に`#[PostConstruct]`メソッドがコールされます。注入された依存で初期化を実行するのに役立ちます。
 
 ```php
 use Ray\Di\Di\PostConstruct;
