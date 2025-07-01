@@ -178,7 +178,7 @@ class TweetPrettifier
 
 ```php
 $uriBinder = Multibinder::newInstance($this, UriSummarizerInterface::class);
-$uriBinder->setBinding('flickr')->(FlickrPhotoSummarizer::class);
+$uriBinder->setBinding('flickr')->to(FlickrPhotoSummarizer::class);
 ```
 
 ## Map

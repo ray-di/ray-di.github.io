@@ -1542,8 +1542,8 @@ class TweetPrettifier
 The `setBinding()` method overrides any previous binding.
 
 ```php
-$UriBinder = Multibinder::newInstance($this, UriSummarizerInterface::class);
-$UriBinder->setBinding('flickr')->to(FlickrPhotoSummarizer::class);
+$uriBinder = Multibinder::newInstance($this, UriSummarizerInterface::class);
+$uriBinder->setBinding('flickr')->to(FlickrPhotoSummarizer::class);
 ```
 
 ## Map
