@@ -95,7 +95,7 @@ class TweetPrettifier
      */
     public function __construct(
         #[Set(UriSummarizerInterface::class)] private readonly Map $summarizers;
-        private readonly EmoticonImagifier $emoticonImagifier;
+        private readonly EmoticonImagifier $emoticonImagifier
     ) {}
     
     public function prettifyTweet(String tweetMessage): Html
