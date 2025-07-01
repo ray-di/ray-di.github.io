@@ -32,10 +32,9 @@ class DbalProvider implements ProviderInterface, SetContextInterface
         $this->context = $context;
     }
 
-    public function __construct(#[Named('db_config')] array $dbConfigs)
-    {
-        $this->dbConfigs = $dbConfigs;
-    }
+    public function __construct(
+        private #[Named('db_config')] array $dbConfigs
+    ){}
 
     /**
      * {@inheritdoc}

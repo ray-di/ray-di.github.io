@@ -790,8 +790,8 @@ translations, shown using PHP syntax for brevity and clarity:
 
 `DemoModule` adds two entries into the Ray.Di map:
 
-*   `#[Message] string` --> `fn() => (new MessageProvicer)->get()`
-*   `#[Count] int` --> `fn() => (new CountProvicer)->get()`
+*   `#[Message] string` --> `fn() => (new MessageProvider)->get()`
+*   `#[Count] int` --> `fn() => (new CountProvider)->get()`
 
 ### Injection
 
@@ -1018,7 +1018,7 @@ Here is an example of a class that uses constructor injection:
 class Greeter
 {
     // Greeter declares that it needs a string message and an integer
-    // representing the number of time the message to be printed.
+    // representing the number of times the message is to be printed.
     public function __construct(
         #[Message] readonly string $message,
         #[Count] readonly int $count
@@ -1027,7 +1027,7 @@ class Greeter
     public function sayHello(): void
     {
         for ($i=0; $i < $this->count; $i++) {
-            echo $message;
+            echo $this->message;
         }
     }
 }
@@ -1549,10 +1549,9 @@ class DbalProvider implements ProviderInterface, SetContextInterface
         $this->context = $context;
     }
 
-    public function __construct(#[Named('db_config') array $dbConfigs)
-    {
-        $this->dbConfigs = $dbConfigs;
-    }
+    public function __construct(
+        private #[Named('db_config')] array $dbConfigs
+    ){}
 
     /**
      * {@inheritdoc}
@@ -1612,7 +1611,7 @@ class RealBillingService implements BillingServiceInterface
         #[Set(TransactionLogInterface::class)] private ProviderInterface $transactionLogProvider
     ) {}
 
-    public chargeOrder(PizzaOrder $order, CreditCard $creditCard): Receipt
+    public function chargeOrder(PizzaOrder $order, CreditCard $creditCard): Receipt
     {
         $transactionLog = $this->transactionLogProvider->get();
         $processor = $this->processorProvider->get();
@@ -1637,7 +1636,7 @@ class LogFileTransactionLog implements TransactionLogInterface
         #[Set(TransactionLogInterface::class)] private readonly ProviderInterface $logFileProvider
     ) {}
     
-    public logChargeResult(ChargeResult $result): void {
+    public function logChargeResult(ChargeResult $result): void {
         $summaryEntry = $this->logFileProvider->get();
         $summaryEntry->setText("Charge " + (result.wasSuccessful() ? "success" : "failure"));
         $summaryEntry->save();
@@ -1740,10 +1739,10 @@ Next, we'll get our plugin authors to implement the interface. Here's an
 implementation that shortens Flickr photo URLs:
 
 ```php
-class FlickrPhotoSummarizer implements UriSummarizer
+class FlickrPhotoSummarizer implements UriSummarizerInterface
 {
     public function __construct(
-        private readonly PhotoPaternMatcherInterface $matcher
+        private readonly PhotoPatternMatcherInterface $matcher
     ) {}
 
     public function summarize(Uri $uri): ?string
@@ -1789,7 +1788,7 @@ class TweetPrettifier
      */
     public function __construct(
         #[Set(UriSummarizerInterface::class)] private readonly Map $summarizers
-        private readonly EmoticonImagifier $emoticonImagifier
+        private readonly EmoticonImagifier $emoticonImagifier,
     ) {}
     
     public function prettifyTweet(String tweetMessage): Html
@@ -1800,7 +1799,7 @@ class TweetPrettifier
     public function prettifyUri(Uri $uri): string
     {
         // loop through the implementations, looking for one that supports this URI
-        foreach ($this->summarizer as summarizer) {
+        foreach ($this->summarizers as $summarizer) {
             $summary = $summarizer->summarize($uri);
             if ($summary != null) {
                 return $summary;
@@ -2068,7 +2067,7 @@ $lister = $injector->getInstance(ListerInterface::class);
 
 ## CachedInjectorFactory
 
-The `CachedInejctorFactory` can be used in a hybrid of the two injectors to achieve the best performance in both development and production.
+The `CachedInjectorFactory` can be used in a hybrid of the two injectors to achieve the best performance in both development and production.
 
 The injector is able to inject singleton objects **beyond the request**, greatly increasing the speed of testing. Successive PDO connections also do not run out of connection resources in the test.
 
@@ -2284,7 +2283,7 @@ $this->bind(CreditCardProcessorInterface::class)
     ->to(CheckoutCreditCardProcessor::class);
 ```
 
-You need to put the `#[Named]` attribuet in order to specify the parameter.
+You need to put the `#[Named]` attribute in order to specify the parameter.
 
 ```php
 use Ray\Di\Di\Inject;
