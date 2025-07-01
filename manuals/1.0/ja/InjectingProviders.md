@@ -29,12 +29,12 @@ interface ProviderInterface
 class RealBillingService implements BillingServiceInterface
 {
     /**
-     * @param ProviderInterface<TransactionLogInterface>      $processorProvider
-     * @param ProviderInterface<CreditCardProcessorInterface> $transactionLogProvider
+     * @param ProviderInterface<CreditCardProcessorInterface> $processorProvider
+     * @param ProviderInterface<TransactionLogInterface>      $transactionLogProvider
      */
     public function __construct(
-        #[Set(TransactionLogInterface::class)] private ProviderInterface $processorProvider,
-        #[Set(CreditCardProcessorInterface::class)] private ProviderInterface $transactionLogProvider
+        #[Set(CreditCardProcessorInterface::class)] private ProviderInterface $processorProvider,
+        #[Set(TransactionLogInterface::class)] private ProviderInterface $transactionLogProvider
     ) {}
 
     public function chargeOrder(PizzaOrder $order, CreditCard $creditCard): Receipt
