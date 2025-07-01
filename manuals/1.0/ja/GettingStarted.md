@@ -142,15 +142,19 @@ final class MyWebServer {
         //　...
     }
     
+    
     public function __invoke(): void
     {
         // サーバーを構築するために必要なすべての依存関係を持つインジェクターを作成します。
-        $injector = new Injector([
-            new RequestLoggingModule(),
-            new RequestHandlerModule(),
-            new AuthenticationModule(),
-            new DatabaseModule()
-        ]);
+        $injector = new Injector(class extends AbstractModule {
+            protected function configure(): void
+            {
+                $this->install(new RequestLoggingModule());
+                $this->install(new RequestHandlerModule());
+                $this->install(new AuthenticationModule());
+                $this->install(new DatabaseModule());
+            }
+        };
     
         // サーバーのインスタンスを作成してアプリケーションをブートストラップし
         // 受信したリクエストを処理するためにサーバーを開始します。

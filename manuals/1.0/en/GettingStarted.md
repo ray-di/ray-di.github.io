@@ -148,12 +148,16 @@ final class MyWebServer {
     {
         // Creates an injector that has all the necessary dependencies needed to
         // build a functional server.
-        $injector = new Injector([
-            new RequestLoggingModule(),
-            new RequestHandlerModule(),
-            new AuthenticationModule(),
-            new DatabaseModule()
-        ]);
+        $injector = new Injector(class extends AbstractModule {
+            protected function configure(): void
+            {
+                // Install the modules that provide the necessary dependencies.
+                $this->install(new RequestLoggingModule());
+                $this->install(new RequestHandlerModule());
+                $this->install(new AuthenticationModule());
+                $this->install(new DatabaseModule());
+            }
+        };
     
         // Bootstrap the application by creating an instance of the server then
         // start the server to handle incoming requests.
