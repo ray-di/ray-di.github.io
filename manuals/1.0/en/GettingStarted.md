@@ -157,7 +157,7 @@ final class MyWebServer {
                 $this->install(new AuthenticationModule());
                 $this->install(new DatabaseModule());
             }
-        };
+        });
     
         // Bootstrap the application by creating an instance of the server then
         // start the server to handle incoming requests.

@@ -118,7 +118,7 @@ class RealBillingServiceTest extends TestCase
         $this->order = new PizzaOrder(100);
         $this->creditCard = new CreditCard('1234', 11, 2010);
         $this->processor = new FakeCreditCardProcessor();
-        TransactionLogFactory::setInstance($transactionLog);
+        TransactionLogFactory::setInstance($this->transactionLog);
         CreditCardProcessorFactory::setInstance($this->processor);
     }
     
@@ -164,7 +164,7 @@ class RealBillingService implements BillingServiceInterface
     {
         try {
             $result = $this->processor->charge($creditCard, $order->getAmount());
-            $this->transactionLog->logChargeResult(result);
+            $this->transactionLog->logChargeResult($result);
         
             return $result->wasSuccessful()
                 ? Receipt::forSuccessfulCharge($order->getAmount())

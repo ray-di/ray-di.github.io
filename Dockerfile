@@ -10,21 +10,18 @@ WORKDIR /app
 COPY Gemfile Gemfile.lock ./
 RUN bundle install
 
-# Copy the markdown copy script
+# Copy scripts
 COPY bin/copy_markdown_files.sh /app/bin/
+COPY bin/entrypoint.sh /app/bin/
 
 EXPOSE 4000
 
-# Create an entrypoint script
-RUN echo '#!/bin/bash\n\
-bundle exec jekyll build\n\
-./bin/copy_markdown_files.sh\n\
-bundle exec jekyll serve --host 0.0.0.0 --watch' > /app/entrypoint.sh && \
-chmod +x /app/entrypoint.sh
+# Make scripts executable
+RUN chmod +x /app/bin/copy_markdown_files.sh /app/bin/entrypoint.sh
 
 # Create a non-root user for security
 RUN groupadd -r jekyll && useradd -r -g jekyll jekyll
 RUN chown -R jekyll:jekyll /app
 USER jekyll
 
-CMD ["/app/entrypoint.sh"]
+CMD ["/app/bin/entrypoint.sh"]

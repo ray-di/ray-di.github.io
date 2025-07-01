@@ -19,8 +19,8 @@ find "$SOURCE_DIR" -name "*.md" -type f | while read -r file; do
     mkdir -p "$(dirname "$dest_file")"
     
     # Copy the file and remove front matter
-    # Use sed to remove content between --- markers at the beginning of the file
-    sed '/^---$/,/^---$/d' "$file" > "$dest_file"
+    # Use sed to remove only frontmatter at the beginning of the file
+    sed '1{/^---$/!b}; 1,/^---$/d' "$file" > "$dest_file"
     
     echo "Copied and cleaned: $relative_path"
 done

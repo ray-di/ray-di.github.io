@@ -154,7 +154,7 @@ final class MyWebServer {
                 $this->install(new AuthenticationModule());
                 $this->install(new DatabaseModule());
             }
-        };
+        });
     
         // サーバーのインスタンスを作成してアプリケーションをブートストラップし
         // 受信したリクエストを処理するためにサーバーを開始します。

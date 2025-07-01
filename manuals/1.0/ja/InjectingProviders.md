@@ -32,7 +32,7 @@ class RealBillingService implements BillingServiceInterface
      * @param ProviderInterface<TransactionLogInterface>      $processorProvider
      * @param ProviderInterface<CreditCardProcessorInterface> $transactionLogProvider
      */
-    public __construct(
+    public function __construct(
         #[Set(TransactionLogInterface::class)] private ProviderInterface $processorProvider,
         #[Set(CreditCardProcessorInterface::class)] private ProviderInterface $transactionLogProvider
     ) {}
@@ -63,12 +63,12 @@ class LogFileTransactionLog implements TransactionLogInterface
     
     public logChargeResult(ChargeResult $result): void {
         $summaryEntry = $this->logFileProvider->get();
-        $summaryEntry->setText("Charge " + (result.wasSuccessful() ? "success" : "failure"));
+        $summaryEntry->setText("Charge " . ($result->wasSuccessful() ? "success" : "failure"));
         $summaryEntry->save();
         
         if (! $result->wasSuccessful()) {
             $detailEntry = $this->logFileProvider->get();
-            $detailEntry->setText("Failure result: " + result);
+            $detailEntry->setText("Failure result: " . $result);
             $detailEntry->save();
         }
     }
@@ -90,7 +90,7 @@ class LogFileTransactionLog implements TransactionLogInterface
     public function logChargeResult(ChargeResult $result) {
         /* 失敗した時だけをデータベースに書き込み */
         if (! $result->wasSuccessful()) {
-            $connection = $connectionProvider->get();
+            $connection = $this->connectionProvider->get();
         }
     }
 ```

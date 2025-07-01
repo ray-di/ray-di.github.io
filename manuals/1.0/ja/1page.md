@@ -9,7 +9,7 @@ permalink: /manuals/1.0/ja/1page.html
 
 このページは、Ray.Diの全ドキュメントを1ページにまとめた包括的なマニュアルです。参照、印刷、オフライン閲覧に便利です。
 
----
+***
 
 # Installation
 
@@ -33,7 +33,7 @@ php demo-php8/run.php
 ```
 
 
----
+***
 
 # モチベーション
 
@@ -149,7 +149,7 @@ class RealBillingServiceTest extends TestCase
         $this->order = new PizzaOrder(100);
         $this->creditCard = new CreditCard('1234', 11, 2010);
         $this->processor = new FakeCreditCardProcessor();
-        TransactionLogFactory::setInstance($transactionLog);
+        TransactionLogFactory::setInstance($this->transactionLog);
         CreditCardProcessorFactory::setInstance($this->processor);
     }
     
@@ -195,7 +195,7 @@ class RealBillingService implements BillingServiceInterface
     {
         try {
             $result = $this->processor->charge($creditCard, $order->getAmount());
-            $this->transactionLog->logChargeResult(result);
+            $this->transactionLog->logChargeResult($result);
         
             return $result->wasSuccessful()
                 ? Receipt::forSuccessfulCharge($order->getAmount())
@@ -310,7 +310,7 @@ $billingService = $injector->getInstance(BillingServiceInterface::class);
 [はじめに](getting_started.html) では、この仕組みを説明します。
 
 
----
+***
 
 # GettingStarted
 
@@ -462,7 +462,7 @@ final class MyWebServer {
                 $this->install(new AuthenticationModule());
                 $this->install(new DatabaseModule());
             }
-        };
+        });
     
         // サーバーのインスタンスを作成してアプリケーションをブートストラップし
         // 受信したリクエストを処理するためにサーバーを開始します。
@@ -562,7 +562,7 @@ $greeter->sayHello();
 ---
 
 
----
+***
 
 # Ray.Di メンタルモデル
 
@@ -819,7 +819,7 @@ Ray.Di が作成したオブジェクトのライフサイクルを管理する�
 
 
 
----
+***
 
 # Scopes
 
@@ -834,7 +834,7 @@ $this->bind(TransactionLogInterface::class)->to(InMemoryTransactionLog::class)->
     
 
 
----
+***
 
 # Bindings
 _Ray.Diにおける束縛の概要_
@@ -880,7 +880,7 @@ protected function configure()
 ```
 
 
----
+***
 
 ## リンク束縛
 
@@ -891,7 +891,7 @@ $this->bind(TransactionLogInterface::class)->to(DatabaseTransactionLog::class);
 ```
 
 
----
+***
 
 # 束縛アトリビュート
 
@@ -1026,7 +1026,7 @@ public function setCreditCardProcessor(
 ```
 
 
----
+***
 
 ## インスタンス束縛
 
@@ -1043,7 +1043,7 @@ $this->bind()->annotatedWith('login_id')->toInstance('bear');
 作成が複雑なオブジェクトではインスタンス束縛を使用しないようにしてください。インスタンスはシリアライズ保存されるので、シリアライズ不可能なものはインスタンス束縛を使う事ができません。代わりにプロバイダー束縛を使用することができます。
 
 
----
+***
 
 ## プロバイダー束縛
 
@@ -1126,7 +1126,7 @@ $ip->getQualifiers(); // (array) $qualifierAnnotations
 ```
 
 
----
+***
 
 ## アンターゲット束縛
 
@@ -1140,7 +1140,7 @@ $this->bind(AnotherConcreteClass::class)->in(Scope::SINGLETON);
 注：現在、アンターゲット束縛は`annotatedWith()`節をサポートしていません。
 
 
----
+***
 
 ## コンストラクター束縛
 
@@ -1234,7 +1234,7 @@ PDOのコンストラクター引数は`$dsn`, `$username`などstringの値を�
 上記の例では`username`という変数に`pdo_username`と言う識別子を与え、`toInstance`で環境変数の値を束縛しています。
 
 
----
+***
 
 # ビルトイン束縛
 
@@ -1257,7 +1257,7 @@ Ray.Diが知っているすべての型について、その型のプロバイ�
 [マルチ束縛](multibindings.html)で詳しく説明されています。
 
 
----
+***
 
 # マルチ束縛
 
@@ -1369,7 +1369,7 @@ class PrettyTweets
     public function __invoke(): void
     {
         $injector = new Injector(
-            new class extends AbstracModule {
+            new class extends AbstractModule {
                 protected function configure(): void
                 {
                     $this->install(new TweetModule());
@@ -1464,7 +1464,7 @@ class TweetPrettifier
 ```
 
 
----
+***
 
 # コンテキストプロバイダー束縛
 
@@ -1525,7 +1525,7 @@ public function __construct(
 ```
 
 
----
+***
 
 ## Nullオブジェクト束縛
 
@@ -1538,7 +1538,7 @@ $this->bind(CreditCardProcessorInterface::class)->toNull();
 ```
 
 
----
+***
 
 # インジェクション
 _Ray.Diはどのようにオブジェクトを初期化するか？_
@@ -1637,7 +1637,7 @@ class PayPalCreditCardProcessor implements CreditCardProcessorInterface
 ```
 
 
----
+***
 
 # プロバイダー注入
 
@@ -1667,7 +1667,7 @@ class RealBillingService implements BillingServiceInterface
      * @param ProviderInterface<TransactionLogInterface>      $processorProvider
      * @param ProviderInterface<CreditCardProcessorInterface> $transactionLogProvider
      */
-    public __construct(
+    public function __construct(
         #[Set(TransactionLogInterface::class)] private ProviderInterface $processorProvider,
         #[Set(CreditCardProcessorInterface::class)] private ProviderInterface $transactionLogProvider
     ) {}
@@ -1698,12 +1698,12 @@ class LogFileTransactionLog implements TransactionLogInterface
     
     public logChargeResult(ChargeResult $result): void {
         $summaryEntry = $this->logFileProvider->get();
-        $summaryEntry->setText("Charge " + (result.wasSuccessful() ? "success" : "failure"));
+        $summaryEntry->setText("Charge " . ($result->wasSuccessful() ? "success" : "failure"));
         $summaryEntry->save();
         
         if (! $result->wasSuccessful()) {
             $detailEntry = $this->logFileProvider->get();
-            $detailEntry->setText("Failure result: " + result);
+            $detailEntry->setText("Failure result: " . $result);
             $detailEntry->save();
         }
     }
@@ -1725,7 +1725,7 @@ class LogFileTransactionLog implements TransactionLogInterface
     public function logChargeResult(ChargeResult $result) {
         /* 失敗した時だけをデータベースに書き込み */
         if (! $result->wasSuccessful()) {
-            $connection = $connectionProvider->get();
+            $connection = $this->connectionProvider->get();
         }
     }
 ```
@@ -1753,7 +1753,7 @@ class ConsoleTransactionLog implements TransactionLogInterface
 ```
 
 
----
+***
 
 # Object Life Cycle
 
@@ -1771,7 +1771,7 @@ public function init()
 ```
 
 
----
+***
 
 # アスペクト指向プログラミング
 
@@ -1898,7 +1898,7 @@ protected function configure()
 Ray.Diが実装しているメソッドインターセプターのAPIは、Javaの[AOP Alliance](http://aopalliance.sourceforge.net/)と呼ばれるAPI仕様とほぼ同じです。
 
 
----
+***
 
 # Ray.Di ベストプラクティス
 
@@ -1914,7 +1914,7 @@ Ray.Diが実装しているメソッドインターセプターのAPIは、Java�
 *   [モジュールが提供するパブリック束縛の文書化を行う](bp/document_public_bindings.html)
 
 
----
+***
 
 ## Ray.Diアプリケーションのグラフ化
 
@@ -1969,7 +1969,7 @@ dot -T png graph.dot > graph.png
    * 実装のインスタンスには *灰色の背景* を与えられています。
 
 
----
+***
 
 ## Frameworks integration
 
@@ -1979,7 +1979,7 @@ dot -T png graph.dot > graph.png
 * [Laravel](https://github.com/ray-di/Ray.RayDiForLaravel)
 
 
----
+***
 
 # パフォーマンス
 
@@ -2058,7 +2058,7 @@ ServiceLocator::setReader(new AttributeReader());
 ```
 
 
----
+***
 
 # 後方互換性
 
@@ -2067,7 +2067,7 @@ ServiceLocator::setReader(new AttributeReader());
 Ray.Di 2.0 は 2015 年に初めてリリースされて以来、最新の PHP をサポートしつつ機能追加を続けてきました。すでに非推奨となった PHP のサポートは終了することがありますが、後方互換性を破ったことは一度もありません。これからもその方針を守り続ける予定です。
 
 
----
+***
 
 # Ray.Di チュートリアル1
 
@@ -2538,25 +2538,280 @@ DIパターンとRay.Diの基本を見てきました。
 ---
 
 
----
+***
 
 ## Best Practices Details
 
 
 ### モジュールの条件付きロジックは避ける
 
+
+環境ごとに異なる動作を設定できるような動的なモジュールを作りたくなる事があります。
+
+```php
+class FooModule extends AbstractModule
+{
+  public function __construct(
+    private readonly ?string $fooServer
+  }{}
+
+  protected function configure(): void
+  {
+    if ($this->fooServer != null) {
+        $this->bind(String::class)->annotatedWith(ServerName::class)->toInstance($this->fooServer);
+        $this->bind(FooService::class)->to(RemoteFooService::class);
+    } else {
+        $this->bind(FooService::class)->to(InMemoryFooService::class);
+    }
+  }
+}
+```
+
+条件付きロジック自体はそれほど悪いものではありません。 しかし、構成が未検証の場合に問題が発生します。
+この例では、`InMemoryFooService` を開発用に使用し、`RemoteFooService` を本番用に使用しますが、その本番用の特定のケースをテストしないと、統合アプリケーションで `RemoteFooService` が動作することを確認することはできません。
+
+この問題を解決するには、アプリケーションの**個別の設定の数を最小限**にします。本番環境と開発環境を個別のモジュールに分割すれば、本番環境のコードパス全体をテストすることが容易になります。
+この例では、`FooModule` を `RemoteFooModule` と `InMemoryFooModule` に分割します。これにより、実運用中のクラスがテストコードにコンパイル時に依存するのを防ぐこともできます。
+
+もうひとつ、上の例に関連する問題です。`#[ServerName]`に対する束縛があるときとないときがあります。そのようにあるキーが束縛されたりしてなかったりする事があるのは避けるべきでしょう。
+
+
 ### 静的状態を避ける
+
+
+静的な状態とテスト容易性は敵同士です。テストは高速で副作用のないものであるべきです。しかし、静的なプロパティで保持される定数でない値を管理するのは面倒です。
+テストでモックされた静的な値を確実に削除するのは難しいですし、他のテストの邪魔にもなります。
+
+**静的状態**は悪いことですが、**静的**というキーワードは何も問題ではありません。
+静的なクラスは問題ありませんし（むしろ好ましい！）、純粋な関数（ソートや数学など）については、静的であることがむしろ好ましいのです。
 
 ### モジュールが提供する束縛を文書化する
 
+
+Ray.Diモジュールのドキュメンテーションとして、そのモジュールが提供する束縛を記述します。
+
+```php
+/**
+ * Provides FooServiceClient and derived bindings
+ *
+ * [...]
+ *
+ * The following bindings are provided:
+ *
+ *  FooServiceClient
+ *  FooServiceClientAuthenticator
+ */
+final class FooServiceClientModule extends AbstractModule
+{
+  // ...
+}
+```
+
+
+
+
 ### 束縛アトリビュートを再利用しない (`#[Qualifier]`)
+
+
+もちろん、関連性の高い束縛を同じアトリビュートでバインドすることは適切です。 例) `#[ServerName]`
+
+しかしながら、ほとんどの束縛アトリビュートは1つの束縛だけを対象にします。
+また、束縛アトリビュートを *無関係* の束縛に再利用することは絶対に避けてください。
+
+迷ったときは、アトリビュートを再利用しないことです。作成するのは簡単です!
+
+ボイラープレートコードを避けるために、アトリビュートの引数を使用して１つのアトリビュートから複数の区別をすれば良いでしょう。
+
+例えば
+
+```php
+enum Thing
+{
+    case FOO;
+    case BAR;
+    case BAZ;
+}
+
+#[Attribute, \Ray\Di\Di\Qualifier]
+final class MyThing
+{
+    public function __construct(
+        public readonly Thing $value
+    ) {}
+}
+```
+
+それぞれを別々のアトリビュートを定義する代わりに、 `#[MyThing(Thing::FOO)]`, `#[MyThing(Thing::BAR)]`, `#[MyThing(Thing::BAZ)]`などと引数で区別します。
+
 
 ### 直接依存するものだけを注入する
 
+
+他のオブジェクトを取得するためだけに、オブジェクトを注入することは避けてください。
+例えば、 `Account` を取得するために `Customer` をインジェクトするのはやめましょう。
+
+```php
+class ShowBudgets
+{
+    private readonly Account $account;
+
+    public function __construct(Customer $customer)
+    {
+        $this->account = $customer->getPurchasingAccount();
+    }
+}
+```
+
+その代わり、依存関係を直接インジェクトします。
+これにより、テストケースは `Customer` を気にする必要がなくなり、テストが容易になります。
+`Provider` クラスを使用して、 `Customer` の束縛を使用する `Account` の束縛を作成します。
+
+```php
+use Ray\Di\AbstractModule;
+use Ray\Di\ProviderInterface;
+
+class CustomersModule extends AbstractModule
+{
+    protected function configure()
+    {
+        $this->bind(Account::class)->toProvider(PurchasingAccountProvider::class);
+    }
+}
+
+class PurchasingAccountProvider implements ProviderInterface
+{
+    public function __construct(
+        private readonly Customer $customer
+    ) {}
+    
+    public function get(): Account
+    {
+        return $this->customer->getPurchasingAccount();
+    }
+}
+```
+
+依存関係を直接注入することで、コードがよりシンプルになります。
+
+```php
+class ShowBudgets
+{
+    public function __construct(
+        private readonly Account $account
+   ) {}
+}
+```
+
+
 ### インジェクターはなるべく使用しない (できれば1回だけ)
+
+
+Ray.Diは `Injector` の[ビルトイン束縛](../builtin_bindings.html)がありますが、あまり使用しないでください。
+
+コンストラクターを通して、他の注入オブジェクトにインジェクターを渡さないようにしましょう。 (これは "インジェクターを注入する" とも呼ばれます)
+依存関係は静的に宣言した方が良いでしょう。
+
+インジェクターを注入することで、事前にRay.Diが依存関係の解決が可能か知ることができなくなります。
+なぜなら、インジェクターから直接インスタンスを取得できるからです。
+依存関係が正しく設定されていなくて、インジェクターを注入していない場合には、Ray.Diのコンパイルで依存解決の失敗を検知できます。
+しかし、もしインジェクターを注入している場合には、Ray.Diは実行時（コードが`getInstance()`を遅延実行する時）に、`Unbound`例外が出て依存解決が失敗するかもしれません。
+
 
 ### ミュータビリティの最小化
 
+
+可能な限り、コンストラクターインジェクションを使用して、イミュータブルオブジェクトを作成します。
+イミュータブルオブジェクトはシンプルで、共有可能で、合成できます。
+このパターンに従って、注入可能な型を定義してください。
+
+```php
+class RealPaymentService implements PaymentServiceInterface
+{
+    public function __construct(
+        private readnonly PaymentQueue $paymentQueue,
+        private readnonly Notifier $notifier;
+    ){}
+}
+```
+
+このクラスのすべてのフィールドは読み取り専用で、コンストラクターによって初期化されます。
+
+## 注入方法
+
+*コンストラクターインジェクション*には、いくつかの制限があります。
+
+* 注入するオブジェクトはオプションにできません。
+* Ray.Di が作成したオブジェクトでなければ使用できません。
+* サブクラスは、すべての依存関係を使い `parent()` を呼び出す必要があります。これは、特に注入された基底クラスが変更された場合に、コンストラクターインジェクションを面倒なものにします。
+
+*セッターインジェクション*は、Ray.Di によって構築されていないインスタンスを初期化する場合に最も便利です。
+
+
 ### モジュールは高速で副作用がないこと
 
+
+Ray.Diのモジュールは、設定に外部XMLファイルを使用せずに通常のPHPコードで記述します。
+PHPは使い慣れ、お使いのIDEで動作し、リファクタリングに耐えることができます。
+
+しかし、PHPが自由に使える利点の代償としてモジュール内で多くのことをやりすぎてしまいがちです。
+例えば、Ray.Diモジュールの中でデータベースの接続やHTTPサーバーの起動をすることです。
+しかし、それはやめましょう。このような処理をモジュールの中で実行するには以下の問題があります。
+
+* **モジュールは起動するが、シャットダウンしません。** モジュール内でデータベース接続を開いた場合、それを閉じるためのフックがありません。
+* **モジュールはテストをする必要があります。** モジュールの実行過程でデータベースを開くと、そのモジュールの単体テストを書くのが難しくなります。
+* **モジュールはオーバーライドが可能です。** Ray.Diモジュールは `オーバーライド` をサポートしており、本番サービスを軽量サービスやテストサービスで代用することができます。モジュール実行の一部として本番サービスが作成される場合、このようなオーバーライドは効果的ではありません。
+
+モジュール自体で作業を行うのではなく、適切な抽象度で作業を行えるようなインターフェースを定義しましょう。
+例えば、次のようなインターフェースを定義します。
+
+```php
+interface ServiceInterface
+{
+    /**
+     * Starts the service. This method blocks until the service has completely started.
+     */
+    public function start(): void;
+    
+    /**
+     * Stops the service. This method blocks until the service has completely shut down.
+     */
+    public function stop(): void;
+}
+```
+
+Injector を作成した後、サービスを開始してアプリケーションのブートストラップを完了します。
+また、アプリケーションを停止したときにリソースをきれいに解放するためにシャットダウンフックを追加します。
+
+```php
+class Main
+{
+    public function __invoke()
+        $injector = new Injector([
+            new DatabaseModule(),
+            new WebserverModule(),
+            // ..
+        ]);
+        $databaseConnectionPool = $injector->getInstance(ServiceInterface::class, DatabaseService::class);
+        $databaseConnectionPool->start();
+        $this->addShutdownHook($databaseConnectionPool);
+
+        $webserver = $injector->getInstance(ServiceInterface::class, WebserverService::class);
+        $webserver->start();
+        $this->addShutdownHook($webserver);
+    );
+}
+```
+
+
 ### クラスタイプではなく、機能別にモジュールを整理する
+
+
+束縛を機能別にまとめます。
+理想は、モジュールをインストールするか否かで機能全体の有効化/無効化ができることです。
+
+例えば、`Filter` を実装するすべてのクラスの束縛を含む `FiltersModule` や `Graph` を実装するすべてのクラスを含む `GraphsModule` などは作らないようにしましょう。
+
+その代わりに例えば、サーバーへのリクエストを認証する`AuthenticationModule`や、サーバーからFooバックエンドへのリクエストを可能にする`FooBackendModule`のように機能でまとめまめられたモジュールを作りましょう。
+
+この原則は、「モジュールを水平ではなく、垂直に配置する(organize modules vertically, not horizontally)」としても知られています。
+

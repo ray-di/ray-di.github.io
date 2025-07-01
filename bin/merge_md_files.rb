@@ -46,13 +46,14 @@ end
 
 def strip_frontmatter(content)
   # Remove Jekyll frontmatter only from the very beginning of the file
-  # Handle both normal frontmatter and any corrupted patterns
+  # Handle both standard frontmatter and corrupted patterns like "1---"
   content.sub(/\A\d*---\s*\n.*?\n---\s*\n/m, '')
 end
 
 def generate_combined_file(language, intro_message)
   source_folder = File.expand_path("../manuals/1.0/#{language}/", __dir__)
   output_file = "manuals/1.0/#{language}/1page.md"
+  files_processed = 0
 
   puts "Processing #{language} documentation..."
   raise "Source folder does not exist!" unless File.directory?(source_folder)
@@ -85,7 +86,7 @@ def generate_combined_file(language, intro_message)
     
     combined_file.write(header)
     combined_file.write(intro_message + "\n\n")
-    combined_file.write("---\n\n")
+    combined_file.write("***\n\n")
 
     # Process each file in order
     file_order.each_with_index do |filename, index|
@@ -100,10 +101,11 @@ def generate_combined_file(language, intro_message)
           next if stripped_content.strip.empty?
           
           # Add a separator between sections (except for the first one)
-          combined_file.write("\n---\n\n") if index > 0
+          combined_file.write("\n***\n\n") if index > 0
           
           combined_file.write(stripped_content + "\n")
           puts "  Added: #{filename}"
+          files_processed += 1
         rescue => e
           puts "  Error processing #{filename}: #{e.message}"
         end
@@ -115,7 +117,7 @@ def generate_combined_file(language, intro_message)
     # Add best practices section at the end
     bp_folder = File.join(source_folder, "bp")
     if Dir.exist?(bp_folder)
-      combined_file.write("\n---\n\n## Best Practices Details\n\n")
+      combined_file.write("\n***\n\n## Best Practices Details\n\n")
       
       bp_files = Dir.glob(File.join(bp_folder, "*.md")).sort
       bp_files.each do |bp_file|
@@ -125,14 +127,18 @@ def generate_combined_file(language, intro_message)
           
           next if stripped_content.strip.empty?
           
-          # Remove leading heading if present to avoid duplicate headings
+          # Convert leading heading to level 3 if present, preserving the content
           cleaned_content = stripped_content.lstrip
-          if cleaned_content =~ /\A\#{1,6}\s+(.+)/
-            cleaned_content = $1.lstrip
+          if cleaned_content =~ /\A(\#{1,6})\s+(.+?)\n(.*)/m
+            heading_text = $2
+            remaining_content = $3
+            combined_file.write("\n### #{heading_text}\n\n#{remaining_content}\n")
+          else
+            # No heading found, add generic heading
+            combined_file.write("\n### #{File.basename(bp_file, '.md').gsub(/([A-Z])/, ' \1').strip}\n\n#{cleaned_content}\n")
           end
-          
-          combined_file.write("\n### " + cleaned_content + "\n")
           puts "  Added BP: #{File.basename(bp_file)}"
+          files_processed += 1
         rescue => e
           puts "  Error processing BP #{bp_file}: #{e.message}"
         end
@@ -141,7 +147,7 @@ def generate_combined_file(language, intro_message)
   end
 
   puts "Generated: #{output_file}"
-  puts "Total sections: #{file_order.length}"
+  puts "Total sections: #{files_processed}"
 end
 
 # Generate combined files for both languages

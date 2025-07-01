@@ -133,7 +133,7 @@ class PrettyTweets
     public function __invoke(): void
     {
         $injector = new Injector(
-            new class extends AbstracModule {
+            new class extends AbstractModule {
                 protected function configure(): void
                 {
                     $this->install(new TweetModule());
