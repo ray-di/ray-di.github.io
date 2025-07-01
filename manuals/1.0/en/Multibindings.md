@@ -94,7 +94,7 @@ class TweetPrettifier
      * @param Map<UriSummarizerInterface> $summarizers
      */
     public function __construct(
-        #[Set(UriSummarizer::class)] private readonly Map $summarizers;
+        #[Set(UriSummarizerInterface::class)] private readonly Map $summarizers;
         private readonly EmoticonImagifier $emoticonImagifier;
     ) {}
     
@@ -133,10 +133,16 @@ class PrettyTweets
     public function __invoke(): void
     {
         $injector = new Injector(
-            new GoogleMapsPluginModule(),
-            new BitlyPluginModule(),
-            new FlickrPluginModule()
-            // ...      
+            new class extends AbstracModule {
+                protected function configure(): void
+                {
+                    $this->install(new TweetModule());
+                    $this->install(new FlickrPluginModule());
+                    $this->install(new GoogleMapsPluginModule());
+                    $this->install(new BitlyPluginModule());
+                    // ... any other plugins
+                }
+            }
         );
 
         $injector->getInstance(Frontend::class)->start();
