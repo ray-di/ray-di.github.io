@@ -159,7 +159,7 @@ class TweetPrettifier
      * @param Map<UriSummarizerInterface> $summarizers
      */
     public function __construct(
-        #[Set(UriSummarizer::class)] private readonly Map $summarizers;
+        #[Set(UriSummarizer::class)] private readonly Map $summarizers
     ) {}
 
     public function doSomething(): void
