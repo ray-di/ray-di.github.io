@@ -32,8 +32,14 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.2.2'
-          bundler-cache: true # runs 'bundle install' and caches installed gems automatically
-          cache-version: 1 # Increment this number if you need to re-download cached gems
+          bundler-cache: false # Disable automatic bundler cache to control gem versions
+          cache-version: 2 # Increment this number if you need to re-download cached gems
+      
+      - name: Install dependencies with specific Rouge version
+        run: |
+          bundle install
+          echo "Installed Rouge version:"
+          bundle list | grep rouge || true
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v5
@@ -42,10 +48,6 @@ jobs:
         run: |
           ruby bin/merge_md_files.rb
 
-      - name: Force Rouge update
-        run: |
-          bundle update rouge
-          bundle list rouge
 
       - name: Build with Jekyll
         # Outputs to the './_site' directory by default
