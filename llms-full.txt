@@ -61,12 +61,6 @@ Ray.Di has been actively maintained since 2015, supporting PHP 7.2+ with a focus
 
 ---
 
-1---
-layout: docs-en
-title: Installation
-category: Manual
-permalink: /manuals/1.0/en/installation.html
----
 # Installation
 
 The recommended way to install Ray.Di is through [Composer](https://github.com/composer/composer).
