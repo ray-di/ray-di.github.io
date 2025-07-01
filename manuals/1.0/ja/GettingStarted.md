@@ -146,7 +146,7 @@ final class MyWebServer {
     public function __invoke(): void
     {
         // サーバーを構築するために必要なすべての依存関係を持つインジェクターを作成します。
-        $injector = new Injector(class extends AbstractModule {
+        $injector = new Injector(new class extends AbstractModule {
             protected function configure(): void
             {
                 $this->install(new RequestLoggingModule());

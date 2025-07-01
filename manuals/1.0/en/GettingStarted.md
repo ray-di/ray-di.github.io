@@ -148,7 +148,7 @@ final class MyWebServer {
     {
         // Creates an injector that has all the necessary dependencies needed to
         // build a functional server.
-        $injector = new Injector(class extends AbstractModule {
+        $injector = new Injector(new class extends AbstractModule {
             protected function configure(): void
             {
                 // Install the modules that provide the necessary dependencies.
