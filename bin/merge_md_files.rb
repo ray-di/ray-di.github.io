@@ -47,8 +47,8 @@ end
 
 def strip_frontmatter(content)
   # Remove Jekyll frontmatter only from the very beginning of the file
-  # Handle both standard frontmatter and corrupted patterns like "1---"
-  content.sub(/\A\d*---\s*\n.*?\n---\s*\n/m, '')
+  # Support both LF (\n) and CRLF (\r\n) line endings
+  content.sub(/\A---\s*\r?\n.*?\r?\n---\s*\r?\n/m, '')
 end
 
 def generate_combined_file(language, intro_message)
@@ -62,17 +62,20 @@ def generate_combined_file(language, intro_message)
   file_order = extract_order_from_contents(language)
   if file_order.nil? || file_order.empty?
     puts "Warning: Could not extract order from contents.html, using alphabetical order"
-    file_order = source.glob("*.md")
-                       .map(&:basename)
-                       .map(&:to_s)
-                       .reject { |f| %w[1page.md ai-assistant.md].include?(f) }
-                       .sort
+    main_md_files = source.glob("*.md")
+                          .map(&:basename)
+                          .map(&:to_s)
+                          .reject { |f| %w[1page.md ai-assistant.md].include?(f) }
+                          .sort
+    bp_md_files = source.join("bp").directory? ? 
+                  source.join("bp").glob("*.md").map(&:basename).map(&:to_s).sort : []
+    file_order = main_md_files + bp_md_files.map { |f| "bp/#{f}" }
   end
   
   # Gather all files: main files in order + best practices
-  main_files = file_order.map { |fn| source.join(fn) }.select(&:file?)
-  bp_files = source.join("bp").directory? ? source.join("bp").glob("*.md").sort : []
-  all_files = main_files + bp_files
+  all_files = file_order.map { |fn| source.join(fn) }.select(&:file?)
+  main_files = all_files.reject { |f| f.dirname.basename.to_s == "bp" }
+  bp_files = all_files.select { |f| f.dirname.basename.to_s == "bp" }
   
   files_processed = 0
   

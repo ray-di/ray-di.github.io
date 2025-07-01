@@ -15,14 +15,14 @@ find "$SOURCE_DIR" -name "*.md" -type f -print0 | while IFS= read -r -d '' file;
     # Get relative path
     relative_path="${file#$SOURCE_DIR/}"
     dest_file="$DEST_DIR/$relative_path"
-    
+
     # Create destination directory if it doesn't exist
     mkdir -p "$(dirname "$dest_file")"
-    
+
     # Copy the file and remove front matter
     # Use sed to remove only frontmatter at the beginning of the file
     sed '1{/^---$/!b}; 1,/^---$/d' "$file" > "$dest_file"
-    
+
     echo "Copied and cleaned: $relative_path"
 done
 

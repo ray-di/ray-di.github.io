@@ -67,7 +67,7 @@ Here is an example of a class that uses constructor injection:
 class Greeter
 {
     // Greeter declares that it needs a string message and an integer
-    // representing the number of time the message to be printed.
+    // representing the number of times the message is to be printed.
     public function __construct(
         #[Message] readonly string $message,
         #[Count] readonly int $count
