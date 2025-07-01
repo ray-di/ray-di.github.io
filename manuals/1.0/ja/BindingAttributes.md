@@ -131,7 +131,7 @@ Ray.DiはPHP7.xのために [doctrine/annotation](https://github.com/doctrine/an
  * @Paypal('processor')
  */
 public function setCreditCardProcessor(
-	 CreditCardProcessorInterface $processor
-   OtherDepedeciyInterface $depedency
+    CreditCardProcessorInterface $processor
+    OtherDepedeciyInterface $depedency
 ){
 ```

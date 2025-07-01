@@ -138,7 +138,7 @@ Since annotations cannot be applied to arguments, the first argument of a custom
  * @Paypal('processor')
  */
 public function setCreditCardProcessor(
-	 CreditCardProcessorInterface $processor
-   OtherDependencyInterface $dependency
+    CreditCardProcessorInterface $processor
+    OtherDependencyInterface $dependency
 ){
 ```
