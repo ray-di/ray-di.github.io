@@ -115,7 +115,7 @@ $this->bind(CreditCardProcessorInterface::class)
     ->to(CheckoutCreditCardProcessor::class);
 ```
 
-You need to put the `#[Named]` attribute in order to specify the parameter.
+Add the `#[Named]` attribute to the parameter you want to qualify.
 
 ```php
 use Ray\Di\Di\Inject;
