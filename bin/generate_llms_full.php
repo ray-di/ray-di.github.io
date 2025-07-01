@@ -33,27 +33,19 @@ function generateLlmsFull(): void
         // Check if this is a section header
         if (preg_match('/^## (.+)$/', $line, $matches)) {
             $sectionName = $matches[1];
-
-            // These sections contain links to expand
-            $linkableSections = [
-                'Getting Started',
-                'Core Features', 
-                'Binding Types',
-                'Advanced Features',
-                'Best Practices',
-                'Performance & Tools',
-                'Additional Resources'
-            ];
-            
-            if (in_array($sectionName, $linkableSections)) {
+            $currentSection = $sectionName;
+            $inLinkSection = false;
+            $headerLines[] = $line;
+        } elseif (preg_match('/^- \[([^\]]+)\]\(([^)]+)\)/', $line, $matches)) {
+            // Found a markdown link - start processing this section for link expansion
+            if (!$inLinkSection) {
                 $inLinkSection = true;
-                $currentSection = $sectionName;
-                $linkSections[$currentSection] = [];
-            } else {
-                $inLinkSection = false;
-                $headerLines[] = $line;
+                // Remove the section header from headerLines since we'll process it
+                array_pop($headerLines);
+                if (!isset($linkSections[$currentSection])) {
+                    $linkSections[$currentSection] = [];
+                }
             }
-        } elseif ($inLinkSection && preg_match('/^- \[([^\]]+)\]\(([^)]+)\)/', $line, $matches)) {
             // Extract link information
             $title = $matches[1];
             $url = $matches[2];
@@ -77,7 +69,12 @@ function generateLlmsFull(): void
             // Convert file path links to internal anchors
             $anchorName = basename($link['url'], '.md');
             $anchorName = strtolower(str_replace(['_', ' '], '-', $anchorName));
-            $internalLink = "- [{$link['title']}](#{$anchorName}): " . substr($link['line'], strpos($link['line'], ':') + 1);
+            // Extract just the description part after the colon, removing the markdown link
+            $description = '';
+            if (preg_match('/:\s*(.+)$/', $link['line'], $matches)) {
+                $description = trim($matches[1]);
+            }
+            $internalLink = "- [{$link['title']}](#{$anchorName}): {$description}";
             $fullContent .= $internalLink . "\n";
         }
     }
