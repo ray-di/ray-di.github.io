@@ -492,7 +492,7 @@ final class MyWebServer {
     {
         // Creates an injector that has all the necessary dependencies needed to
         // build a functional server.
-        $injector = new Injector(class extends AbstractModule {
+        $injector = new Injector(new class extends AbstractModule {
             protected function configure(): void
             {
                 // Install the modules that provide the necessary dependencies.
@@ -1120,8 +1120,8 @@ Since annotations cannot be applied to arguments, the first argument of a custom
  * @Paypal('processor')
  */
 public function setCreditCardProcessor(
-	 CreditCardProcessorInterface $processor
-   OtherDependencyInterface $dependency
+    CreditCardProcessorInterface $processor
+    OtherDependencyInterface $dependency
 ){
 ```
 
@@ -1443,8 +1443,8 @@ class TweetPrettifier
      * @param Map<UriSummarizerInterface> $summarizers
      */
     public function __construct(
-        #[Set(UriSummarizerInterface::class)] private readonly Map $summarizers;
-        private readonly EmoticonImagifier $emoticonImagifier;
+        #[Set(UriSummarizerInterface::class)] private readonly Map $summarizers
+        private readonly EmoticonImagifier $emoticonImagifier
     ) {}
     
     public function prettifyTweet(String tweetMessage): Html
@@ -1526,10 +1526,10 @@ class TweetPrettifier
      * @param Map<UriSummarizerInterface> $summarizers
      */
     public function __construct(
-        #[Set(UriSummarizer::class)] private readonly Map $summarizers;
+        #[Set(UriSummarizer::class)] private readonly Map $summarizers
     ) {}
 
-    public doSomething(): void
+    public function doSomething(): void
     {
         $flickrSummarizer = $this->summarizers['flickr'];
         assert($flickrSummarizer instanceof FlickrPhotoSummarizer);
@@ -2619,7 +2619,7 @@ class RealPaymentService implements PaymentServiceInterface
 {
     public function __construct(
         private readonly PaymentQueue $paymentQueue,
-        private readonly Notifier $notifier;
+        private readonly Notifier $notifier
     ){}
 ```
 

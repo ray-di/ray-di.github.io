@@ -819,7 +819,7 @@ Some ways of declaring that you need something:
         public function __construct(
             #[Dsn] private string $dsn
         ){}
-
+      
         public function get(): Database
         {
             return new Database($this->dsn);
@@ -844,10 +844,10 @@ class FooProvider implements Provider
     public function get(): Foo
     {
         global $map;
-
+        
         $databaseProvider = $map[Database::class]);
         $database = $databaseProvider->get();
-
+        
         return new Foo($database);
     }
 }
@@ -857,13 +857,13 @@ class DatabaseProvider implements Provider
     public function get(): Database
     {
         global $map;
-
+        
         $dsnProvider = $map[Dsn::class];
         $dsn = $dsnProvider->get();
-
+        
         return new Database($dsn);
     }
-}
+}  
 
 class DsnProvider implements Provider
 {
@@ -871,7 +871,7 @@ class DsnProvider implements Provider
     {
         return getenv(DB_DSN);
     }
-}
+}  
 ```
 
 Dependencies form a *directed graph*, and injection works by doing a depth-first
@@ -953,7 +953,7 @@ class PurchasingAccountProvider implements ProviderInterface
     public function __construct(
         private readonly Customer $customer
     ) {}
-
+    
     public function get(): Account
     {
         return $this->customer->getPurchasingAccount();

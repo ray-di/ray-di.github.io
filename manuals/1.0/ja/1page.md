@@ -454,7 +454,7 @@ final class MyWebServer {
     public function __invoke(): void
     {
         // サーバーを構築するために必要なすべての依存関係を持つインジェクターを作成します。
-        $injector = new Injector(class extends AbstractModule {
+        $injector = new Injector(new class extends AbstractModule {
             protected function configure(): void
             {
                 $this->install(new RequestLoggingModule());
@@ -1020,8 +1020,8 @@ Ray.DiはPHP7.xのために [doctrine/annotation](https://github.com/doctrine/an
  * @Paypal('processor')
  */
 public function setCreditCardProcessor(
-	 CreditCardProcessorInterface $processor
-   OtherDepedeciyInterface $depedency
+    CreditCardProcessorInterface $processor
+    OtherDepedeciyInterface $depedency
 ){
 ```
 
@@ -1414,10 +1414,10 @@ class TweetPrettifier
      * @param Map<UriSummarizerInterface> $summarizers
      */
     public function __construct(
-        #[Set(UriSummarizer::class)] private readonly Map $summarizers;
+        #[Set(UriSummarizer::class)] private readonly Map $summarizers
     ) {}
 
-    public doSomething(): void
+    public function doSomething(): void
     {
         $flickrSummarizer = $this->summarizers['flickr'];
         assert($flickrSummarizer instanceof FlickrPhotoSummarizer);
@@ -2728,8 +2728,8 @@ Ray.Diは `Injector` の[ビルトイン束縛](../builtin_bindings.html)があ�
 class RealPaymentService implements PaymentServiceInterface
 {
     public function __construct(
-        private readnonly PaymentQueue $paymentQueue,
-        private readnonly Notifier $notifier;
+        private readonly PaymentQueue $paymentQueue,
+        private readonly Notifier $notifier
     ){}
 }
 ```
