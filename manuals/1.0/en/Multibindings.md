@@ -180,7 +180,7 @@ class TweetPrettifier
         #[Set(UriSummarizer::class)] private readonly Map $summarizers;
     ) {}
 
-    public doSomething(): void
+    public function doSomething(): void
     {
         $flickrSummarizer = $this->summarizers['flickr'];
         assert($flickrSummarizer instanceof FlickrPhotoSummarizer);
