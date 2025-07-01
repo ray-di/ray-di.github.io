@@ -10,7 +10,6 @@ permalink: /manuals/1.0/ja/1page.html
 このページは、Ray.Diの全ドキュメントを1ページにまとめた包括的なマニュアルです。参照、印刷、オフライン閲覧に便利です。
 
 ***
-
 # Installation
 
 Ray.Diのインストールは、[Composer](https://github.com/composer/composer)から行います
@@ -31,7 +30,6 @@ cd Ray.Di
 ./vendor/bin/phpunit
 php demo-php8/run.php
 ```
-
 
 ***
 
@@ -309,7 +307,6 @@ $billingService = $injector->getInstance(BillingServiceInterface::class);
 
 [はじめに](getting_started.html) では、この仕組みを説明します。
 
-
 ***
 
 # GettingStarted
@@ -560,7 +557,6 @@ $greeter->sayHello();
 シンプルな [メンタルモデル](mental_model.html)でRay.Diをもっと深く理解する方法を探索してください。
 
 ---
-
 
 ***
 
@@ -817,8 +813,6 @@ Ray.Di が作成したオブジェクトのライフサイクルを管理する�
 
 ---
 
-
-
 ***
 
 # Scopes
@@ -831,8 +825,6 @@ use Ray\Di\Scope;
 ```php
 $this->bind(TransactionLogInterface::class)->to(InMemoryTransactionLog::class)->in(Scope::SINGLETON);
 ```
-    
-
 
 ***
 
@@ -879,7 +871,6 @@ protected function configure()
 }
 ```
 
-
 ***
 
 ## リンク束縛
@@ -889,7 +880,6 @@ protected function configure()
 ```php
 $this->bind(TransactionLogInterface::class)->to(DatabaseTransactionLog::class);
 ```
-
 
 ***
 
@@ -1025,7 +1015,6 @@ public function setCreditCardProcessor(
 ){
 ```
 
-
 ***
 
 ## インスタンス束縛
@@ -1041,7 +1030,6 @@ $this->bind()->annotatedWith('login_id')->toInstance('bear');
 ```
 
 作成が複雑なオブジェクトではインスタンス束縛を使用しないようにしてください。インスタンスはシリアライズ保存されるので、シリアライズ不可能なものはインスタンス束縛を使う事ができません。代わりにプロバイダー束縛を使用することができます。
-
 
 ***
 
@@ -1125,7 +1113,6 @@ $ip->getParameter();  // \ReflectionParameter
 $ip->getQualifiers(); // (array) $qualifierAnnotations
 ```
 
-
 ***
 
 ## アンターゲット束縛
@@ -1138,7 +1125,6 @@ $this->bind(AnotherConcreteClass::class)->in(Scope::SINGLETON);
 ```
 
 注：現在、アンターゲット束縛は`annotatedWith()`節をサポートしていません。
-
 
 ***
 
@@ -1233,7 +1219,6 @@ PDOのコンストラクター引数は`$dsn`, `$username`などstringの値を�
 `toConstructor()`の第2引数の`$name`で識別子(qualifier)を指定します。その識別子に対してあらためて束縛を行います。
 上記の例では`username`という変数に`pdo_username`と言う識別子を与え、`toInstance`で環境変数の値を束縛しています。
 
-
 ***
 
 # ビルトイン束縛
@@ -1255,7 +1240,6 @@ Ray.Diが知っているすべての型について、その型のプロバイ�
 
 プロバイダー束縛は、型に対して複数の実装を注入することが出来ます。
 [マルチ束縛](multibindings.html)で詳しく説明されています。
-
 
 ***
 
@@ -1463,7 +1447,6 @@ class TweetPrettifier
 }
 ```
 
-
 ***
 
 # コンテキストプロバイダー束縛
@@ -1524,7 +1507,6 @@ public function __construct(
 ) {}
 ```
 
-
 ***
 
 ## Nullオブジェクト束縛
@@ -1536,7 +1518,6 @@ Nullオブジェクトとは、インターフェースを実装していても�
 ```php
 $this->bind(CreditCardProcessorInterface::class)->toNull();
 ```
-
 
 ***
 
@@ -1635,7 +1616,6 @@ class PayPalCreditCardProcessor implements CreditCardProcessorInterface
     }
 }
 ```
-
 
 ***
 
@@ -1752,7 +1732,6 @@ class ConsoleTransactionLog implements TransactionLogInterface
 }
 ```
 
-
 ***
 
 # Object Life Cycle
@@ -1769,7 +1748,6 @@ public function init()
     //....
 }
 ```
-
 
 ***
 
@@ -1897,7 +1875,6 @@ protected function configure()
 
 Ray.Diが実装しているメソッドインターセプターのAPIは、Javaの[AOP Alliance](http://aopalliance.sourceforge.net/)と呼ばれるAPI仕様とほぼ同じです。
 
-
 ***
 
 # Ray.Di ベストプラクティス
@@ -1912,7 +1889,6 @@ Ray.Diが実装しているメソッドインターセプターのAPIは、Java�
 *   [束縛アトリビュートを再利用しない (`#[Qualifiers]`)](bp/dont_reuse_annotations.html)
 *   [クラスタイプではなく、機能別にモジュールを整理する](bp/organize_modules_by_feature.html)
 *   [モジュールが提供するパブリック束縛の文書化を行う](bp/document_public_bindings.html)
-
 
 ***
 
@@ -1968,7 +1944,6 @@ dot -T png graph.dot > graph.png
    * 実装の型は *黒色の背景* で表示されます。
    * 実装のインスタンスには *灰色の背景* を与えられています。
 
-
 ***
 
 ## Frameworks integration
@@ -1977,7 +1952,6 @@ dot -T png graph.dot > graph.png
 * [CakePHP 3/4 PipingBag](https://github.com/lorenzo/piping-bag) by [@jose_zap](https://twitter.com/jose_zap)
 * [Yii 1](https://github.com/koriym/Ray.Dyii)
 * [Laravel](https://github.com/ray-di/Ray.RayDiForLaravel)
-
 
 ***
 
@@ -2057,7 +2031,6 @@ use Ray\ServiceLocator\ServiceLocator;
 ServiceLocator::setReader(new AttributeReader());
 ```
 
-
 ***
 
 # 後方互換性
@@ -2065,7 +2038,6 @@ ServiceLocator::setReader(new AttributeReader());
 後方互換性を破ることはありません。
 
 Ray.Di 2.0 は 2015 年に初めてリリースされて以来、最新の PHP をサポートしつつ機能追加を続けてきました。すでに非推奨となった PHP のサポートは終了することがありますが、後方互換性を破ったことは一度もありません。これからもその方針を守り続ける予定です。
-
 
 ***
 
@@ -2537,7 +2509,6 @@ DIパターンとRay.Diの基本を見てきました。
 
 ---
 
-
 ***
 
 ## Best Practices Details
@@ -2575,6 +2546,8 @@ class FooModule extends AbstractModule
 
 もうひとつ、上の例に関連する問題です。`#[ServerName]`に対する束縛があるときとないときがあります。そのようにあるキーが束縛されたりしてなかったりする事があるのは避けるべきでしょう。
 
+***
+
 
 ### 静的状態を避ける
 
@@ -2584,6 +2557,9 @@ class FooModule extends AbstractModule
 
 **静的状態**は悪いことですが、**静的**というキーワードは何も問題ではありません。
 静的なクラスは問題ありませんし（むしろ好ましい！）、純粋な関数（ソートや数学など）については、静的であることがむしろ好ましいのです。
+
+***
+
 
 ### モジュールが提供する束縛を文書化する
 
@@ -2607,7 +2583,7 @@ final class FooServiceClientModule extends AbstractModule
 }
 ```
 
-
+***
 
 
 ### 束縛アトリビュートを再利用しない (`#[Qualifier]`)
@@ -2642,6 +2618,8 @@ final class MyThing
 ```
 
 それぞれを別々のアトリビュートを定義する代わりに、 `#[MyThing(Thing::FOO)]`, `#[MyThing(Thing::BAR)]`, `#[MyThing(Thing::BAZ)]`などと引数で区別します。
+
+***
 
 
 ### 直接依存するものだけを注入する
@@ -2702,6 +2680,8 @@ class ShowBudgets
 }
 ```
 
+***
+
 
 ### インジェクターはなるべく使用しない (できれば1回だけ)
 
@@ -2715,6 +2695,8 @@ Ray.Diは `Injector` の[ビルトイン束縛](../builtin_bindings.html)があ�
 なぜなら、インジェクターから直接インスタンスを取得できるからです。
 依存関係が正しく設定されていなくて、インジェクターを注入していない場合には、Ray.Diのコンパイルで依存解決の失敗を検知できます。
 しかし、もしインジェクターを注入している場合には、Ray.Diは実行時（コードが`getInstance()`を遅延実行する時）に、`Unbound`例外が出て依存解決が失敗するかもしれません。
+
+***
 
 
 ### ミュータビリティの最小化
@@ -2745,6 +2727,8 @@ class RealPaymentService implements PaymentServiceInterface
 * サブクラスは、すべての依存関係を使い `parent()` を呼び出す必要があります。これは、特に注入された基底クラスが変更された場合に、コンストラクターインジェクションを面倒なものにします。
 
 *セッターインジェクション*は、Ray.Di によって構築されていないインスタンスを初期化する場合に最も便利です。
+
+***
 
 
 ### モジュールは高速で副作用がないこと
@@ -2802,6 +2786,8 @@ class Main
 }
 ```
 
+***
+
 
 ### クラスタイプではなく、機能別にモジュールを整理する
 
@@ -2814,4 +2800,3 @@ class Main
 その代わりに例えば、サーバーへのリクエストを認証する`AuthenticationModule`や、サーバーからFooバックエンドへのリクエストを可能にする`FooBackendModule`のように機能でまとめまめられたモジュールを作りましょう。
 
 この原則は、「モジュールを水平ではなく、垂直に配置する(organize modules vertically, not horizontally)」としても知られています。
-

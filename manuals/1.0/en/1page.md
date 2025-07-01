@@ -10,7 +10,6 @@ permalink: /manuals/1.0/en/1page.html
 This comprehensive manual contains all Ray.Di documentation in a single page for easy reference, printing, or offline viewing.
 
 ***
-
 # Installation
 
 The recommended way to install Ray.Di is through [Composer](https://github.com/composer/composer).
@@ -31,7 +30,6 @@ cd Ray.Di
 ./vendor/bin/phpunit
 php demo-php8/run.php
 ```
-
 
 ***
 
@@ -345,7 +343,6 @@ $billingService = $injector->getInstance(BillingServiceInterface::class);
 
 [Getting started](getting_started.html) explains how this all works.
 
-
 ***
 
 # GettingStarted
@@ -602,7 +599,6 @@ usually have many `Module`s that can build complex objects.
 ## What's next?
 
 Read more on how to conceptualize Ray.Di with a simple [mental model](mental_model.html).
-
 
 ***
 
@@ -910,8 +906,6 @@ Learn how to use [`Scopes`](scopes.html) to manage the lifecycle of objects crea
 by Ray.Di and the many different ways to
 [add entries into the Ray.Di map](bindings.html).
 
-
-
 ***
 
 # Scopes
@@ -924,8 +918,6 @@ use Ray\Di\Scope;
 ```php
 $this->bind(TransactionLogInterface::class)->to(InMemoryTransactionLog::class)->in(Scope::SINGLETON);
 ```
-    
-
 
 ***
 
@@ -972,7 +964,6 @@ protected function configure()
 }
 ```
 
-
 ***
 
 ## Linked Bindings
@@ -982,7 +973,6 @@ Linked bindings map a type to its implementation. This example maps the interfac
 ```php
 $this->bind(TransactionLogInterface::class)->to(DatabaseTransactionLog::class);
 ```
-
 
 ***
 
@@ -1125,7 +1115,6 @@ public function setCreditCardProcessor(
 ){
 ```
 
-
 ***
 
 ## Instance Bindings
@@ -1140,8 +1129,6 @@ $this->bind()->annotatedWith('login_id')->toInstance('bear');
 ```
 
 Avoid using `toInstance()` with objects that are complicated to create, since it can slow down application startup.
-
-
 
 ***
 
@@ -1224,7 +1211,6 @@ $ip->getParameter();  // \ReflectionParameter
 $ip->getQualifiers(); // (array) $qualifierAnnotations
 ```
 
-
 ***
 
 ## Untargeted Bindings
@@ -1237,7 +1223,6 @@ $this->bind(AnotherConcreteClass::class)->in(Scope::SINGLETON);
 ```
 
 Note: Untargeted binding does not currently support the `annotatedWith()` clause.
-
 
 ***
 
@@ -1324,7 +1309,6 @@ $this->bind()->annotatedWith('pdo_password')->toInstance(getenv('db_password'));
 Since no argument of PDO has a type, it binds with the `Name Binding` of the second argument of the `toConstructor()` method.
 In the above example, the variable `username` is given the identifier `pdo_username`, and `toInstance` binds the value of the environment variable.
 
-
 ***
 
 # Built-in Bindings
@@ -1349,7 +1333,6 @@ For every type Ray.Di knows about, it can also inject a Provider of that type.
 
 Multi bindinga allows multiple implementations to be injected for a type.
 It is explained in detail in [MultiBindings](multibindings.html).
-
 
 ***
 
@@ -1573,7 +1556,6 @@ class TweetPrettifier
 }
 ```
 
-
 ***
 
 # Contextual Provider Bindings
@@ -1632,7 +1614,6 @@ public function __construct(
 ) {}
 ```
 
-
 ***
 
 ## Null Object Binding
@@ -1644,7 +1625,6 @@ This is useful for testing and AOP.
 ```php
 $this->bind(CreditCardProcessorInterface::class)->toNull();
 ```
-
 
 ***
 
@@ -1744,7 +1724,6 @@ class PayPalCreditCardProcessor implements CreditCardProcessorInterface
     }
 }
 ```
-
 
 ***
 
@@ -1869,7 +1848,6 @@ class ConsoleTransactionLog implements TransactionLogInterface
 }
 ```
 
-
 ***
 
 # Object Life Cycle
@@ -1886,7 +1864,6 @@ public function init()
     //....
 }
 ```
-
 
 ***
 
@@ -2016,8 +1993,7 @@ This approach imposes limits on what classes and methods can be intercepted:
 ## AOP Alliance
 
 The method interceptor API implemented by Ray.Di is mostly same as  a public
-specification called [AOP Alliance in Java](http://aopalliance.sourceforge.net/). 
-
+specification called [AOP Alliance in Java](http://aopalliance.sourceforge.net/).
 
 ***
 
@@ -2033,7 +2009,6 @@ specification called [AOP Alliance in Java](http://aopalliance.sourceforge.net/)
 *   [Don't reuse binding attributes (aka `#[Qualifiers]`)](bp/dont_reuse_annotations.html)
 *   [Organize modules by feature, not by class type](bp/organize_modules_by_feature.html)
 *   [Document the public bindings provided by modules](bp/document_public_bindings.html)
-
 
 ***
 
@@ -2086,7 +2061,6 @@ Nodes:
    * Implementation types are given *black backgrounds*.
    * Implementation instances have *gray backgrounds*.
 
-
 ***
 
 ## Frameworks integration
@@ -2095,7 +2069,6 @@ Nodes:
 * [CakePHP 3/4 PipingBag](https://github.com/lorenzo/piping-bag) by [@jose_zap](https://twitter.com/jose_zap)
 * [Yii 1](https://github.com/koriym/Ray.Dyii)
 * [Laravel](https://github.com/ray-di/Ray.RayDiForLaravel)
-
 
 ***
 
@@ -2175,7 +2148,6 @@ use Ray\ServiceLocator\ServiceLocator;
 ServiceLocator::setReader(new AttributeReader());
 ```
 
-
 ***
 
 # Backward Compatibility
@@ -2183,7 +2155,6 @@ ServiceLocator::setReader(new AttributeReader());
 We will not break backward compatibility.
 
 Ray.Di 2.0 was first released in 2015 and since then we've been supporting the latest PHP and adding features; we may no longer support PHP that has become deprecated, but we have never broken backwards compatibility, and we plan to continue to do so.
-
 
 ***
 
@@ -2232,6 +2203,8 @@ Another, related, issue with the example above: sometimes there's a binding for
 `#[ServerName]`, and sometimes that binding is not there. You should avoid
 sometimes binding a key, and other times not.
 
+***
+
 
 ### Avoid static state
 
@@ -2244,6 +2217,8 @@ tests, and this interferes with other tests.
 Although *static state* is bad, there's nothing wrong with the static *keyword*.
 Static classes are okay (preferred even!) and for pure functions (sorting, math,
 etc.), static is just fine.
+
+***
 
 
 ### Avoid Circular Dependencies
@@ -2485,6 +2460,8 @@ final class ApplicationModule extends AbstractModule {
 TIP: You can also install `Modules.disableCircularProxiesModule()` to disable
 circular proxy in Guice.
 
+***
+
 
 ### Document the public bindings provided by modules
 
@@ -2509,7 +2486,7 @@ final class FooServiceClientModule extends AbstractModule
 }
 ```
 
-
+***
 
 
 ### Don't reuse binding attributes (aka `#[Qualifier]`)
@@ -2541,6 +2518,8 @@ final class MyThing
 ```
 
 You can then use `#[MyThing(Thing::FOO)]`, `#[MyThing(Thing::BAR)]`, and `#[MyThing(Thing::BAZ)]` rather than defining each of them as separate attribute types.
+
+***
 
 
 ### Inject only direct dependencies
@@ -2593,6 +2572,8 @@ class ShowBudgets
    ) {}
 ```
 
+***
+
 
 ### Use the Injector as little as possible (preferably only once)
 
@@ -2605,6 +2586,8 @@ By injecting the injector, Ray.Di will not know in advance if the dependency can
 This is because you can get instances directly from the injector.
 If the dependencies are not set up correctly and the injector is not injected, the dependency resolution failure can be detected in the compilation of Ray.Di.
 However, if you are injecting an injector, Ray.Di may raise an `Unbound` exception at runtime (when the code executes `getInstance()` lazily) and the dependency resolution may fail.
+
+***
 
 
 ### Minimize mutability
@@ -2636,6 +2619,8 @@ All fields of this class are readonly and initialized by a constructor.
 
 *Setter injection* is most useful when you need to initialize an instance that
 is not constructed by Ray.Di.
+
+***
 
 
 ### Modules should be fast and side-effect free
@@ -2688,6 +2673,8 @@ class Main
 }
 ```
 
+***
+
 
 ### Organize modules by feature, not by class type
 
@@ -2704,4 +2691,3 @@ to your server, or a `FooBackendModule` that lets your server make requests to
 the Foo backend.
 
 This principle is also known as "organize modules vertically, not horizontally".
-
