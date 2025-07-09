@@ -71,7 +71,7 @@ class WeekendModule extends AbstractModule
         $this->bind(BillingServiceInterface::class)->to(BillingService::class);
         $this->bindInterceptor(
             $this->matcher->any(),                           // any class
-            $this->matcher->annotatedWith('NotOnWeekends'),  // #[NotOnWeekends] attributed method
+            $this->matcher->annotatedWith(NotOnWeekends::class),  // #[NotOnWeekends] attributed method
             [WeekendBlocker::class]                          // apply WeekendBlocker interceptor
         );
     }

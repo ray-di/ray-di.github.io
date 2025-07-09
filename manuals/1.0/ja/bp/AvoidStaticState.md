@@ -1,6 +1,6 @@
 ---
 layout: docs-ja
-title: AvoidStaticState
+title: 静的状態を避ける
 category: Manual
 permalink: /manuals/1.0/ja/bp/avoid_static_state.html
 ---

@@ -1,6 +1,6 @@
 ---
 layout: docs-ja
-title: AvoidConditionalLogicInModules
+title: モジュール内の条件付きロジックを避ける
 category: Manual
 permalink: /manuals/1.0/ja/bp/avoid_conditional_logic_in_modules.html
 ---

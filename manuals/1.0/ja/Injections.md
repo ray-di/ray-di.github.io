@@ -1,6 +1,6 @@
 ---
 layout: docs-ja
-title: Injections
+title: インジェクション
 category: Manual
 permalink: /manuals/1.0/ja/injections.html
 ---
@@ -67,7 +67,7 @@ class HorizontalScaleDbProvider implements ProviderInterface
 {
     public function __construct(
         private readonly MethodInvocationProvider $invocationProvider
-    ){}
+    ) {}
 
     public function get()
     {
@@ -93,7 +93,7 @@ class PayPalCreditCardProcessor implements CreditCardProcessorInterface
     private string $apiKey = self::SANDBOX_API_KEY;
     
     #[Inject(optional: true)]
-    public setApiKey(#[Named('paypal-apikey') string $apiKey): void
+    public function setApiKey(#[Named('paypal-apikey')] string $apiKey): void
     {
        $this->apiKey = $apiKey;
     }

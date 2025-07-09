@@ -38,7 +38,7 @@ Ray.Diは2015年に2.0がリリースされて以来、PHPの進化とともに�
 
 ## Google GuiceとRay.Di
 
-Ray.Diは[Google Guice](https://github.com/google/guice)にインスパイアされたPHPのDIフレームワークです。Google Guiceの実績あるAPI設計をベースに、PHPらしい進化を目指しています。このサイトのほとんどのドキュメントもGoogle Guiceから引用しています。
+Ray.Diは[Google Guice](https://github.com/google/guice)にインスパイアされたPHPのDIフレームワークです。Google Guiceの実績あるAPI設計をベースに、PHPらしい進化を目指しています。このサイトのほとんどのドキュメントもGoogle Guiceのドキュメントを参照しています。
 
 ---
 

@@ -1,6 +1,6 @@
 ---
 layout: docs-ja
-title: Instance Bindings
+title: インスタンス束縛
 category: Manual
 permalink: /manuals/1.0/ja/instance_bindings.html
 ---
@@ -16,4 +16,4 @@ $this->bind(UserInterface::class)->toInstance(new User);
 $this->bind()->annotatedWith('login_id')->toInstance('bear');
 ```
 
-作成が複雑なオブジェクトではインスタンス束縛を使用しないようにしてください。インスタンスはシリアライズ保存されるので、シリアライズ不可能なものはインスタンス束縛を使う事ができません。代わりにプロバイダー束縛を使用することができます。
+作成が複雑なオブジェクトではインスタンス束縛を使用しないでください。インスタンスはシリアライズ保存されるため、シリアライズ不可能なものはインスタンス束縛を使うことができません。代わりにプロバイダー束縛を使用することができます。

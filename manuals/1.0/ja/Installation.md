@@ -4,7 +4,7 @@ title: インストール
 category: Manual
 permalink: /manuals/1.0/ja/installation.html
 ---
-# Installation
+# インストール
 
 Ray.Diのインストールは、[Composer](https://github.com/composer/composer)から行います
 
@@ -14,7 +14,7 @@ composer require ray/di ^2.0
 
 GitHubのリポジトリは[ray-di/Ray.Di](https://github.com/ray-di/Ray.Di)です。
 
-## Testing Ray.Di
+## Ray.Diのテスト
 
 Ray.Diをソースからインストールし、ユニットテストとデモを実行する方法を説明します。
 

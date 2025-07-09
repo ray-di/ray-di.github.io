@@ -28,7 +28,7 @@ final class PayPal
 ```php
 public function __construct(
     #[Paypal] private readonly CreditCardProcessorInterface $processor
-){}
+) {}
 ```
 
 最後に、そのアトリビュートを使用する束縛を作成します。これは`bind()` 文のオプションの`annotatedWith` 節を使用します。
@@ -51,7 +51,7 @@ use Ray\Di\Di\Named;
 
 public function __construct(
     #[Named('checkout')] private CreditCardProcessorInterface $processor
-){}
+) {}
 ```
 
 特定の名前をバインドするには、`annotatedWith()` メソッドを用いてその文字列を渡します。
@@ -71,7 +71,7 @@ use Ray\Di\Di\Named;
 public function __construct(
     #[Named('checkout')] private CreditCardProcessorInterface $processor,
     #[Named('backup')] private CreditCardProcessorInterface $subProcessor
-){}
+) {}
 ```
 
 ## カスタムインジェクターアトリビュート
@@ -93,9 +93,9 @@ final class PaymentProcessorInject implements InjectInterface
     }
     
     public function __construct(
-        public readonly bool $optional = true
-        public readonly string $type;
-    ){}
+        public readonly bool $optional = true,
+        public readonly string $type
+    ) {}
 }
 ```
 
@@ -105,7 +105,7 @@ final class PaymentProcessorInject implements InjectInterface
 
 ```php
 #[PaymentProcessorInject(type: 'paypal')]
-public setPaymentProcessor(CreditCardProcessorInterface $processor)
+public function setPaymentProcessor(CreditCardProcessorInterface $processor)
 {
  ....
 }
@@ -131,7 +131,7 @@ Ray.DiはPHP7.xのために [doctrine/annotation](https://github.com/doctrine/an
  * @Paypal('processor')
  */
 public function setCreditCardProcessor(
-    CreditCardProcessorInterface $processor
-    OtherDepedeciyInterface $depedency
-){
+    CreditCardProcessorInterface $processor,
+    OtherDependencyInterface $dependency
+) {
 ```

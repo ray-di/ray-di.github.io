@@ -4,7 +4,7 @@ title: スコープ
 category: Manual
 permalink: /manuals/1.0/ja/scopes.html
 ---
-# Scopes
+# スコープ
 
 デフォルトでは、Ray.Diは値を供給するたびに新しいインスタンスを返します。この動作は、スコープで設定可能です。
 

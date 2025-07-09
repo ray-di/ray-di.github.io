@@ -1,6 +1,6 @@
 ---
 layout: docs-ja
-title: Framework Integration
+title: フレームワーク統合
 category: Manual
 permalink: /manuals/1.0/ja/integration.html
 ---
