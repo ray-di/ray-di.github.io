@@ -1,0 +1,224 @@
+name: Validate Documentation
+
+on:
+  pull_request:
+    paths:
+      - 'manuals/**'
+      - 'llms.txt'
+      - 'bin/**'
+      - '_includes/**'
+      - '_layouts/**'
+      - 'Gemfile*'
+      - '_config.yml'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.2
+          bundler-cache: true
+          
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          
+      - name: Build Jekyll site
+        run: |
+          bundle exec jekyll build
+          ./bin/copy_markdown_files.sh
+          
+      - name: Validate llms-full.txt generation
+        run: |
+          php bin/generate_llms_full.php
+          if [ ! -f "llms-full.txt" ]; then
+            echo "❌ llms-full.txt was not generated"
+            exit 1
+          fi
+          echo "✅ llms-full.txt generated successfully"
+          
+      - name: Validate single-page merge
+        run: |
+          ruby bin/merge_md_files.rb
+          if [ ! -f "manuals/1.0/en/1page.md" ]; then
+            echo "❌ English single-page documentation was not generated"
+            exit 1
+          fi
+          if [ ! -f "manuals/1.0/ja/1page.md" ]; then
+            echo "❌ Japanese single-page documentation was not generated"
+            exit 1
+          fi
+          echo "✅ Single-page documentation generated successfully"
+          
+      - name: Install link checker
+        run: |
+          # Install lychee link checker
+          wget -qO- https://github.com/lycheeverse/lychee/releases/latest/download/lychee-x86_64-unknown-linux-gnu.tar.gz | tar -xzv
+          sudo mv lychee /usr/local/bin/
+          
+      - name: Install markdown-link-check
+        run: |
+          npm install -g markdown-link-check
+          
+      - name: Check for broken internal links
+        run: |
+          echo "Checking for broken internal links with markdown-link-check..."
+          
+          # Create markdown-link-check config for internal links only
+          cat > .markdown-link-check.json << 'EOF'
+          {
+            "ignorePatterns": [
+              {
+                "pattern": "^https?://"
+              }
+            ],
+            "replacementPatterns": [
+              {
+                "pattern": "^/",
+                "replacement": "./"
+              }
+            ],
+            "httpHeaders": [
+              {
+                "urls": [],
+                "headers": {
+                  "Accept": "text/html"
+                }
+              }
+            ],
+            "timeout": "10s",
+            "retryOn429": true,
+            "retryCount": 3,
+            "fallbackRetryDelay": "30s",
+            "aliveStatusCodes": [200, 206]
+          }
+          EOF
+          
+          # Check all markdown files for internal links (excluding generated files)
+          find manuals -name "*.md" -type f ! -name "1page.md" | while read file; do
+            echo "Checking internal links in $file..."
+            markdown-link-check "$file" --config .markdown-link-check.json --quiet || {
+              echo "❌ Broken internal links found in $file"
+              exit 1
+            }
+          done
+          
+          echo "✅ No broken internal links found"
+          
+      - name: Check external links with lychee
+        run: |
+          echo "Checking external links..."
+          
+          # Create results directory
+          mkdir -p link-check-results
+          
+          # Use shared lychee configuration file
+          
+          # Check external links in markdown files (excluding generated files)
+          find manuals -name "*.md" -type f ! -name "1page.md" -exec lychee --config .lycherc.toml \
+            --format json \
+            --output link-check-results/external-links.json \
+            {} + || {
+            echo "❌ Some external links are broken"
+            echo "This is a warning - external links may be temporarily unavailable"
+            # Don't fail the build for external links
+          }
+          
+          echo "✅ External link check completed"
+          
+      - name: Generate link check summary
+        if: always()
+        run: |
+          # Check for broken external links
+          if [ -f "link-check-results/external-links.json" ]; then
+            # Install jq for JSON parsing
+            sudo apt-get update && sudo apt-get install -y jq
+            
+            # Extract broken links from JSON
+            broken_links=$(jq -r '.links[] | select(.status.status != "Ok") | .url' \
+              link-check-results/external-links.json 2>/dev/null | sort -u || echo "")
+            
+            # Only create summary if there are broken links
+            if [ -n "$broken_links" ]; then
+              echo "## 🔗 Documentation Link Check Results" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "### ⚠️ Broken External Links Found" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "The following external links are broken or unreachable:" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+              
+              # Add each broken link to summary
+              echo "$broken_links" | while read -r link; do
+                if [ -n "$link" ]; then
+                  # Get status for this link
+                  status=$(jq -r --arg url "$link" \
+                    '.links[] | select(.url == $url) | .status.status' \
+                    link-check-results/external-links.json 2>/dev/null || echo "Unknown")
+                  echo "- ❌ [$link]($link) - $status" >> $GITHUB_STEP_SUMMARY
+                fi
+              done
+              
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "**Note**: External link failures are warnings and do not block the PR." >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "---" >> $GITHUB_STEP_SUMMARY
+              echo "*Link check completed at $(date)*" >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
+            
+      - name: Validate documentation structure
+        run: |
+          echo "Validating documentation structure..."
+          
+          # Check if required files exist
+          required_files=(
+            "llms.txt"
+            "manuals/1.0/en/Installation.md"
+            "manuals/1.0/en/Overview.md"
+            "manuals/1.0/en/Tutorial1.md"
+            "manuals/1.0/ja/Installation.md"
+            "manuals/1.0/ja/Overview.md"
+            "manuals/1.0/ja/Tutorial1.md"
+          )
+          
+          for file in "${required_files[@]}"; do
+            if [ ! -f "$file" ]; then
+              echo "❌ Required file missing: $file"
+              exit 1
+            fi
+          done
+          
+          echo "✅ All required files present"
+          
+      - name: Check file sizes
+        run: |
+          echo "Checking generated file sizes..."
+          
+          # Check if llms-full.txt is reasonable size (should be substantial)
+          if [ -f "llms-full.txt" ]; then
+            size=$(wc -c < "llms-full.txt")
+            if [ "$size" -lt 50000 ]; then
+              echo "❌ llms-full.txt seems too small: $size bytes"
+              exit 1
+            fi
+            echo "✅ llms-full.txt size: $size bytes"
+          fi
+          
+          # Check single-page files
+          for lang in en ja; do
+            file="manuals/1.0/$lang/1page.md"
+            if [ -f "$file" ]; then
+              size=$(wc -c < "$file")
+              if [ "$size" -lt 10000 ]; then
+                echo "❌ $file seems too small: $size bytes"
+                exit 1
+              fi
+              echo "✅ $file size: $size bytes"
+            fi
+          done

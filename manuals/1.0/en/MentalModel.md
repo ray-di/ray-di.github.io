@@ -112,27 +112,27 @@ attribute used to identify dependencies.**
 ### Ray.Di `Provider`s
 
 Ray.Di uses
-[`Provider`](https://google.github.io/Ray.Di/api-docs/latest/javadoc/com/google/inject/Provider.html)
+[`ProviderInterface`](https://github.com/ray-di/Ray.Di/blob/2.x/src/di/ProviderInterface.php)
 to represent factories in the "Ray.Di map" that are capable of creating objects
 to satisfy dependencies.
 
-`Provider` is an interface with a single method:
+`ProviderInterface` is an interface with a single method:
 
 ```php
-interface Provider
+interface ProviderInterface
 {
   /** Provides an instance */
   public function get();
 }
 ```
 
-Each class that implements `Provider` is a bit of code that knows how to give
+Each class that implements `ProviderInterface` is a bit of code that knows how to give
 you an instance of `T`. It could call `new T()`, it could construct `T` in some
 other way, or it could return you a precomputed instance from a cache.
 
-Most applications do not implement `Provider` interface directly, they use
+Most applications do not implement `ProviderInterface` directly, they use
 `Module` to configure Ray.Di injector and Ray.Di injector internally creates
-`Provider`s for all the object it knows how to create.
+`ProviderInterface`s for all the object it knows how to create.
 
 For example, the following Ray.Di module creates two `Provider`s:
 

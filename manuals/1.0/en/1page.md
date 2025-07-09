@@ -1087,7 +1087,7 @@ $this->bind(CreditCardProcessorInterface::class)
     ->to(CheckoutCreditCardProcessor::class);
 ```
 
-You need to put the `#[Named]` attribute in order to specify the parameter.
+Add the `#[Named]` attribute to the parameter you want to qualify.
 
 ```php
 use Ray\Di\Di\Inject;
@@ -1331,7 +1331,7 @@ For every type Ray.Di knows about, it can also inject a Provider of that type.
 
 ## Multi-bundling
 
-Multi bindings allows multiple implementations to be injected for a type.
+Multi bindings allow multiple implementations to be injected for a type.
 It is explained in detail in [MultiBindings](multibindings.html).
 
 ***

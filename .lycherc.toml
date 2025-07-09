@@ -1,0 +1,46 @@
+# Lychee configuration for Ray.Di documentation link checking
+# This configuration is shared across multiple GitHub Actions workflows
+
+# Maximum number of concurrent network requests
+max_concurrency = 10
+
+# Request timeout in seconds
+timeout = 30
+
+# Number of retries for failed requests
+max_redirects = 10
+
+# User agent string
+user_agent = "Ray.Di Documentation Link Checker / GitHub Actions"
+
+# Headers to include in requests
+headers = [
+  "accept=text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+  "accept-language=en-US,en;q=0.9,ja;q=0.8",
+  "cache-control=no-cache"
+]
+
+# URL patterns are now handled by .lycheeignore file
+
+# Exclude files by path patterns
+exclude_path = [
+  "*/1page.md",
+  "**/1page.md",
+  "manuals/1.0/en/1page.md",
+  "manuals/1.0/ja/1page.md"
+]
+
+# Include patterns (if specified, only these will be checked)
+include = []
+
+# Accept certain HTTP status codes as valid
+accept = [200, 201, 202, 204, 206, 300, 301, 302, 303, 304, 307, 308, 429]
+
+# Check links in these file types
+include_verbatim = true
+
+# Output format
+format = "detailed"
+
+# Check local files
+include_local = true
