@@ -135,9 +135,6 @@ jobs:
       - name: Generate link check summary
         if: always()
         run: |
-          echo "## 🔗 Documentation Link Check Results" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          
           # Check for broken external links
           if [ -f "link-check-results/external-links.json" ]; then
             # Install jq for JSON parsing
@@ -147,7 +144,10 @@ jobs:
             broken_links=$(jq -r '.links[] | select(.status.status != "Ok") | .url' \
               link-check-results/external-links.json 2>/dev/null | sort -u || echo "")
             
+            # Only create summary if there are broken links
             if [ -n "$broken_links" ]; then
+              echo "## 🔗 Documentation Link Check Results" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
               echo "### ⚠️ Broken External Links Found" >> $GITHUB_STEP_SUMMARY
               echo "" >> $GITHUB_STEP_SUMMARY
               echo "The following external links are broken or unreachable:" >> $GITHUB_STEP_SUMMARY
@@ -166,16 +166,11 @@ jobs:
               
               echo "" >> $GITHUB_STEP_SUMMARY
               echo "**Note**: External link failures are warnings and do not block the PR." >> $GITHUB_STEP_SUMMARY
-            else
-              echo "✅ All external links are working correctly!" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "---" >> $GITHUB_STEP_SUMMARY
+              echo "*Link check completed at $(date)*" >> $GITHUB_STEP_SUMMARY
             fi
-          else
-            echo "ℹ️ No external link check results found." >> $GITHUB_STEP_SUMMARY
           fi
-          
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "---" >> $GITHUB_STEP_SUMMARY
-          echo "*Link check completed at $(date)*" >> $GITHUB_STEP_SUMMARY
             
       - name: Validate documentation structure
         run: |
