@@ -1,0 +1,221 @@
+name: Validate Documentation
+
+on:
+  pull_request:
+    paths:
+      - 'manuals/**'
+      - 'llms.txt'
+      - 'bin/**'
+      - '_includes/**'
+      - '_layouts/**'
+      - 'Gemfile*'
+      - '_config.yml'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.2
+          bundler-cache: true
+          
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          
+      - name: Build Jekyll site
+        run: |
+          bundle exec jekyll build
+          ./bin/copy_markdown_files.sh
+          
+      - name: Validate llms-full.txt generation
+        run: |
+          php bin/generate_llms_full.php
+          if [ ! -f "llms-full.txt" ]; then
+            echo "❌ llms-full.txt was not generated"
+            exit 1
+          fi
+          echo "✅ llms-full.txt generated successfully"
+          
+      - name: Validate single-page merge
+        run: |
+          ruby bin/merge_md_files.rb
+          if [ ! -f "manuals/1.0/en/1page.md" ]; then
+            echo "❌ English single-page documentation was not generated"
+            exit 1
+          fi
+          if [ ! -f "manuals/1.0/ja/1page.md" ]; then
+            echo "❌ Japanese single-page documentation was not generated"
+            exit 1
+          fi
+          echo "✅ Single-page documentation generated successfully"
+          
+      - name: Install link checker
+        run: |
+          # Install lychee link checker
+          wget -qO- https://github.com/lycheeverse/lychee/releases/latest/download/lychee-x86_64-unknown-linux-gnu.tar.gz | tar -xzv
+          sudo mv lychee /usr/local/bin/
+          
+      - name: Check for broken internal links
+        run: |
+          echo "Checking for broken internal links..."
+          
+          # Check internal markdown links
+          find manuals -name "*.md" -type f | while read file; do
+            echo "Checking internal links in $file..."
+            
+            # Extract relative links and check if target files exist
+            grep -oE '\]\([^)]+\.md[^)]*\)' "$file" | sed 's/](\([^)]*\))/\1/' | while read link; do
+              # Remove anchors and query parameters
+              clean_link=$(echo "$link" | sed 's/[#?].*//')
+              
+              # Skip external links
+              if [[ "$clean_link" =~ ^https?:// ]]; then
+                continue
+              fi
+              
+              # Convert relative path to absolute
+              if [[ "$clean_link" =~ ^/ ]]; then
+                # Absolute path from root
+                target_file=".$clean_link"
+              else
+                # Relative path from current file
+                dir=$(dirname "$file")
+                target_file="$dir/$clean_link"
+              fi
+              
+              # Check if target file exists
+              if [ ! -f "$target_file" ]; then
+                echo "❌ Broken link in $file: $link -> $target_file"
+                exit 1
+              fi
+            done
+          done
+          
+          echo "✅ No broken internal links found"
+          
+      - name: Check external links with lychee
+        run: |
+          echo "Checking external links..."
+          
+          # Create lychee config
+          cat > .lycherc.toml << 'EOF'
+          # Lychee configuration for Ray.Di documentation
+          
+          # Maximum number of concurrent network requests
+          max_concurrency = 10
+          
+          # Request timeout in seconds
+          timeout = 30
+          
+          # Number of retries for failed requests
+          max_redirects = 5
+          
+          # User agent string
+          user_agent = "Ray.Di Documentation Link Checker"
+          
+          # Headers to include in requests
+          headers = [
+            "accept=text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"
+          ]
+          
+          # Exclude patterns
+          exclude = [
+            # Skip localhost and example URLs
+            "http://localhost*",
+            "https://localhost*",
+            "http://127.0.0.1*",
+            "https://127.0.0.1*",
+            "http://example.com*",
+            "https://example.com*",
+            
+            # Skip file:// URLs
+            "file://*",
+            
+            # Skip mailto links
+            "mailto:*",
+            
+            # Skip common problematic domains that might have bot protection
+            "https://twitter.com*",
+            "https://x.com*",
+            
+            # Skip relative links (handled by internal link checker)
+            "*.md",
+            "*.html"
+          ]
+          
+          # Include patterns (if specified, only these will be checked)
+          include = []
+          
+          # Accept certain HTTP status codes as valid
+          accept = [200, 201, 202, 204, 206, 300, 301, 302, 303, 304, 307, 308]
+          
+          # Check links in these file types
+          include_verbatim = true
+          EOF
+          
+          # Check external links in markdown files
+          lychee --config .lycherc.toml manuals/ llms.txt || {
+            echo "❌ Some external links are broken"
+            echo "This is a warning - external links may be temporarily unavailable"
+            # Don't fail the build for external links
+          }
+          
+          echo "✅ External link check completed"
+          
+      - name: Validate documentation structure
+        run: |
+          echo "Validating documentation structure..."
+          
+          # Check if required files exist
+          required_files=(
+            "llms.txt"
+            "manuals/1.0/en/Installation.md"
+            "manuals/1.0/en/Overview.md"
+            "manuals/1.0/en/Tutorial1.md"
+            "manuals/1.0/ja/Installation.md"
+            "manuals/1.0/ja/Overview.md"
+            "manuals/1.0/ja/Tutorial1.md"
+          )
+          
+          for file in "${required_files[@]}"; do
+            if [ ! -f "$file" ]; then
+              echo "❌ Required file missing: $file"
+              exit 1
+            fi
+          done
+          
+          echo "✅ All required files present"
+          
+      - name: Check file sizes
+        run: |
+          echo "Checking generated file sizes..."
+          
+          # Check if llms-full.txt is reasonable size (should be substantial)
+          if [ -f "llms-full.txt" ]; then
+            size=$(wc -c < "llms-full.txt")
+            if [ "$size" -lt 50000 ]; then
+              echo "❌ llms-full.txt seems too small: $size bytes"
+              exit 1
+            fi
+            echo "✅ llms-full.txt size: $size bytes"
+          fi
+          
+          # Check single-page files
+          for lang in en ja; do
+            file="manuals/1.0/$lang/1page.md"
+            if [ -f "$file" ]; then
+              size=$(wc -c < "$file")
+              if [ "$size" -lt 10000 ]; then
+                echo "❌ $file seems too small: $size bytes"
+                exit 1
+              fi
+              echo "✅ $file size: $size bytes"
+            fi
+          done

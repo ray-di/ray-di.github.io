@@ -1,0 +1,144 @@
+name: Update Generated Documentation
+
+on:
+  schedule:
+    # Run daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      force_update:
+        description: 'Force update even if no changes detected'
+        required: false
+        default: 'false'
+        type: boolean
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.2
+          bundler-cache: true
+          
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          
+      - name: Configure Git
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          
+      - name: Store original files
+        run: |
+          mkdir -p /tmp/original
+          cp llms-full.txt /tmp/original/ 2>/dev/null || true
+          cp manuals/1.0/en/1page.md /tmp/original/1page-en.md 2>/dev/null || true
+          cp manuals/1.0/ja/1page.md /tmp/original/1page-ja.md 2>/dev/null || true
+          
+      - name: Regenerate documentation
+        run: |
+          echo "Regenerating llms-full.txt..."
+          php bin/generate_llms_full.php
+          
+          echo "Regenerating single-page documentation..."
+          ruby bin/merge_md_files.rb
+          
+      - name: Check for changes
+        id: changes
+        run: |
+          echo "Checking for changes..."
+          
+          changes_detected=false
+          
+          # Check llms-full.txt
+          if [ -f "/tmp/original/llms-full.txt" ]; then
+            if ! cmp -s "llms-full.txt" "/tmp/original/llms-full.txt"; then
+              echo "Changes detected in llms-full.txt"
+              changes_detected=true
+            fi
+          else
+            echo "llms-full.txt is new"
+            changes_detected=true
+          fi
+          
+          # Check English single-page
+          if [ -f "/tmp/original/1page-en.md" ]; then
+            if ! cmp -s "manuals/1.0/en/1page.md" "/tmp/original/1page-en.md"; then
+              echo "Changes detected in English single-page documentation"
+              changes_detected=true
+            fi
+          else
+            echo "English single-page documentation is new"
+            changes_detected=true
+          fi
+          
+          # Check Japanese single-page
+          if [ -f "/tmp/original/1page-ja.md" ]; then
+            if ! cmp -s "manuals/1.0/ja/1page.md" "/tmp/original/1page-ja.md"; then
+              echo "Changes detected in Japanese single-page documentation"
+              changes_detected=true
+            fi
+          else
+            echo "Japanese single-page documentation is new"
+            changes_detected=true
+          fi
+          
+          if [ "$changes_detected" = true ] || [ "${{ github.event.inputs.force_update }}" = "true" ]; then
+            echo "changes_detected=true" >> $GITHUB_OUTPUT
+            echo "Changes detected or force update requested"
+          else
+            echo "changes_detected=false" >> $GITHUB_OUTPUT
+            echo "No changes detected"
+          fi
+          
+      - name: Commit changes
+        if: steps.changes.outputs.changes_detected == 'true'
+        run: |
+          git add llms-full.txt
+          git add manuals/1.0/en/1page.md
+          git add manuals/1.0/ja/1page.md
+          
+          # Only commit if there are staged changes
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: update generated documentation files
+            
+            - Update llms-full.txt with latest content
+            - Update single-page documentation for both languages
+            - Automated update from scheduled workflow
+            
+            🤖 Generated automatically"
+            
+            git push origin master
+            echo "✅ Documentation updated and pushed"
+          else
+            echo "ℹ️ No changes to commit"
+          fi
+          
+      - name: Create summary
+        run: |
+          if [ "${{ steps.changes.outputs.changes_detected }}" = "true" ]; then
+            echo "## 📚 Documentation Update Summary" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "✅ Generated documentation files have been updated:" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "- 🤖 **llms-full.txt**: Updated with latest manual content" >> $GITHUB_STEP_SUMMARY
+            echo "- 📄 **English single-page**: `manuals/1.0/en/1page.md`" >> $GITHUB_STEP_SUMMARY
+            echo "- 📄 **Japanese single-page**: `manuals/1.0/ja/1page.md`" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Changes have been committed and pushed to master branch." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "## 📚 Documentation Update Summary" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "ℹ️ No changes detected in generated documentation files." >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "All generated files are up to date." >> $GITHUB_STEP_SUMMARY
+          fi

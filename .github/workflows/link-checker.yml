@@ -1,0 +1,256 @@
+name: Link Checker
+
+on:
+  schedule:
+    # Run weekly on Sundays at 1 AM UTC
+    - cron: '0 1 * * 0'
+  workflow_dispatch:
+    inputs:
+      check_external:
+        description: 'Check external links'
+        required: false
+        default: 'true'
+        type: boolean
+      fail_on_error:
+        description: 'Fail workflow on broken links'
+        required: false
+        default: 'false'
+        type: boolean
+
+jobs:
+  link-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.2
+          bundler-cache: true
+          
+      - name: Build Jekyll site
+        run: |
+          bundle exec jekyll build
+          
+      - name: Install lychee
+        run: |
+          wget -qO- https://github.com/lycheeverse/lychee/releases/latest/download/lychee-x86_64-unknown-linux-gnu.tar.gz | tar -xzv
+          sudo mv lychee /usr/local/bin/
+          
+      - name: Create link checker configuration
+        run: |
+          cat > .lycherc.toml << 'EOF'
+          # Lychee configuration for comprehensive link checking
+          
+          # Maximum number of concurrent network requests
+          max_concurrency = 5
+          
+          # Request timeout in seconds
+          timeout = 30
+          
+          # Number of retries for failed requests
+          max_redirects = 10
+          
+          # User agent string
+          user_agent = "Ray.Di Documentation Link Checker / GitHub Actions"
+          
+          # Headers to include in requests
+          headers = [
+            "accept=text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+            "accept-language=en-US,en;q=0.9,ja;q=0.8",
+            "cache-control=no-cache"
+          ]
+          
+          # Exclude patterns
+          exclude = [
+            # Skip localhost and development URLs
+            "http://localhost*",
+            "https://localhost*",
+            "http://127.0.0.1*",
+            "https://127.0.0.1*",
+            "http://0.0.0.0*",
+            "https://0.0.0.0*",
+            
+            # Skip example URLs
+            "http://example.com*",
+            "https://example.com*",
+            "http://example.org*",
+            "https://example.org*",
+            
+            # Skip file:// URLs
+            "file://*",
+            
+            # Skip mailto links
+            "mailto:*",
+            
+            # Skip social media that might have bot protection
+            "https://twitter.com*",
+            "https://x.com*",
+            "https://instagram.com*",
+            "https://facebook.com*",
+            
+            # Skip LinkedIn (often blocks bots)
+            "https://linkedin.com*",
+            "https://www.linkedin.com*",
+            
+            # Skip domains that commonly block automated requests
+            "https://medium.com*",
+            
+            # Skip placeholder/template URLs
+            "https://your-domain.com*",
+            "http://your-domain.com*"
+          ]
+          
+          # Include patterns (if specified, only these will be checked)
+          include = []
+          
+          # Accept certain HTTP status codes as valid
+          accept = [200, 201, 202, 204, 206, 300, 301, 302, 303, 304, 307, 308, 429]
+          
+          # Check links in these file types
+          include_verbatim = true
+          
+          # Output format
+          format = "detailed"
+          
+          # Check local files
+          include_local = true
+          EOF
+          
+      - name: Check internal links
+        run: |
+          echo "🔍 Checking internal links..."
+          
+          # Check internal links in built site
+          lychee --config .lycherc.toml \
+            --exclude-all-private \
+            --no-progress \
+            --offline \
+            _site/ || {
+            echo "❌ Internal link check failed"
+            if [ "${{ github.event.inputs.fail_on_error }}" = "true" ]; then
+              exit 1
+            fi
+          }
+          
+          echo "✅ Internal link check completed"
+          
+      - name: Check external links
+        if: github.event.inputs.check_external != 'false'
+        run: |
+          echo "🌐 Checking external links..."
+          
+          # Create results directory
+          mkdir -p link-check-results
+          
+          # Check external links with detailed reporting
+          lychee --config .lycherc.toml \
+            --no-progress \
+            --format json \
+            --output link-check-results/external-links.json \
+            manuals/ llms.txt _site/ || {
+            echo "❌ Some external links are broken"
+            
+            # Generate human-readable report
+            echo "## 🔗 Broken External Links Report" > link-check-results/report.md
+            echo "" >> link-check-results/report.md
+            echo "The following external links were found to be broken:" >> link-check-results/report.md
+            echo "" >> link-check-results/report.md
+            
+            # Parse JSON results for broken links
+            if [ -f "link-check-results/external-links.json" ]; then
+              # Extract broken links from JSON (simplified approach)
+              grep -o '"url":"[^"]*"' link-check-results/external-links.json | \
+              grep -v '"status":"Ok"' | \
+              sed 's/"url":"//g' | sed 's/"//g' | sort | uniq >> link-check-results/broken-links.txt || true
+              
+              if [ -s "link-check-results/broken-links.txt" ]; then
+                echo "### Broken Links:" >> link-check-results/report.md
+                while read -r link; do
+                  echo "- $link" >> link-check-results/report.md
+                done < link-check-results/broken-links.txt
+              fi
+            fi
+            
+            # Show report
+            if [ -f "link-check-results/report.md" ]; then
+              cat link-check-results/report.md
+            fi
+            
+            if [ "${{ github.event.inputs.fail_on_error }}" = "true" ]; then
+              exit 1
+            fi
+          }
+          
+          echo "✅ External link check completed"
+          
+      - name: Upload link check results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: link-check-results
+          path: link-check-results/
+          retention-days: 30
+          
+      - name: Create issue for broken links
+        if: failure() && github.event_name == 'schedule'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Check if there's already an open issue for broken links
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: ['documentation', 'broken-links']
+            });
+            
+            if (issues.length === 0) {
+              // Create new issue
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: '🔗 Broken links detected in documentation',
+                body: `
+            ## Broken Links Detected
+            
+            The scheduled link checker has detected broken links in the documentation.
+            
+            **Workflow run**: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            **Date**: ${new Date().toISOString()}
+            
+            Please check the workflow logs and fix the broken links.
+            
+            ### Actions Required
+            - [ ] Review the link checker results
+            - [ ] Fix or remove broken links
+            - [ ] Update documentation if URLs have changed
+            - [ ] Close this issue once fixed
+            
+            This issue was created automatically by the link checker workflow.
+                `,
+                labels: ['documentation', 'broken-links', 'automated']
+              });
+            }
+            
+      - name: Create summary
+        if: always()
+        run: |
+          echo "## 🔗 Link Check Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ job.status }}" = "success" ]; then
+            echo "✅ All links are working correctly" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Some links are broken" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Check the workflow logs and uploaded artifacts for details." >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Configuration" >> $GITHUB_STEP_SUMMARY
+          echo "- **Check external links**: ${{ github.event.inputs.check_external || 'true' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Fail on error**: ${{ github.event.inputs.fail_on_error || 'false' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Trigger**: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
