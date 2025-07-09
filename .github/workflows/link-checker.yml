@@ -159,12 +159,13 @@ jobs:
             echo "The following external links were found to be broken:" >> link-check-results/report.md
             echo "" >> link-check-results/report.md
             
-            # Parse JSON results for broken links
+            # Parse JSON results for broken links using jq
             if [ -f "link-check-results/external-links.json" ]; then
-              # Extract broken links from JSON (simplified approach)
-              grep -o '"url":"[^"]*"' link-check-results/external-links.json | \
-              grep -v '"status":"Ok"' | \
-              sed 's/"url":"//g' | sed 's/"//g' | sort | uniq >> link-check-results/broken-links.txt || true
+              # Install jq for JSON parsing
+              sudo apt-get update && sudo apt-get install -y jq
+              
+              # Extract broken links from JSON using jq
+              jq -r '.[] | select(.status != "Ok") | .url' link-check-results/external-links.json | sort | uniq >> link-check-results/broken-links.txt || true
               
               if [ -s "link-check-results/broken-links.txt" ]; then
                 echo "### Broken Links:" >> link-check-results/report.md

@@ -59,6 +59,8 @@ jobs:
         
       - name: Copy generated files to _site
         run: |
+          mkdir -p _site/manuals/1.0/en
+          mkdir -p _site/manuals/1.0/ja
           cp llms-full.txt _site/
           cp manuals/1.0/en/1page.md _site/manuals/1.0/en/
           cp manuals/1.0/ja/1page.md _site/manuals/1.0/ja/
