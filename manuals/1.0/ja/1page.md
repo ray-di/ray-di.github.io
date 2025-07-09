@@ -10,7 +10,7 @@ permalink: /manuals/1.0/ja/1page.html
 このページは、Ray.Diの全ドキュメントを1ページにまとめた包括的なマニュアルです。参照、印刷、オフライン閲覧に便利です。
 
 ***
-# Installation
+# インストール
 
 Ray.Diのインストールは、[Composer](https://github.com/composer/composer)から行います
 
@@ -20,7 +20,7 @@ composer require ray/di ^2.0
 
 GitHubのリポジトリは[ray-di/Ray.Di](https://github.com/ray-di/Ray.Di)です。
 
-## Testing Ray.Di
+## Ray.Diのテスト
 
 Ray.Diをソースからインストールし、ユニットテストとデモを実行する方法を説明します。
 
@@ -41,11 +41,11 @@ php demo-php8/run.php
 interface BillingServiceInterface
 {
     /**
-    * オーダーをクレジットカードにチャージしようとします。成功した取引と失敗した取引の両方が記録されます。
-    *
-    * @return Receipt 取引の領収書。チャージが失敗した場合は、理由を説明する断り書きがレシートに記載されます。
-    */
-    public function chargeOrder(PizzaOrder order, CreditCard creditCard): Receipt;
+     * オーダーをクレジットカードにチャージしようとします。成功した取引と失敗した取引の両方が記録されます。
+     *
+     * @return Receipt 取引の領収書。チャージが失敗した場合は、理由を説明する断り書きがレシートに記載されます。
+     */
+    public function chargeOrder(PizzaOrder $order, CreditCard $creditCard): Receipt;
 }
 ```
 
@@ -173,9 +173,9 @@ class RealBillingServiceTest extends TestCase
 
 しかしこのコードはあまり良くありません。グローバル変数にはモックの実装が格納されているので、その設定と削除には注意が必要です。もし `tearDown` が失敗したら、グローバル変数は私たちのテストインスタンスを指し続けることになります。これは、他のテストに問題を引き起こす可能性がありますし、複数のテストを並行して実行することもできなくなります。
 
-しかし、最大の問題は依存関係がコードの中に **隠されていること** です。もし私たちが `CreditCardFraudTracker` への依存関係を追加したら、どのテストが壊れるか見つけるためにテストを再実行しなければなりません。もし、プロダクションサービスのファクトリーを初期化するのを忘れた場合、課金が行われるまでそのことに気がつきません。アプリケーションが大きくなるにつれて、ファクトリーの子守は生産性をどんどん低下させることになります。
+しかし、最大の問題は依存関係がコードの中に **隠されていること** です。もし私たちが `CreditCardFraudTracker` への依存関係を追加したら、どのテストが壊れるか見つけるためにテストを再実行しなければなりません。もし、プロダクションサービスのファクトリーを初期化するのを忘れた場合、課金が行われるまでそのことに気がつきません。アプリケーションが大きくなるにつれて、ファクトリーの管理は生産性をどんどん低下させることになります。
 
-品質の問題は、QAや受け入れテストによって発見されることは発見されるでしょう。しかし、もっといい方法があるはずです。
+品質の問題は、QAや受け入れテストによって発見されるかもしれません。しかし、もっといい方法があるはずです。
 
 ## 依存性注入(Dependency Injection)
 
@@ -309,7 +309,7 @@ $billingService = $injector->getInstance(BillingServiceInterface::class);
 
 ***
 
-# GettingStarted
+# はじめに
 
 _Ray.Di.を使ったDIの始め方_
 
@@ -330,7 +330,7 @@ class Foo
     
     public function __construct()
     {
-        // うっ。どうやってテストすればいいんでしょうか？
+        // うっ。どうやってテストすればいいでしょうか？
         // 他のアプリケーションで別のデータベースを使いたい場合はどうすればいいのでしょうか？
         $this->database = new Database('/path/to/my/data');
     }
@@ -343,7 +343,7 @@ class Foo
 
 ```php
 class Foo {
-    private Database $database;  //　仕事を完了させるためにはデータベースが必要
+    private Database $database;  // 仕事を完了させるためにはデータベースが必要
     
     public function __construct(Database $database)
     {
@@ -513,7 +513,7 @@ class MessageProvider implements ProviderInterface
 
 class DemoModule extends AbstractModule
 {
-    protected function configure()
+    protected function configure(): void
     {
         $this->bind()->annotatedWith(Count::class)->toProvider(CountProvider::class);
         $this->bind()->annotatedWith(Message::class)->toProvider(MessageProvider::class);
@@ -587,7 +587,7 @@ Ray.Diは`Key`を使って、Ray.Diマップから依存関係を解決します
 *   `#[Message] string` --> `$map[$messageKey]`
 *   `#[Count] int` --> `$map[$countKey]`
 
-最も単純な形の `Key` は、PHP の型で表されます。
+最も単純な形の `Key` は、PHPの型で表されます。
 
 ```php
 // 依存(文字列)を特定
@@ -601,8 +601,8 @@ $databaseKey = $map[$key];
 class Message
 {
     public function __construct(
-    	  public readonly string $text
-    ){}
+        public readonly string $text
+    ) {}
 }
 
 class MultilingualGreeter
@@ -614,7 +614,7 @@ class MultilingualGreeter
 }
 ```
 
-Ray.Diでは、同じタイプの依存関係を区別するために、[アトリビュート束縛](binding_attributes.htnl) を使用しています。
+Ray.Diでは、同じタイプの依存関係を区別するために、[アトリビュート束縛](binding_attributes.html) を使用しています。
 
 ```php
 class MultilingualGreeter
@@ -659,7 +659,7 @@ interface ProviderInterface
 }
 ```
 
-`ProviderInterface` を実装している各クラスは、 インスタンスを生成する方法を知っている簡単なコードです。`new`を呼び出したり、他の方法で依存を構築したり、キャッシュから事前に計算されたインスタンスを返したりすることができます。値の型は限定されずmixedです。
+`ProviderInterface` を実装している各クラスは、 インスタンスを生成する方法を知っている簡単なコードです。`new`を呼び出したり、他の方法で依存を構築したり、キャッシュから事前に計算されたインスタンスを返したりすることができます。値の型は限定されず、mixedです。
 
 以下は 2 つの `ProviderInterface` の実装例です。
 
@@ -704,9 +704,9 @@ Ray.Diの利用には2つのパートがあります。
 
 ### コンフィギュレーション
 
-Ray.Diのマップは、Ray.Diモジュールを使って設定されます。**Ray.Diモジュール**は、Ray.Diマップに何かを追加する設定ロジックユニットです。Ray.Di ドメイン固有言語（DSL）を使用して設定を行います。
+Ray.Diのマップは、Ray.Diモジュールを使って設定されます。**Ray.Diモジュール**は、Ray.Diマップに何かを追加する設定ロジックの単位です。Ray.Di ドメイン固有言語（DSL）を使用して設定を行います。
 
-これらのAPIは単にRay.Dマップを操作する方法を提供するものです。これらのAPIが行う操作は簡単で、以下は簡潔なPHPのシンタックスを使用した説明です。
+これらのAPIは単にRay.Dマップを操作する方法を提供するものです。これらのAPIが行う操作は単純で、以下は簡潔なPHPの構文を使用した説明です。
 
 | Ray.Di DSL シンタックス                   | メンタルモデル                                                                       |
 | ---------------------------------- | ---------------------------------------------------------------------------------- |
@@ -746,7 +746,7 @@ Ray.Diのマップは、Ray.Diモジュールを使って設定されます。**
     {
         public function __construct(
             #[Dsn] private string $dsn
-        ){}
+        ) {}
       
         public function get(): Database
         {
@@ -805,7 +805,7 @@ class DsnProvider implements Provider
 
 Ray.Di の `Injector` オブジェクトは、依存関係グラフ全体を表します。`インジェクター`を作成するために、Ray.Diはグラフ全体が動作することを検証する必要があります。依存関係が必要なのに提供されていない「ぶら下がり」ノードがあってはいけません[^3] もしグラフのどこかで束縛が不完全だと、Ray.Di は `Unbound` 例外を投げます。
 
-[^3]: その逆もまた然りで、何も使わなくても、何かを提供することは問題ありません。とはいえ、デッドコードと同じように、どこからも使われなくなったプロバイダーは削除するのが一番です。
+[^3]: その逆もまた同様で、何も使わなくても、何かを提供することは問題ありません。とはいえ、デッドコードと同じように、どこからも使われなくなったプロバイダーは削除するのが一番です。
 
 ## 次に
 
@@ -815,7 +815,7 @@ Ray.Di が作成したオブジェクトのライフサイクルを管理する�
 
 ***
 
-# Scopes
+# スコープ
 
 デフォルトでは、Ray.Diは値を供給するたびに新しいインスタンスを返します。この動作は、スコープで設定可能です。
 
@@ -828,7 +828,7 @@ $this->bind(TransactionLogInterface::class)->to(InMemoryTransactionLog::class)->
 
 ***
 
-# Bindings
+# 束縛
 _Ray.Diにおける束縛の概要_
 
 **束縛**とは、[Ray.Di map](mental_model.html) のエントリに対応するオブジェクトのことです。束縛を作成することで、Ray.Diマップに新しいエントリーを追加できます。
@@ -846,8 +846,8 @@ class TweetModule extends AbstractModule
     {
         $this->bind(TweetClient::class);
         $this->bind(TweeterInterface::class)->to(SmsTweeter::class)->in(Scope::SINGLETON);
-        $this->bind(UrlShortenerInterface)->toProvider(TinyUrlShortener::class);
-        $this->bind('')->annotatedWith(Username::class)->toInstance("koriym");
+        $this->bind(UrlShortenerInterface::class)->toProvider(TinyUrlShortener::class);
+        $this->bind()->annotatedWith(Username::class)->toInstance("koriym");
     }
 }
 ```
@@ -875,7 +875,7 @@ protected function configure()
 
 ## リンク束縛
 
-リンク束縛は、型とその実装をマッピングします。この例では、インターフェース TransactionLogInterface を実装 DatabaseTransactionLog にひもづけています。
+リンク束縛は、型とその実装をマッピングします。この例では、インターフェース `TransactionLogInterface` を実装クラス `DatabaseTransactionLog` に紐付けています。
 
 ```php
 $this->bind(TransactionLogInterface::class)->to(DatabaseTransactionLog::class);
@@ -907,7 +907,7 @@ final class PayPal
 ```php
 public function __construct(
     #[Paypal] private readonly CreditCardProcessorInterface $processor
-){}
+) {}
 ```
 
 最後に、そのアトリビュートを使用する束縛を作成します。これは`bind()` 文のオプションの`annotatedWith` 節を使用します。
@@ -930,7 +930,7 @@ use Ray\Di\Di\Named;
 
 public function __construct(
     #[Named('checkout')] private CreditCardProcessorInterface $processor
-){}
+) {}
 ```
 
 特定の名前をバインドするには、`annotatedWith()` メソッドを用いてその文字列を渡します。
@@ -950,7 +950,7 @@ use Ray\Di\Di\Named;
 public function __construct(
     #[Named('checkout')] private CreditCardProcessorInterface $processor,
     #[Named('backup')] private CreditCardProcessorInterface $subProcessor
-){}
+) {}
 ```
 
 ## カスタムインジェクターアトリビュート
@@ -972,9 +972,9 @@ final class PaymentProcessorInject implements InjectInterface
     }
     
     public function __construct(
-        public readonly bool $optional = true
-        public readonly string $type;
-    ){}
+        public readonly bool $optional = true,
+        public readonly string $type
+    ) {}
 }
 ```
 
@@ -984,7 +984,7 @@ final class PaymentProcessorInject implements InjectInterface
 
 ```php
 #[PaymentProcessorInject(type: 'paypal')]
-public setPaymentProcessor(CreditCardProcessorInterface $processor)
+public function setPaymentProcessor(CreditCardProcessorInterface $processor)
 {
  ....
 }
@@ -1010,9 +1010,9 @@ Ray.DiはPHP7.xのために [doctrine/annotation](https://github.com/doctrine/an
  * @Paypal('processor')
  */
 public function setCreditCardProcessor(
-    CreditCardProcessorInterface $processor
-    OtherDepedeciyInterface $depedency
-){
+    CreditCardProcessorInterface $processor,
+    OtherDependencyInterface $dependency
+) {
 ```
 
 ***
@@ -1029,7 +1029,7 @@ $this->bind(UserInterface::class)->toInstance(new User);
 $this->bind()->annotatedWith('login_id')->toInstance('bear');
 ```
 
-作成が複雑なオブジェクトではインスタンス束縛を使用しないようにしてください。インスタンスはシリアライズ保存されるので、シリアライズ不可能なものはインスタンス束縛を使う事ができません。代わりにプロバイダー束縛を使用することができます。
+作成が複雑なオブジェクトではインスタンス束縛を使用しないでください。インスタンスはシリアライズ保存されるため、シリアライズ不可能なものはインスタンス束縛を使うことができません。代わりにプロバイダー束縛を使用することができます。
 
 ***
 
@@ -1050,7 +1050,7 @@ interface ProviderInterface
     public function get();
 }
 ```
-プロバイダーはそれ自身でも依存性を持っており、コンストラクターを介して依存性を受け取ります。  
+プロバイダーはそれ自身でも依存性を持っており、コンストラクターを介して依存性を受け取ります。
 以下の例では `ProviderInterface` を実装し、型の安全性が保証された値を返します。
 
 ```php
@@ -1061,8 +1061,8 @@ use Ray\Di\ProviderInterface;
 class DatabaseTransactionLogProvider implements ProviderInterface
 {
     public function __construct(
-        private readonly ConnectionInterface $connection)
-    ){}
+        private readonly ConnectionInterface $connection
+    ) {}
 
     public function get()
     {
@@ -1082,7 +1082,7 @@ $this->bind(TransactionLogInterface::class)->toProvider(DatabaseTransactionLogPr
 
 ## インジェクションポイント
 
-`InjectionPoint`オブジェクトは、注入が行われる箇所（インジェクションポイント）のメタ情報を持つクラスです。プロバイダーは、注入箇所のクラス名や変数名などのインジェクションポイントのメタデータを使って依存インスタンスを作成する事ができます。
+`InjectionPoint`オブジェクトは、注入が行われる箇所（インジェクションポイント）のメタ情報を保持するクラスです。プロバイダーは、注入箇所のクラス名や変数名などのインジェクションポイントのメタデータを使って依存インスタンスを作成する事ができます。
 
 ### 例：インスタンス生成にインジェクションポイントのクラス名を使用
 
@@ -1093,7 +1093,7 @@ class Psr3LoggerProvider implements ProviderInterface
 {
     public function __construct(
         private InjectionPointInterface $ip
-    ){}
+    ) {}
 
     public function get()
     {
@@ -1182,9 +1182,9 @@ $this->bind($interfaceName)
   ->addOptionalMethod($methodName, $named);
 ```
 
-**postCosntruct**
+**postConstruct**
 
-コンストラクターとセッターメソッドが呼び出され、すべての依存関係が注入された後に`$postCosntruct`メソッドが呼び出されます
+コンストラクターとセッターメソッドが呼び出され、すべての依存関係が注入された後に`$postConstruct`メソッドが呼び出されます
 
 ### PDO Example
 
@@ -1214,10 +1214,10 @@ $this->bind()->annotatedWith('pdo_username')->toInstance(getenv('db_user'));
 $this->bind()->annotatedWith('pdo_password')->toInstance(getenv('db_password'));
 ```
 
-PDOのコンストラクター引数は`$dsn`, `$username`などstringの値を受け取り、その束縛を区別するために識別子が必要です。しかしPDOはPHP自体のビルトインクラスなのでアトリビュートを加えることができません。
+PDOのコンストラクター引数は`$dsn`、`$username`などstring型の値を受け取り、その束縛を区別するために識別子が必要です。しかしPDOはPHP自体のビルトインクラスなのでアトリビュートを加えることができません。
 
 `toConstructor()`の第2引数の`$name`で識別子(qualifier)を指定します。その識別子に対してあらためて束縛を行います。
-上記の例では`username`という変数に`pdo_username`と言う識別子を与え、`toInstance`で環境変数の値を束縛しています。
+上記の例では`username`という変数に`pdo_username`という識別子を与え、`toInstance`で環境変数の値を束縛しています。
 
 ***
 
@@ -1584,7 +1584,7 @@ class HorizontalScaleDbProvider implements ProviderInterface
 {
     public function __construct(
         private readonly MethodInvocationProvider $invocationProvider
-    ){}
+    ) {}
 
     public function get()
     {
@@ -1610,7 +1610,7 @@ class PayPalCreditCardProcessor implements CreditCardProcessorInterface
     private string $apiKey = self::SANDBOX_API_KEY;
     
     #[Inject(optional: true)]
-    public setApiKey(#[Named('paypal-apikey') string $apiKey): void
+    public function setApiKey(#[Named('paypal-apikey')] string $apiKey): void
     {
        $this->apiKey = $apiKey;
     }
@@ -1702,7 +1702,7 @@ class LogFileTransactionLog implements TransactionLogInterface
         #[Set(Connection::class)] private ProviderInterface $connectionProvider
     ) {}
     
-    public function logChargeResult(ChargeResult $result) {
+    public function logChargeResult(ChargeResult $result): void {
         /* 失敗した時だけをデータベースに書き込み */
         if (! $result->wasSuccessful()) {
             $connection = $this->connectionProvider->get();
@@ -1734,7 +1734,7 @@ class ConsoleTransactionLog implements TransactionLogInterface
 
 ***
 
-# Object Life Cycle
+# オブジェクトのライフサイクル
 
 依存性注入が完了した後に`#[PostConstruct]`メソッドがコールされます。注入された依存で初期化を実行するのに役立ちます。
 
@@ -1818,7 +1818,7 @@ class WeekendModule extends AbstractModule
         $this->bind(BillingServiceInterface::class)->to(BillingService::class);
         $this->bindInterceptor(
             $this->matcher->any(),                           // any class
-            $this->matcher->annotatedWith('NotOnWeekends'),  // #[NotOnWeekends] attributed method
+            $this->matcher->annotatedWith(NotOnWeekends::class),  // #[NotOnWeekends] attributed method
             [WeekendBlocker::class]                          // apply WeekendBlocker interceptor
         );
     }
@@ -2268,7 +2268,7 @@ $greeter->sayHello();
 
 ファイル数が増え全体としては複雑になっているように見えますが、個々のスクリプトはこれ以上単純にするのが難しいぐらい単純です。それぞれのクラスはただ１つの責務しか担っていませんし[^srp]、実装ではなく抽象に依存して[^dip]、テストや拡張、それに再利用も容易です。
 
-[^srp]: [単一責任原則 (SRP)](https://ja.wikipedia.org/wiki/SOLID)
+[^srp]: [単一責任原則（SRP）](https://ja.wikipedia.org/wiki/SOLID)
 [^dip]: [依存性逆転の原則 (DIP)](https://ja.wikipedia.org/wiki/%E4%BE%9D%E5%AD%98%E6%80%A7%E9%80%86%E8%BB%A2%E3%81%AE%E5%8E%9F%E5%89%87)
 
 ### コンパイルタイムとランタイム
@@ -2397,7 +2397,7 @@ class IntlPrinter implements PrinterInterface
 {
     public function __construct(
         #[Message] private string $message
-    ){}
+    ) {}
 
     public function __invoke(string $user): void
     {

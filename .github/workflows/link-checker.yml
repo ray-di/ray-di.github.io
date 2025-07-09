@@ -39,85 +39,7 @@ jobs:
           wget -qO- https://github.com/lycheeverse/lychee/releases/latest/download/lychee-x86_64-unknown-linux-gnu.tar.gz | tar -xzv
           sudo mv lychee /usr/local/bin/
           
-      - name: Create link checker configuration
-        run: |
-          cat > .lycherc.toml << 'EOF'
-          # Lychee configuration for comprehensive link checking
-          
-          # Maximum number of concurrent network requests
-          max_concurrency = 5
-          
-          # Request timeout in seconds
-          timeout = 30
-          
-          # Number of retries for failed requests
-          max_redirects = 10
-          
-          # User agent string
-          user_agent = "Ray.Di Documentation Link Checker / GitHub Actions"
-          
-          # Headers to include in requests
-          headers = [
-            "accept=text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-            "accept-language=en-US,en;q=0.9,ja;q=0.8",
-            "cache-control=no-cache"
-          ]
-          
-          # Exclude patterns
-          exclude = [
-            # Skip localhost and development URLs
-            "http://localhost*",
-            "https://localhost*",
-            "http://127.0.0.1*",
-            "https://127.0.0.1*",
-            "http://0.0.0.0*",
-            "https://0.0.0.0*",
-            
-            # Skip example URLs
-            "http://example.com*",
-            "https://example.com*",
-            "http://example.org*",
-            "https://example.org*",
-            
-            # Skip file:// URLs
-            "file://*",
-            
-            # Skip mailto links
-            "mailto:*",
-            
-            # Skip social media that might have bot protection
-            "https://twitter.com*",
-            "https://x.com*",
-            "https://instagram.com*",
-            "https://facebook.com*",
-            
-            # Skip LinkedIn (often blocks bots)
-            "https://linkedin.com*",
-            "https://www.linkedin.com*",
-            
-            # Skip domains that commonly block automated requests
-            "https://medium.com*",
-            
-            # Skip placeholder/template URLs
-            "https://your-domain.com*",
-            "http://your-domain.com*"
-          ]
-          
-          # Include patterns (if specified, only these will be checked)
-          include = []
-          
-          # Accept certain HTTP status codes as valid
-          accept = [200, 201, 202, 204, 206, 300, 301, 302, 303, 304, 307, 308, 429]
-          
-          # Check links in these file types
-          include_verbatim = true
-          
-          # Output format
-          format = "detailed"
-          
-          # Check local files
-          include_local = true
-          EOF
+      # Use shared lychee configuration file
           
       - name: Check internal links
         run: |
@@ -165,7 +87,9 @@ jobs:
               sudo apt-get update && sudo apt-get install -y jq
               
               # Extract broken links from JSON using jq
-              jq -r '.[] | select(.status != "Ok") | .url' link-check-results/external-links.json | sort | uniq >> link-check-results/broken-links.txt || true
+              jq -r '.links[] | select(.status.status != "Ok") | .url' \
+                link-check-results/external-links.json | sort -u \
+                >> link-check-results/broken-links.txt || true
               
               if [ -s "link-check-results/broken-links.txt" ]; then
                 echo "### Broken Links:" >> link-check-results/report.md
@@ -196,7 +120,7 @@ jobs:
           retention-days: 30
           
       - name: Create issue for broken links
-        if: failure() && github.event_name == 'schedule'
+        if: always() && github.event_name == 'schedule'
         uses: actions/github-script@v7
         with:
           script: |
