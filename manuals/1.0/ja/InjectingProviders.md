@@ -87,7 +87,7 @@ class LogFileTransactionLog implements TransactionLogInterface
         #[Set(Connection::class)] private ProviderInterface $connectionProvider
     ) {}
     
-    public function logChargeResult(ChargeResult $result) {
+    public function logChargeResult(ChargeResult $result): void {
         /* 失敗した時だけをデータベースに書き込み */
         if (! $result->wasSuccessful()) {
             $connection = $this->connectionProvider->get();

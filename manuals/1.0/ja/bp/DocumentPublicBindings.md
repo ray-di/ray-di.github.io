@@ -1,6 +1,6 @@
 ---
 layout: docs-ja
-title: DocumentPublicBindings
+title: 公開束縛のドキュメント化
 category: Manual
 permalink: /manuals/1.0/ja/bp/document_public_bindings.html
 ---

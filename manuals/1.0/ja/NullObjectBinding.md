@@ -1,6 +1,6 @@
 ---
 layout: docs-ja
-title: Null Object Binding
+title: Nullオブジェクト束縛
 category: Manual
 permalink: /manuals/1.0/ja/null_object_binding.html
 ---

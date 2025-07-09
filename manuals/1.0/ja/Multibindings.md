@@ -1,6 +1,6 @@
 ---
 layout: docs-ja
-title: Multibindings
+title: マルチバインディング
 category: Manual
 permalink: /manuals/1.0/ja/multibindings.html
 ---

@@ -4,7 +4,7 @@ title: 束縛
 category: Manual
 permalink: /manuals/1.0/ja/bindings.html
 ---
-# Bindings
+# 束縛
 _Ray.Diにおける束縛の概要_
 
 **束縛**とは、[Ray.Di map](mental_model.html) のエントリに対応するオブジェクトのことです。束縛を作成することで、Ray.Diマップに新しいエントリーを追加できます。
@@ -23,7 +23,7 @@ class TweetModule extends AbstractModule
         $this->bind(TweetClient::class);
         $this->bind(TweeterInterface::class)->to(SmsTweeter::class)->in(Scope::SINGLETON);
         $this->bind(UrlShortenerInterface)->toProvider(TinyUrlShortener::class);
-        $this->bind('')->annotatedWith(Username::class)->toInstance("koriym");
+        $this->bind()->annotatedWith(Username::class)->toInstance("koriym");
     }
 }
 ```

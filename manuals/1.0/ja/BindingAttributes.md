@@ -93,9 +93,9 @@ final class PaymentProcessorInject implements InjectInterface
     }
     
     public function __construct(
-        public readonly bool $optional = true
-        public readonly string $type;
-    ){}
+        public readonly bool $optional = true,
+        public readonly string $type
+    ) {}
 }
 ```
 
@@ -105,7 +105,7 @@ final class PaymentProcessorInject implements InjectInterface
 
 ```php
 #[PaymentProcessorInject(type: 'paypal')]
-public setPaymentProcessor(CreditCardProcessorInterface $processor)
+public function setPaymentProcessor(CreditCardProcessorInterface $processor)
 {
  ....
 }
@@ -131,7 +131,7 @@ Ray.DiはPHP7.xのために [doctrine/annotation](https://github.com/doctrine/an
  * @Paypal('processor')
  */
 public function setCreditCardProcessor(
-    CreditCardProcessorInterface $processor
-    OtherDepedeciyInterface $depedency
-){
+    CreditCardProcessorInterface $processor,
+    OtherDependencyInterface $dependency
+) {
 ```

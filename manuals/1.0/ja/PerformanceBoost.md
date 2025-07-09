@@ -1,6 +1,6 @@
 ---
 layout: docs-ja
-title: Performance boost
+title: パフォーマンス向上
 category: Manual
 permalink: /manuals/1.0/ja/performance_boost.html
 ---

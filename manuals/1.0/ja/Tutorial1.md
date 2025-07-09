@@ -231,7 +231,7 @@ $greeter->sayHello();
 
 ファイル数が増え全体としては複雑になっているように見えますが、個々のスクリプトはこれ以上単純にするのが難しいぐらい単純です。それぞれのクラスはただ１つの責務しか担っていませんし[^srp]、実装ではなく抽象に依存して[^dip]、テストや拡張、それに再利用も容易です。
 
-[^srp]: [単一責任原則 (SRP)](https://ja.wikipedia.org/wiki/SOLID)
+[^srp]: [単一責任原則（SRP）](https://ja.wikipedia.org/wiki/SOLID)
 [^dip]: [依存性逆転の原則 (DIP)](https://ja.wikipedia.org/wiki/%E4%BE%9D%E5%AD%98%E6%80%A7%E9%80%86%E8%BB%A2%E3%81%AE%E5%8E%9F%E5%89%87)
 
 ### コンパイルタイムとランタイム
@@ -360,7 +360,7 @@ class IntlPrinter implements PrinterInterface
 {
     public function __construct(
         #[Message] private string $message
-    ){}
+    ) {}
 
     public function __invoke(string $user): void
     {

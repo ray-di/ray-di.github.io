@@ -21,7 +21,7 @@ interface ProviderInterface
     public function get();
 }
 ```
-プロバイダーはそれ自身でも依存性を持っており、コンストラクターを介して依存性を受け取ります。  
+プロバイダーはそれ自身でも依存性を持っており、コンストラクターを介して依存性を受け取ります。
 以下の例では `ProviderInterface` を実装し、型の安全性が保証された値を返します。
 
 ```php
@@ -32,8 +32,8 @@ use Ray\Di\ProviderInterface;
 class DatabaseTransactionLogProvider implements ProviderInterface
 {
     public function __construct(
-        private readonly ConnectionInterface $connection)
-    ){}
+        private readonly ConnectionInterface $connection
+    ) {}
 
     public function get()
     {
@@ -53,7 +53,7 @@ $this->bind(TransactionLogInterface::class)->toProvider(DatabaseTransactionLogPr
 
 ## インジェクションポイント
 
-`InjectionPoint`オブジェクトは、注入が行われる箇所（インジェクションポイント）のメタ情報を持つクラスです。プロバイダーは、注入箇所のクラス名や変数名などのインジェクションポイントのメタデータを使って依存インスタンスを作成する事ができます。
+`InjectionPoint`オブジェクトは、注入が行われる箇所（インジェクションポイント）のメタ情報を保持するクラスです。プロバイダーは、注入箇所のクラス名や変数名などのインジェクションポイントのメタデータを使って依存インスタンスを作成する事ができます。
 
 ### 例：インスタンス生成にインジェクションポイントのクラス名を使用
 

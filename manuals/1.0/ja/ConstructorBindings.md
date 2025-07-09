@@ -1,6 +1,6 @@
 ---
 layout: docs-ja
-title: Constructor Bindings
+title: コンストラクター束縛
 category: Manual
 permalink: /manuals/1.0/ja/constructor_bindings.html
 ---
@@ -59,9 +59,9 @@ $this->bind($interfaceName)
   ->addOptionalMethod($methodName, $named);
 ```
 
-**postCosntruct**
+**postConstruct**
 
-コンストラクターとセッターメソッドが呼び出され、すべての依存関係が注入された後に`$postCosntruct`メソッドが呼び出されます
+コンストラクターとセッターメソッドが呼び出され、すべての依存関係が注入された後に`$postConstruct`メソッドが呼び出されます
 
 ### PDO Example
 
@@ -91,7 +91,7 @@ $this->bind()->annotatedWith('pdo_username')->toInstance(getenv('db_user'));
 $this->bind()->annotatedWith('pdo_password')->toInstance(getenv('db_password'));
 ```
 
-PDOのコンストラクター引数は`$dsn`, `$username`などstringの値を受け取り、その束縛を区別するために識別子が必要です。しかしPDOはPHP自体のビルトインクラスなのでアトリビュートを加えることができません。
+PDOのコンストラクター引数は`$dsn`、`$username`などstring型の値を受け取り、その束縛を区別するために識別子が必要です。しかしPDOはPHP自体のビルトインクラスなのでアトリビュートを加えることができません。
 
 `toConstructor()`の第2引数の`$name`で識別子(qualifier)を指定します。その識別子に対してあらためて束縛を行います。
-上記の例では`username`という変数に`pdo_username`と言う識別子を与え、`toInstance`で環境変数の値を束縛しています。
+上記の例では`username`という変数に`pdo_username`という識別子を与え、`toInstance`で環境変数の値を束縛しています。

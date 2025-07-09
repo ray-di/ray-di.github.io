@@ -4,7 +4,7 @@ title: はじめに
 category: Manual
 permalink: /manuals/1.0/ja/getting_started.html
 ---
-# GettingStarted
+# はじめに
 
 _Ray.Di.を使ったDIの始め方_
 
@@ -25,7 +25,7 @@ class Foo
     
     public function __construct()
     {
-        // うっ。どうやってテストすればいいんでしょうか？
+        // うっ。どうやってテストすればいいでしょうか？
         // 他のアプリケーションで別のデータベースを使いたい場合はどうすればいいのでしょうか？
         $this->database = new Database('/path/to/my/data');
     }
@@ -38,7 +38,7 @@ class Foo
 
 ```php
 class Foo {
-    private Database $database;  //　仕事を完了させるためにはデータベースが必要
+    private Database $database;  // 仕事を完了させるためにはデータベースが必要
     
     public function __construct(Database $database)
     {
@@ -112,7 +112,7 @@ class MessageProvider implements ProviderInterface
  */
 class DemoModule extends AbstractModule
 {
-    protected function configure(): void
+    protected function configure(): void: void
     {
         $this->bind()->annotatedWith(Count::class)->toProvider(CountProvider::class);
         $this->bind()->annotatedWith(Message::class)->toProvider(MessageProvider::class);
@@ -147,7 +147,7 @@ final class MyWebServer {
     {
         // サーバーを構築するために必要なすべての依存関係を持つインジェクターを作成します。
         $injector = new Injector(new class extends AbstractModule {
-            protected function configure(): void
+            protected function configure(): void: void
             {
                 $this->install(new RequestLoggingModule());
                 $this->install(new RequestHandlerModule());
@@ -208,7 +208,7 @@ class MessageProvider implements ProviderInterface
 
 class DemoModule extends AbstractModule
 {
-    protected function configure()
+    protected function configure(): void
     {
         $this->bind()->annotatedWith(Count::class)->toProvider(CountProvider::class);
         $this->bind()->annotatedWith(Message::class)->toProvider(MessageProvider::class);
