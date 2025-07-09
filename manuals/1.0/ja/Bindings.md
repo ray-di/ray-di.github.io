@@ -22,7 +22,7 @@ class TweetModule extends AbstractModule
     {
         $this->bind(TweetClient::class);
         $this->bind(TweeterInterface::class)->to(SmsTweeter::class)->in(Scope::SINGLETON);
-        $this->bind(UrlShortenerInterface)->toProvider(TinyUrlShortener::class);
+        $this->bind(UrlShortenerInterface::class)->toProvider(TinyUrlShortener::class);
         $this->bind()->annotatedWith(Username::class)->toInstance("koriym");
     }
 }

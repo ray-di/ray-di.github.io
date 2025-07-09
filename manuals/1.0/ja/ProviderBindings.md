@@ -64,7 +64,7 @@ class Psr3LoggerProvider implements ProviderInterface
 {
     public function __construct(
         private InjectionPointInterface $ip
-    ){}
+    ) {}
 
     public function get()
     {

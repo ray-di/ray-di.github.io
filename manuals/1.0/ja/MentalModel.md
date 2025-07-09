@@ -46,7 +46,7 @@ class Message
 {
     public function __construct(
     	  public readonly string $text
-    ){}
+    ) {}
 }
 
 class MultilingualGreeter
@@ -190,7 +190,7 @@ Ray.Diのマップは、Ray.Diモジュールを使って設定されます。**
     {
         public function __construct(
             #[Dsn] private string $dsn
-        ){}
+        ) {}
       
         public function get(): Database
         {

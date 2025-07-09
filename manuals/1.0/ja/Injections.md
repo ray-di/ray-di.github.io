@@ -67,7 +67,7 @@ class HorizontalScaleDbProvider implements ProviderInterface
 {
     public function __construct(
         private readonly MethodInvocationProvider $invocationProvider
-    ){}
+    ) {}
 
     public function get()
     {

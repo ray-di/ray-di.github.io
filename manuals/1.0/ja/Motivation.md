@@ -16,7 +16,7 @@ interface BillingServiceInterface
      *
      * @return Receipt 取引の領収書。チャージが失敗した場合は、理由を説明する断り書きがレシートに記載されます。
      */
-    public function chargeOrder(PizzaOrder order, CreditCard creditCard): Receipt;
+    public function chargeOrder(PizzaOrder $order, CreditCard $creditCard): Receipt;
 }
 ```
 
