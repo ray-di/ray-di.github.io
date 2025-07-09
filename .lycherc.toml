@@ -20,48 +20,10 @@ headers = [
   "cache-control=no-cache"
 ]
 
-# Exclude patterns
-exclude = [
-  # Skip localhost and development URLs
-  "http://localhost*",
-  "https://localhost*",
-  "http://127.0.0.1*",
-  "https://127.0.0.1*",
-  "http://0.0.0.0*",
-  "https://0.0.0.0*",
-  
-  # Skip example URLs
-  "http://example.com*",
-  "https://example.com*",
-  "http://example.org*",
-  "https://example.org*",
-  
-  # Skip file:// URLs
-  "file://*",
-  
-  # Skip mailto links
-  "mailto:*",
-  
-  # Skip social media that might have bot protection
-  "https://twitter.com*",
-  "https://x.com*",
-  "https://instagram.com*",
-  "https://facebook.com*",
-  
-  # Skip LinkedIn (often blocks bots)
-  "https://linkedin.com*",
-  "https://www.linkedin.com*",
-  
-  # Skip domains that commonly block automated requests
-  "https://medium.com*",
-  
-  # Skip placeholder/template URLs
-  "https://your-domain.com*",
-  "http://your-domain.com*"
-]
+# URL patterns are now handled by .lycheeignore file
 
-# Exclude generated files from link checking
-exclude_file = [
+# Exclude files by path patterns
+exclude_path = [
   "*/1page.md",
   "**/1page.md",
   "manuals/1.0/en/1page.md",
