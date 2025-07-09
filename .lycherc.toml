@@ -60,6 +60,14 @@ exclude = [
   "http://your-domain.com*"
 ]
 
+# Exclude generated files from link checking
+exclude_file = [
+  "*/1page.md",
+  "**/1page.md",
+  "manuals/1.0/en/1page.md",
+  "manuals/1.0/ja/1page.md"
+]
+
 # Include patterns (if specified, only these will be checked)
 include = []
 

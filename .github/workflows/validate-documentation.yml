@@ -100,8 +100,8 @@ jobs:
           }
           EOF
           
-          # Check all markdown files for internal links
-          find manuals -name "*.md" -type f | while read file; do
+          # Check all markdown files for internal links (excluding generated files)
+          find manuals -name "*.md" -type f ! -name "1page.md" | while read file; do
             echo "Checking internal links in $file..."
             markdown-link-check "$file" --config .markdown-link-check.json --quiet || {
               echo "❌ Broken internal links found in $file"
@@ -117,8 +117,8 @@ jobs:
           
           # Use shared lychee configuration file
           
-          # Check external links in markdown files
-          lychee --config .lycherc.toml manuals/ llms.txt || {
+          # Check external links in markdown files (excluding generated files)
+          find manuals -name "*.md" -type f ! -name "1page.md" -exec lychee --config .lycherc.toml {} + || {
             echo "❌ Some external links are broken"
             echo "This is a warning - external links may be temporarily unavailable"
             # Don't fail the build for external links

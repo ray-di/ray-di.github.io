@@ -67,12 +67,12 @@ jobs:
           # Create results directory
           mkdir -p link-check-results
           
-          # Check external links with detailed reporting
-          lychee --config .lycherc.toml \
+          # Check external links with detailed reporting (excluding generated files)
+          find manuals -name "*.md" -type f ! -name "1page.md" -exec lychee --config .lycherc.toml \
             --no-progress \
             --format json \
             --output link-check-results/external-links.json \
-            manuals/ llms.txt _site/ || {
+            {} + llms.txt _site/ || {
             echo "❌ Some external links are broken"
             
             # Generate human-readable report
