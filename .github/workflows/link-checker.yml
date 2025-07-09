@@ -72,7 +72,7 @@ jobs:
             --no-progress \
             --format json \
             --output link-check-results/external-links.json \
-            {} + llms.txt _site/ || {
+            {} + || {
             echo "❌ Some external links are broken"
             
             # Generate human-readable report
