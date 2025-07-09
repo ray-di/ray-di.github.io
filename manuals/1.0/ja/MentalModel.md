@@ -45,7 +45,7 @@ $databaseKey = $map[$key];
 class Message
 {
     public function __construct(
-    	  public readonly string $text
+        public readonly string $text
     ) {}
 }
 

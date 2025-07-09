@@ -230,8 +230,8 @@ $greeter->sayHello();
 
 While the number of files may seem to increase in number and overall complexity, the individual scripts are so simple that it is difficult to make them any simpler. Each class has only one responsibility [^srp], relies on abstractions rather than implementations [^dip], and is easy to test, extend, and reuse.
 
-[^srp]: [Single Responsibility Principle (SRP)](https://ja.wikipedia.org/wiki/SOLID)
-[^dip]: [Dependency Inversion Principle (DIP)](https://ja.wikipedia.org/wiki/%E4%BE%9D%E5%AD%98%E6%80%A7%E9%80%86%E8%BB%A2%E3%81%AE%E5%8E%9F%E5%89%87)
+[^srp]: [Single Responsibility Principle (SRP)](https://en.wikipedia.org/wiki/Single_responsibility_principle)
+[^dip]: [Dependency Inversion Principle (DIP)](https://en.wikipedia.org/wiki/Dependency_inversion_principle)
 
 ### Compile Time and Runtime
 
@@ -358,7 +358,7 @@ class IntlPrinter implements PrinterInterface
 {
     public function __construct(
         #[Message] private string $message
-    ){}
+    ) {}
 
     public function __invoke(string $user): void
     {
@@ -466,6 +466,5 @@ At compile time, the relationship building between objects through dependency bi
 
 The responsibility of securing dependencies has been removed from the code, making it loosely coupled and simple. The code is stable yet flexible, open to extensions but closed to modifications. [^ocp]
 
-[^ocp]: [OCP](https://ja.wikipedia.org/wiki/%E9%96%8B%E6%94%BE/%E9%96%89%E9%8E%96%E5%8E%9F%E5%89%87)
-¥
+[^ocp]: [OCP](https://en.wikipedia.org/wiki/Open%E2%80%93closed_principle)
 ---
