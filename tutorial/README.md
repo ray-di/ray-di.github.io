@@ -1,10 +1,3 @@
----
-layout: docs-en
-title: Complete Tutorial
-category: Manual
-permalink: /manuals/1.0/en/tutorial.html
----
-
 # Ray.Di Complete Tutorial: Building a Real-World E-commerce Platform
 
 Welcome to the comprehensive Ray.Di tutorial! This tutorial will guide you through building a real-world e-commerce platform while learning all aspects of dependency injection, design patterns, and aspect-oriented programming with Ray.Di.
