@@ -22,5 +22,5 @@ bundle install
 
 #### Run
 ```
-./bin/servel_local.sh
+./bin/serve_local.sh
 ```

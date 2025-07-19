@@ -35,6 +35,12 @@ ruby bin/merge_md_files.rb
 ```
 This script combines all manual markdown files into single-page versions for both languages.
 
+### Generating Comprehensive AI Documentation
+```bash
+php bin/generate_llms_full.php
+```
+This script generates `llms-full.txt` by expanding linked markdown files from `llms.txt` for comprehensive AI assistant documentation.
+
 ## Site Architecture
 
 ### Directory Structure
@@ -92,6 +98,12 @@ This script combines all manual markdown files into single-page versions for bot
 - URLs follow pattern: `/manuals/1.0/{lang}/{filename}.md` (AI-accessible) and `/manuals/1.0/{lang}/{filename}.html` (human-readable)
 - Supports llms.txt standard for AI assistants to access clean markdown content
 - `llms-full.txt` provides comprehensive framework documentation for AI consumption
+
+### PHP Dependencies
+The project includes Ray.Di framework as a Composer dependency for documentation examples and AI documentation generation:
+```bash
+composer install  # Install Ray.Di framework dependency
+```
 
 ### Manual Build Process
 If building manually without the scripts:
