@@ -51,7 +51,7 @@ class ShopModule extends AbstractModule
         
         // 名前付き束縛
         $this->bind(CacheInterface::class)
-            ->annotatedWith(Named::class, 'user')
+            ->annotatedWith('user')
             ->to(UserCache::class)
             ->in(Singleton::class);
     }
