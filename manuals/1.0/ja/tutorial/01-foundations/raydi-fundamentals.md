@@ -518,11 +518,11 @@ Ray.Diの基礎を理解したので、次に進む準備が整いました。
 
 **基礎を固める:**
 1. **[基本的なバインディング](../02-basic-bindings/linked-binding.html)**: 各バインディングタイプの詳細な使用方法
-2. **[スコープとライフサイクル](../04-scopes-lifecycle/singleton-scope.html)**: オブジェクト管理の詳細
+2. **スコープとライフサイクル**: オブジェクト管理の詳細
 
 **高度な機能を学ぶ:**
-- **[マルチバインディング](../03-advanced-bindings/multibindings.html)**: 複数の実装をセットとして注入
-- **[AOPとインターセプター](../05-aop-interceptors/aspect-oriented-programming.html)**: 横断的関心事の分離
+- **マルチバインディング**: 複数の実装をセットとして注入
+- **AOPとインターセプター**: 横断的関心事の分離
 
 **続きは:** [基本的なバインディング](../02-basic-bindings/linked-binding.html)
 

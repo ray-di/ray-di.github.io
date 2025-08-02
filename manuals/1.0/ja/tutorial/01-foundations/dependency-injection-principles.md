@@ -402,12 +402,12 @@ public function __construct(ServiceInterface $service) {
 ### 学習の進路
 
 **基礎を固める:**
-1. **[SOLID原則の実践](solid-principles.html)**: DIがより良い設計を可能にする方法
+1. **SOLID原則の実践**: DIがより良い設計を可能にする方法
 2. **[Ray.Diの基礎](raydi-fundamentals.html)**: フレームワークの具体的なアプローチ
 
 **さらに深く学ぶ:**
 - **[DIを使ったデザインパターン](/manuals/1.0/ja/tutorial/08-best-practices/design-patterns-with-di.html)**: Factory、Strategy、Observerなどの高度なパターンの実装
-- **[AOPとインターセプター](/manuals/1.0/ja/tutorial/05-aop-interceptors/aspect-oriented-programming.html)**: 横断的関心事の分離
+- **AOPとインターセプター**: 横断的関心事の分離
 
 **続きは:** [SOLID原則の実践](solid-principles.html)
 
