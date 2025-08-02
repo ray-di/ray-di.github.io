@@ -191,6 +191,19 @@ class SeniorDiscountStrategy implements DiscountStrategyInterface
     }
 }
 
+class EmployeeDiscountStrategy implements DiscountStrategyInterface
+{
+    public function applyDiscount(float $amount): float
+    {
+        return $amount * 0.8;
+    }
+    
+    public function canApply(Order $order): bool
+    {
+        return $order->getCustomer()->isEmployee();
+    }
+}
+
 class OrderCalculator
 {
     public function __construct(
