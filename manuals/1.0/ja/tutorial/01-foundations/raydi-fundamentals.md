@@ -22,20 +22,29 @@ permalink: /manuals/1.0/ja/tutorial/01-foundations/raydi-fundamentals.html
 Ray.Diは**Google Guice**にインスパイアされたPHP依存注入フレームワークです。
 
 ### 核心原則
-- **明示的な設定**: 魔法のような自動配線よりも明示的な設定を優先
+- **明示的な束縛**: 推測に頼らず、どの実装を使うかを明確に指定
 - **コンパイル時の安全性**: 実行時ではなく、可能な限り構築時にエラーを検出
-- **パフォーマンス**: 最適化されたコンテナの生成とキャッシュ
+- **高速なパフォーマンス**: 設定がPHPコードにコンパイルされ、実行時のDIオーバーヘッドが実質ゼロ
 - **テスト可能性**: 簡単にモックやスタブを注入可能
 
 ### 他のDIフレームワークとの違い
-```php
-// 従来のDIコンテナ（配列ベース）
-$container['UserRepository'] = function($c) {
-    return new MySQLUserRepository($c['Database']);
-};
 
-// Ray.Di（型安全なバインディング）
+**従来の手続き的な設定:**
+```php
+// 文字列ベースの設定（実行時エラーのリスク）
+$container['UserRepository'] = function($c) {
+    return new MySQLUserRepository($c['Database']); // タイポがあっても気づかない
+};
+```
+
+**Ray.Diの明示的な束縛:**
+```php
+// 型安全な束縛（コンパイル時エラー検出）
 $this->bind(UserRepositoryInterface::class)->to(MySQLUserRepository::class);
+// ↑ IDEが自動補完、タイポを即座に検出
+
+// Ray.Diは設定を最適化されたPHPコードにコンパイル
+// 実行時は高速な直接インスタンス化が行われる
 ```
 
 ## 基本的な使用方法
@@ -213,14 +222,20 @@ class OrderService
 }
 ```
 
-### 3. プロパティインジェクション（避ける）
+### Ray.Diで対応していないインジェクション方法
+
+Ray.Diでは**プロパティインジェクションには対応していません**。これはコンストラクタインジェクションを推奨するRay.Diの設計哲学によるものです。
+
 ```php
+// ❌ Ray.Diでは動作しません
 class OrderService
 {
     #[Inject]
-    public LoggerInterface $logger;
+    public LoggerInterface $logger; // サポートされていない
 }
 ```
+
+他のDIフレームワークでは可能な場合もありますが、Ray.Diでは意図的にサポートしていません。
 
 ## スコープとライフサイクル
 
@@ -238,27 +253,12 @@ $this->bind(DatabaseConnectionInterface::class)
 $this->bind(OrderServiceInterface::class)->to(OrderService::class);
 ```
 
-### カスタムスコープ
-```php
-class RequestScope implements ScopeInterface
-{
-    private static array $instances = [];
-    
-    public function scope(callable $creator): callable
-    {
-        return function() use ($creator) {
-            $key = spl_object_hash($creator);
-            if (!isset(self::$instances[$key])) {
-                self::$instances[$key] = $creator();
-            }
-            return self::$instances[$key];
-        };
-    }
-}
+### スコープの種類
 
-// カスタムスコープの使用
-$this->bind(RequestIdInterface::class)->to(RequestId::class)->in(RequestScope::class);
-```
+Ray.Diでは2つのスコープを提供しています：
+
+- **プロトタイプスコープ（デフォルト）**: 毎回新しいインスタンスを作成
+- **シングルトンスコープ**: アプリケーション全体で同じインスタンスを共有
 
 ## 高度な機能
 
@@ -289,29 +289,7 @@ $module = getenv('APP_ENV') === 'production'
 $injector = new Injector($module);
 ```
 
-### 2. マルチバインディング
-```php
-// 複数の実装をセットとして注入
-$this->bind(EventListenerInterface::class)->to(EmailEventListener::class);
-$this->bind(EventListenerInterface::class)->to(LogEventListener::class);
-$this->bind(EventListenerInterface::class)->to(SlackEventListener::class);
-
-class EventDispatcher
-{
-    public function __construct(
-        private array $listeners // EventListenerInterface[] として注入
-    ) {}
-    
-    public function dispatch(Event $event): void
-    {
-        foreach ($this->listeners as $listener) {
-            $listener->handle($event);
-        }
-    }
-}
-```
-
-### 3. プロバイダーインジェクション
+### 2. プロバイダーインジェクション
 ```php
 class OrderService
 {
@@ -355,22 +333,6 @@ class OrderServiceTest extends PHPUnit\Framework\TestCase
 }
 ```
 
-### 2. 部分的なモック注入
-```php
-class PartialMockModule extends AbstractModule
-{
-    public function __construct(
-        private UserRepositoryInterface $mockUserRepository
-    ) {}
-    
-    protected function configure(): void
-    {
-        $this->bind(UserRepositoryInterface::class)->toInstance($this->mockUserRepository);
-        // 他の依存関係は通常通り
-        $this->bind(EmailServiceInterface::class)->to(SMTPEmailService::class);
-    }
-}
-```
 
 ## 実践的な例：E-commerce注文システム
 
@@ -552,11 +514,17 @@ class OrderService
 
 Ray.Diの基礎を理解したので、次に進む準備が整いました。
 
-1. **基本的なバインディングの詳細学習**: 各バインディングタイプの実践的な使用方法
-2. **高度な機能の探索**: マルチバインディング、AOP
-3. **実世界の例での練習**: 複雑なアプリケーションでの適用方法
+### 学習の進路
 
-**続きは:** [基本的なバインディング](../index.html#part-2-基本的なバインディング)
+**基礎を固める:**
+1. **[基本的なバインディング](../02-basic-bindings/linked-binding.html)**: 各バインディングタイプの詳細な使用方法
+2. **[スコープとライフサイクル](../04-scopes-lifecycle/singleton-scope.html)**: オブジェクト管理の詳細
+
+**高度な機能を学ぶ:**
+- **[マルチバインディング](../03-advanced-bindings/multibindings.html)**: 複数の実装をセットとして注入
+- **[AOPとインターセプター](../05-aop-interceptors/aspect-oriented-programming.html)**: 横断的関心事の分離
+
+**続きは:** [基本的なバインディング](../02-basic-bindings/linked-binding.html)
 
 ## 重要なポイント
 

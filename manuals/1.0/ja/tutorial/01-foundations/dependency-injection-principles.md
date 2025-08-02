@@ -217,70 +217,62 @@ class ProductService
 - 可変状態
 - 依存関係が設定される前に使用される可能性
 
-## DIが可能にするデザインパターン
+## DIで実現される柔軟性
 
-### ファクトリーパターン
+### 実装の切り替えが簡単
 ```php
-interface OrderProcessorFactory
+interface PaymentProcessorInterface
 {
-    public function createProcessor(string $type): OrderProcessorInterface;
+    public function process(Order $order, float $amount): bool;
 }
 
 class OrderService
 {
     public function __construct(
-        private OrderProcessorFactory $processorFactory
+        private PaymentProcessorInterface $paymentProcessor
     ) {}
     
-    public function processOrder(Order $order): void
+    public function checkout(Order $order): void
     {
-        $processor = $this->processorFactory->createProcessor($order->getType());
-        $processor->process($order);
-    }
-}
-```
-
-### ストラテジーパターン
-```php
-interface ShippingStrategy
-{
-    public function calculateCost(Package $package): Money;
-}
-
-class ShippingService
-{
-    public function __construct(
-        private array $strategies // 注入されたストラテジーのセット
-    ) {}
-    
-    public function calculateShipping(Package $package, string $method): Money
-    {
-        return $this->strategies[$method]->calculateCost($package);
-    }
-}
-```
-
-### オブザーバーパターン
-```php
-interface EventDispatcherInterface
-{
-    public function dispatch(EventInterface $event): void;
-}
-
-class OrderService
-{
-    public function __construct(
-        private EventDispatcherInterface $eventDispatcher
-    ) {}
-    
-    public function processOrder(Order $order): void
-    {
-        // 注文を処理...
+        $total = $order->getTotal();
         
-        // オブザーバーに通知
-        $this->eventDispatcher->dispatch(new OrderProcessedEvent($order));
+        if ($this->paymentProcessor->process($order, $total)) {
+            $order->markAsPaid();
+        }
     }
 }
+
+// 使用例：簡単に支払い方法を変更
+$creditCardService = new OrderService(new CreditCardProcessor());
+$paypalService = new OrderService(new PayPalProcessor());
+$bankTransferService = new OrderService(new BankTransferProcessor());
+```
+
+### 複数の実装を組み合わせ
+```php
+class NotificationService
+{
+    public function __construct(
+        private array $notifiers // 複数の通知方法を注入
+    ) {}
+    
+    public function sendOrderConfirmation(Order $order): void
+    {
+        $message = "注文 #{$order->getId()} が確認されました";
+        
+        // 注入された全ての通知方法で送信
+        foreach ($this->notifiers as $notifier) {
+            $notifier->send($order->getCustomerEmail(), $message);
+        }
+    }
+}
+
+// 使用例：メール + SMS + プッシュ通知
+$service = new NotificationService([
+    new EmailNotifier(),
+    new SMSNotifier(),
+    new PushNotifier()
+]);
 ```
 
 ## テストの利点
@@ -329,72 +321,35 @@ class OrderServiceTest extends PHPUnit\Framework\TestCase
 
 ## アーキテクチャの利点
 
-### 階層化アーキテクチャ
-```
-┌─────────────────────┐
-│   プレゼンテーション      │ ← コントローラー、ビュー
-├─────────────────────┤
-│   アプリケーション      │ ← サービス、ユースケース
-├─────────────────────┤
-│   ドメイン           │ ← ビジネスロジック
-├─────────────────────┤
-│   インフラストラクチャ  │ ← データベース、外部API
-└─────────────────────┘
-```
-
-DIが層間のクリーンな分離を可能にします：
+DIにより、コードが層別に整理され、保守しやすくなります：
 
 ```php
-// ドメイン層（純粋なビジネスロジック）
-interface UserRepositoryInterface
-{
-    public function findByEmail(string $email): ?User;
-}
-
-// アプリケーション層（ドメインを協調）
-class AuthenticationService
+// ビジネスロジック（何をするか）
+class UserService
 {
     public function __construct(
-        private UserRepositoryInterface $userRepository,
-        private PasswordHasherInterface $passwordHasher
+        private UserRepositoryInterface $userRepository,  // データ取得の抽象化
+        private EmailServiceInterface $emailService      // 通知の抽象化
     ) {}
+    
+    public function registerUser(string $email, string $password): User
+    {
+        // ビジネスルールに集中できる
+        if ($this->userRepository->findByEmail($email)) {
+            throw new UserAlreadyExistsException();
+        }
+        
+        $user = new User($email, $password);
+        $this->userRepository->save($user);
+        $this->emailService->sendWelcomeEmail($user);
+        
+        return $user;
+    }
 }
 
-// インフラストラクチャ層（技術的詳細）
-class MySQLUserRepository implements UserRepositoryInterface
-{
-    // データベース固有の実装
-}
-```
-
-### ヘキサゴナルアーキテクチャ（ポート・アンド・アダプター）
-```
-     ┌─────────────────┐
-     │   アプリケーション   │
-     │      コア        │
-     └─────────────────┘
-            │   │
-    ┌───────┘   └───────┐
-    │                   │
-┌───▼───┐           ┌───▼───┐
-│ ポート │           │ ポート │
-│  Web  │           │  DB   │
-└───────┘           └───────┘
-```
-
-```php
-// コアアプリケーション
-class OrderService
-{
-    public function __construct(
-        private OrderRepositoryInterface $orderRepository, // ポート
-        private PaymentGatewayInterface $paymentGateway   // ポート
-    ) {}
-}
-
-// アダプター（実装）
-class SQLOrderRepository implements OrderRepositoryInterface {} // アダプター
-class StripePaymentGateway implements PaymentGatewayInterface {} // アダプター
+// 技術的詳細（どうやってするか）は別の場所で実装
+class MySQLUserRepository implements UserRepositoryInterface { /*...*/ }
+class SMTPEmailService implements EmailServiceInterface { /*...*/ }
 ```
 
 ## 主要原則のまとめ
@@ -444,9 +399,15 @@ public function __construct(ServiceInterface $service) {
 
 依存注入の原則を理解したので、次に進む準備が整いました。
 
-1. **SOLID原則の学習**: DIがより良い設計を可能にする方法を見る
-2. **Ray.Diの基礎の探索**: フレームワークのアプローチを理解する
-3. **例での練習**: 適切なDIで構築を開始する
+### 学習の進路
+
+**基礎を固める:**
+1. **[SOLID原則の実践](solid-principles.html)**: DIがより良い設計を可能にする方法
+2. **[Ray.Diの基礎](raydi-fundamentals.html)**: フレームワークの具体的なアプローチ
+
+**さらに深く学ぶ:**
+- **[DIを使ったデザインパターン](/manuals/1.0/ja/tutorial/08-best-practices/design-patterns-with-di.html)**: Factory、Strategy、Observerなどの高度なパターンの実装
+- **[AOPとインターセプター](/manuals/1.0/ja/tutorial/05-aop-interceptors/aspect-oriented-programming.html)**: 横断的関心事の分離
 
 **続きは:** [SOLID原則の実践](solid-principles.html)
 
