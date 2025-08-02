@@ -20,21 +20,110 @@ permalink: /manuals/1.0/ja/tutorial/02-basic-bindings/linked-binding.html
 
 **リンク束縛**（Google Guiceでは**Linked Bindings**として知られる）は、インターフェースや抽象クラスを具象クラスにリンクする最も基本的で重要な束縛方法です。これにより、依存性逆転原則（DIP）を実現し、疎結合なアーキテクチャを構築できます。
 
-### Google Guiceとの関係
 
-Ray.DiはGoogle Guiceにインスパイアされており、リンク束縛は以下のように対応しています：
+## DIの基本原理とオブジェクトグラフ
 
-**Google Guice:**
-```java
-// Linked Binding
-bind(UserRepository.class).to(MySQLUserRepository.class);
-```
+### オブジェクトの生成と注入の仕組み
 
-**Ray.Di:**
+DIの核心は、**オブジェクトが自分の依存関係を作らない**ことです。代わりに、外部（Ray.Di）が依存関係を作成し、プロパティとしてセットします。
+
 ```php
-// リンク束縛（Linked Binding）
-$this->bind(UserRepositoryInterface::class)->to(MySQLUserRepository::class);
+class OrderService
+{
+    // OrderService は UserRepository の存在を「知らない」
+    // Ray.Di が作成したインスタンスがプロパティにセットされる
+    public function __construct(
+        private UserRepositoryInterface $userRepository // ← ここにセットされる
+    ) {}
+    
+    public function createOrder(int $userId): Order
+    {
+        // 何の実装かは知らないが、インターフェース経由で使用
+        $user = $this->userRepository->findById($userId);
+        // ...
+    }
+}
+
+// Ray.Di が内部で実行する処理：
+// 1. MySQLUserRepository のインスタンスを作成
+// 2. OrderService のコンストラクタに渡す  
+// 3. OrderService は注入された具体的な実装を知らない
 ```
+
+### オブジェクトグラフビルダーとしてのRay.Di
+
+Ray.Diは**大きくて複雑なオブジェクトグラフを組み立てるビルダー**として機能します。手動作成との違いは、特に深い依存関係で顕著になります。
+
+#### 手動作成の限界
+```php
+// 深い依存関係を手動で作成（全てを上から渡す必要）
+$pdo = new PDO($dsn, $user, $pass);
+$userRepository = new MySQLUserRepository($pdo);
+$logger = new FileLogger('/var/log/app.log');
+$emailService = new SMTPEmailService($logger);
+$httpClient = new GuzzleHttpClient();
+$paymentGateway = new StripePaymentGateway($httpClient, $logger);
+
+// 最上位のサービスを作るために、全ての依存関係を準備
+$orderService = new OrderService($userRepository, $emailService, $paymentGateway);
+$orderController = new OrderController($orderService, $logger);
+
+// さらに深くなると管理が困難...
+```
+
+#### Ray.Diによる自動組み立て
+```php
+// Ray.Di が深い依存関係も自動で解決
+$injector = new Injector(new AppModule());
+
+// これだけで完全なオブジェクトグラフを構築
+$orderController = $injector->getInstance(OrderController::class);
+
+// 内部で自動実行される組み立て：
+//
+// OrderController
+//     └── OrderService  
+//         ├── UserRepository → MySQLUserRepository → PDO
+//         ├── EmailService → SMTPEmailService → FileLogger
+//         └── PaymentGateway → StripePaymentGateway → HttpClient + FileLogger
+```
+
+### 非環式依存原則（ADP）
+
+Ray.Diは**非環式依存原則**に基づき、依存関係が一方向で循環しないことを保証します。
+
+#### 正しい一方向の依存関係
+```php
+// 健全な依存方向
+OrderService → UserRepositoryInterface → MySQLUserRepository → PDO
+     ↓
+EmailServiceInterface → SMTPEmailService → LoggerInterface
+```
+
+#### 循環依存の禁止
+```php
+// 循環依存（Ray.Diが検出してエラー）
+OrderService → UserService → OrderService  // 循環！
+```
+
+#### 階層構造による分離
+```php
+// 依存関係の方向性
+アプリケーション層 (OrderController)
+    ↓ 知っている
+サービス層 (OrderService)  
+    ↓ 知っている
+リポジトリ層 (MySQLUserRepository)
+    ↓ 知っている  
+インフラ層 (PDO)
+
+// 逆方向は知らない：
+// PDO は MySQLUserRepository を知らない
+// MySQLUserRepository は OrderService を知らない
+// OrderService は OrderController を知らない
+```
+
+この原則により、各オブジェクトは自分より下位の抽象化のみを知り、上位層の存在を知る必要がありません。結果として、**変更に強く、テストしやすい**システムが構築できます。
 
 ### 基本的な使用方法
 
@@ -82,11 +171,7 @@ class MySQLUserRepository implements UserRepositoryInterface
     
     public function save(User $user): void
     {
-        if ($user->getId()) {
-            $this->update($user);
-        } else {
-            $this->insert($user);
-        }
+        // INSERT or UPDATE logic
     }
     
     public function findByEmail(string $email): ?User
@@ -96,18 +181,6 @@ class MySQLUserRepository implements UserRepositoryInterface
         $data = $stmt->fetch(PDO::FETCH_ASSOC);
         
         return $data ? new User($data) : null;
-    }
-    
-    private function insert(User $user): void
-    {
-        $stmt = $this->pdo->prepare('INSERT INTO users (email, name) VALUES (?, ?)');
-        $stmt->execute([$user->getEmail(), $user->getName()]);
-    }
-    
-    private function update(User $user): void
-    {
-        $stmt = $this->pdo->prepare('UPDATE users SET email = ?, name = ? WHERE id = ?');
-        $stmt->execute([$user->getEmail(), $user->getName(), $user->getId()]);
     }
 }
 
@@ -141,203 +214,33 @@ class UserModule extends AbstractModule
 }
 ```
 
-### 2. 複数のインターフェース実装
-
-```php
-// 異なるストレージ実装
-class PostgreSQLUserRepository implements UserRepositoryInterface
-{
-    public function __construct(private PDO $pdo) {}
-    
-    public function findById(int $id): ?User
-    {
-        // PostgreSQL固有の実装
-        $stmt = $this->pdo->prepare('SELECT * FROM users WHERE id = $1');
-        $stmt->execute([$id]);
-        $data = $stmt->fetch(PDO::FETCH_ASSOC);
-        
-        return $data ? new User($data) : null;
-    }
-    
-    public function save(User $user): void
-    {
-        // PostgreSQL固有の実装
-    }
-    
-    public function findByEmail(string $email): ?User
-    {
-        // PostgreSQL固有の実装
-        $stmt = $this->pdo->prepare('SELECT * FROM users WHERE email = $1');
-        $stmt->execute([$email]);
-        $data = $stmt->fetch(PDO::FETCH_ASSOC);
-        
-        return $data ? new User($data) : null;
-    }
-}
-
-class InMemoryUserRepository implements UserRepositoryInterface
-{
-    private array $users = [];
-    private int $nextId = 1;
-    
-    public function findById(int $id): ?User
-    {
-        return $this->users[$id] ?? null;
-    }
-    
-    public function save(User $user): void
-    {
-        if (!$user->getId()) {
-            $user->setId($this->nextId++);
-        }
-        $this->users[$user->getId()] = $user;
-    }
-    
-    public function findByEmail(string $email): ?User
-    {
-        foreach ($this->users as $user) {
-            if ($user->getEmail() === $email) {
-                return $user;
-            }
-        }
-        return null;
-    }
-}
-
-// 環境に応じたバインディング
-class DevelopmentModule extends AbstractModule
-{
-    protected function configure(): void
-    {
-        $this->bind(UserRepositoryInterface::class)->to(InMemoryUserRepository::class);
-    }
-}
-
-class ProductionModule extends AbstractModule
-{
-    protected function configure(): void
-    {
-        $this->bind(UserRepositoryInterface::class)->to(MySQLUserRepository::class);
-    }
-}
-```
 
 ## 抽象クラスから具象クラスへのバインディング
 
-### 1. 抽象クラスの活用
+インターフェースと同様に、抽象クラスも具象クラスにバインドできます：
 
 ```php
 // 抽象クラスの定義
 abstract class PaymentGateway
 {
-    protected array $config;
-    
-    public function __construct(array $config)
-    {
-        $this->config = $config;
-        $this->initialize();
-    }
-    
-    abstract protected function initialize(): void;
-    abstract public function processPayment(float $amount, array $paymentData): PaymentResult;
-    abstract public function refundPayment(string $transactionId): bool;
+    abstract public function processPayment(float $amount): bool;
     
     protected function validateAmount(float $amount): bool
     {
-        return $amount > 0;
-    }
-    
-    protected function logTransaction(string $message): void
-    {
-        // 共通のログ処理
-        error_log("Payment: {$message}");
+        return $amount > 0; // 共通のバリデーション
     }
 }
 
 // 具象クラスの実装
 class StripePaymentGateway extends PaymentGateway
 {
-    private $stripe;
-    
-    protected function initialize(): void
-    {
-        $this->stripe = new \Stripe\StripeClient($this->config['secret_key']);
-    }
-    
-    public function processPayment(float $amount, array $paymentData): PaymentResult
+    public function processPayment(float $amount): bool
     {
         if (!$this->validateAmount($amount)) {
-            throw new InvalidArgumentException('Invalid amount');
-        }
-        
-        try {
-            $charge = $this->stripe->charges->create([
-                'amount' => $amount * 100, // Stripeは cents 単位
-                'currency' => 'usd',
-                'source' => $paymentData['token']
-            ]);
-            
-            $this->logTransaction("Stripe payment processed: {$charge->id}");
-            return new PaymentResult(true, $charge->id);
-        } catch (\Exception $e) {
-            $this->logTransaction("Stripe payment failed: {$e->getMessage()}");
-            return new PaymentResult(false, null, $e->getMessage());
-        }
-    }
-    
-    public function refundPayment(string $transactionId): bool
-    {
-        try {
-            $this->stripe->refunds->create(['charge' => $transactionId]);
-            $this->logTransaction("Stripe refund processed: {$transactionId}");
-            return true;
-        } catch (\Exception $e) {
-            $this->logTransaction("Stripe refund failed: {$e->getMessage()}");
             return false;
         }
-    }
-}
-
-class PayPalPaymentGateway extends PaymentGateway
-{
-    private $paypal;
-    
-    protected function initialize(): void
-    {
-        $this->paypal = new \PayPal\Api\ApiContext(
-            new \PayPal\Auth\OAuthTokenCredential(
-                $this->config['client_id'],
-                $this->config['client_secret']
-            )
-        );
-    }
-    
-    public function processPayment(float $amount, array $paymentData): PaymentResult
-    {
-        if (!$this->validateAmount($amount)) {
-            throw new InvalidArgumentException('Invalid amount');
-        }
-        
-        try {
-            // PayPal固有の実装
-            $this->logTransaction("PayPal payment processed");
-            return new PaymentResult(true, 'paypal_transaction_id');
-        } catch (\Exception $e) {
-            $this->logTransaction("PayPal payment failed: {$e->getMessage()}");
-            return new PaymentResult(false, null, $e->getMessage());
-        }
-    }
-    
-    public function refundPayment(string $transactionId): bool
-    {
-        try {
-            // PayPal固有の実装
-            $this->logTransaction("PayPal refund processed: {$transactionId}");
-            return true;
-        } catch (\Exception $e) {
-            $this->logTransaction("PayPal refund failed: {$e->getMessage()}");
-            return false;
-        }
+        // Stripe固有の処理
+        return true;
     }
 }
 
@@ -443,298 +346,6 @@ class OrderService implements OrderServiceInterface
 }
 ```
 
-## E-commerceプラットフォームでの実践例
-
-### 1. 商品管理システム
-
-```php
-// 商品リポジトリ
-interface ProductRepositoryInterface
-{
-    public function findById(int $id): ?Product;
-    public function findByCategory(string $category): array;
-    public function save(Product $product): void;
-    public function findFeatured(): array;
-    public function search(string $query): array;
-}
-
-class MySQLProductRepository implements ProductRepositoryInterface
-{
-    public function __construct(private PDO $pdo) {}
-    
-    public function findById(int $id): ?Product
-    {
-        $stmt = $this->pdo->prepare('SELECT * FROM products WHERE id = ?');
-        $stmt->execute([$id]);
-        $data = $stmt->fetch(PDO::FETCH_ASSOC);
-        
-        return $data ? new Product($data) : null;
-    }
-    
-    public function findByCategory(string $category): array
-    {
-        $stmt = $this->pdo->prepare('SELECT * FROM products WHERE category = ?');
-        $stmt->execute([$category]);
-        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
-        return array_map(fn($data) => new Product($data), $results);
-    }
-    
-    public function save(Product $product): void
-    {
-        if ($product->getId()) {
-            $this->update($product);
-        } else {
-            $this->insert($product);
-        }
-    }
-    
-    public function findFeatured(): array
-    {
-        $stmt = $this->pdo->prepare('SELECT * FROM products WHERE featured = 1');
-        $stmt->execute();
-        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
-        return array_map(fn($data) => new Product($data), $results);
-    }
-    
-    public function search(string $query): array
-    {
-        $stmt = $this->pdo->prepare('SELECT * FROM products WHERE name LIKE ? OR description LIKE ?');
-        $searchTerm = "%{$query}%";
-        $stmt->execute([$searchTerm, $searchTerm]);
-        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
-        return array_map(fn($data) => new Product($data), $results);
-    }
-    
-    private function insert(Product $product): void
-    {
-        $stmt = $this->pdo->prepare('INSERT INTO products (name, description, price, category) VALUES (?, ?, ?, ?)');
-        $stmt->execute([
-            $product->getName(),
-            $product->getDescription(),
-            $product->getPrice(),
-            $product->getCategory()
-        ]);
-    }
-    
-    private function update(Product $product): void
-    {
-        $stmt = $this->pdo->prepare('UPDATE products SET name = ?, description = ?, price = ?, category = ? WHERE id = ?');
-        $stmt->execute([
-            $product->getName(),
-            $product->getDescription(),
-            $product->getPrice(),
-            $product->getCategory(),
-            $product->getId()
-        ]);
-    }
-}
-
-// 商品サービス
-class ProductService
-{
-    public function __construct(
-        private ProductRepositoryInterface $productRepository,
-        private CacheInterface $cache
-    ) {}
-    
-    public function getProduct(int $id): ?Product
-    {
-        $cacheKey = "product_{$id}";
-        $product = $this->cache->get($cacheKey);
-        
-        if ($product === null) {
-            $product = $this->productRepository->findById($id);
-            if ($product) {
-                $this->cache->set($cacheKey, $product, 3600);
-            }
-        }
-        
-        return $product;
-    }
-    
-    public function getFeaturedProducts(): array
-    {
-        $cacheKey = "featured_products";
-        $products = $this->cache->get($cacheKey);
-        
-        if ($products === null) {
-            $products = $this->productRepository->findFeatured();
-            $this->cache->set($cacheKey, $products, 1800);
-        }
-        
-        return $products;
-    }
-    
-    public function searchProducts(string $query): array
-    {
-        return $this->productRepository->search($query);
-    }
-}
-
-// モジュール
-class ProductModule extends AbstractModule
-{
-    protected function configure(): void
-    {
-        $this->bind(ProductRepositoryInterface::class)->to(MySQLProductRepository::class);
-        $this->bind(CacheInterface::class)->to(RedisCache::class)->in(Singleton::class);
-    }
-}
-```
-
-### 2. 注文管理システム
-
-```php
-// 注文リポジトリ
-interface OrderRepositoryInterface
-{
-    public function findById(int $id): ?Order;
-    public function findByUserId(int $userId): array;
-    public function save(Order $order): void;
-    public function findByStatus(string $status): array;
-}
-
-class MySQLOrderRepository implements OrderRepositoryInterface
-{
-    public function __construct(private PDO $pdo) {}
-    
-    public function findById(int $id): ?Order
-    {
-        $stmt = $this->pdo->prepare('SELECT * FROM orders WHERE id = ?');
-        $stmt->execute([$id]);
-        $data = $stmt->fetch(PDO::FETCH_ASSOC);
-        
-        return $data ? new Order($data) : null;
-    }
-    
-    public function findByUserId(int $userId): array
-    {
-        $stmt = $this->pdo->prepare('SELECT * FROM orders WHERE user_id = ? ORDER BY created_at DESC');
-        $stmt->execute([$userId]);
-        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
-        return array_map(fn($data) => new Order($data), $results);
-    }
-    
-    public function save(Order $order): void
-    {
-        if ($order->getId()) {
-            $this->update($order);
-        } else {
-            $this->insert($order);
-        }
-    }
-    
-    public function findByStatus(string $status): array
-    {
-        $stmt = $this->pdo->prepare('SELECT * FROM orders WHERE status = ?');
-        $stmt->execute([$status]);
-        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
-        return array_map(fn($data) => new Order($data), $results);
-    }
-    
-    private function insert(Order $order): void
-    {
-        $stmt = $this->pdo->prepare('INSERT INTO orders (user_id, total, status) VALUES (?, ?, ?)');
-        $stmt->execute([
-            $order->getUserId(),
-            $order->getTotal(),
-            $order->getStatus()
-        ]);
-    }
-    
-    private function update(Order $order): void
-    {
-        $stmt = $this->pdo->prepare('UPDATE orders SET total = ?, status = ? WHERE id = ?');
-        $stmt->execute([
-            $order->getTotal(),
-            $order->getStatus(),
-            $order->getId()
-        ]);
-    }
-}
-
-// 注文サービス
-class OrderService implements OrderServiceInterface
-{
-    public function __construct(
-        private OrderRepositoryInterface $orderRepository,
-        private UserRepositoryInterface $userRepository,
-        private PaymentGateway $paymentGateway,
-        private EmailServiceInterface $emailService
-    ) {}
-    
-    public function createOrder(int $userId, array $items): Order
-    {
-        $user = $this->userRepository->findById($userId);
-        if (!$user) {
-            throw new UserNotFoundException("User not found: {$userId}");
-        }
-        
-        $order = new Order([
-            'user_id' => $userId,
-            'items' => $items,
-            'total' => $this->calculateTotal($items),
-            'status' => 'pending'
-        ]);
-        
-        $this->orderRepository->save($order);
-        return $order;
-    }
-    
-    public function processPayment(Order $order, array $paymentData): bool
-    {
-        $result = $this->paymentGateway->processPayment($order->getTotal(), $paymentData);
-        
-        if ($result->isSuccess()) {
-            $order->setStatus('paid');
-            $order->setTransactionId($result->getTransactionId());
-            $this->orderRepository->save($order);
-            
-            // 確認メールを送信
-            $user = $this->userRepository->findById($order->getUserId());
-            $this->emailService->sendOrderConfirmation($user, $order);
-            
-            return true;
-        }
-        
-        return false;
-    }
-    
-    private function calculateTotal(array $items): float
-    {
-        $total = 0;
-        foreach ($items as $item) {
-            $total += $item['price'] * $item['quantity'];
-        }
-        return $total;
-    }
-}
-
-// 統合モジュール
-class ECommerceModule extends AbstractModule
-{
-    protected function configure(): void
-    {
-        // リポジトリ
-        $this->bind(UserRepositoryInterface::class)->to(MySQLUserRepository::class);
-        $this->bind(ProductRepositoryInterface::class)->to(MySQLProductRepository::class);
-        $this->bind(OrderRepositoryInterface::class)->to(MySQLOrderRepository::class);
-        
-        // サービス
-        $this->bind(OrderServiceInterface::class)->to(OrderService::class);
-        $this->bind(EmailServiceInterface::class)->to(SMTPEmailService::class);
-        
-        // 決済とキャッシュ（シングルトン）
-        $this->bind(PaymentGateway::class)->to(StripePaymentGateway::class);
-        $this->bind(CacheInterface::class)->to(RedisCache::class)->in(Singleton::class);
-    }
-}
-```
 
 ## ベストプラクティス
 
@@ -749,12 +360,17 @@ interface UserRepositoryInterface
     public function findByEmail(string $email): ?User;
 }
 
-// 悪い：実装の詳細が漏れている
+// 悪い：不必要に複雑
 interface UserRepositoryInterface
 {
-    public function findByIdWithSQLQuery(int $id): ?User;
-    public function saveToMySQLTable(User $user): void;
-    public function findByEmailUsingIndex(string $email): ?User;
+    public function findById(int $id): ?User;
+    public function save(User $user): void;
+    public function findByEmail(string $email): ?User;
+    public function findByIdAndCache(int $id): ?User;
+    public function saveWithTransaction(User $user): void;
+    public function findByEmailAndValidate(string $email): ?User;
+    public function countUsers(): int;
+    public function getLastInsertId(): int;
 }
 ```
 
