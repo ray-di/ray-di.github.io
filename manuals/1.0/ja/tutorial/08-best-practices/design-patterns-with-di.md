@@ -546,6 +546,24 @@ class OrderProcessor
         // 監査ログ
         $this->auditService->logOrderProcessed($order);
     }
+    
+    public function cancel(Order $order): void
+    {
+        // 在庫復元
+        $this->inventoryService->restoreItems($order->getItems());
+        
+        // 返金処理
+        $this->paymentService->refundPayment($order);
+        
+        // 配送キャンセル
+        $this->shippingService->cancelShipping($order);
+        
+        // キャンセル通知
+        $this->emailService->sendCancellationNotification($order);
+        
+        // 監査ログ
+        $this->auditService->logOrderCancelled($order);
+    }
 }
 
 // ファサード
@@ -591,17 +609,8 @@ class OrderFacade
             throw new OrderNotFoundException("Order not found: {$orderId}");
         }
         
-        // 在庫復元
-        $this->inventoryService->restoreItems($order->getItems());
-        
-        // 返金処理
-        $this->paymentService->refundPayment($order);
-        
-        // 配送キャンセル
-        $this->shippingService->cancelShipping($order);
-        
-        // キャンセル通知
-        $this->emailService->sendCancellationNotification($order);
+        // OrderProcessorのcancelメソッドを使用
+        $this->processor->cancel($order);
         
         // 注文更新
         $order->cancel();

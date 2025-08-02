@@ -30,6 +30,9 @@ permalink: /manuals/1.0/ja/tutorial.html
 ### Part 2: 基本的な束縛
 - [リンク束縛](/manuals/1.0/ja/tutorial/02-basic-bindings/linked-binding.html)
 
+### Part 8: ベストプラクティス
+- [DIを使ったデザインパターン](/manuals/1.0/ja/tutorial/08-best-practices/design-patterns-with-di.html)
+
 <!--
 ### 準備中のコンテンツ（Coming Soon）
 
@@ -103,6 +106,7 @@ permalink: /manuals/1.0/ja/tutorial.html
 1. [依存注入の原則](/manuals/1.0/ja/tutorial/01-foundations/dependency-injection-principles.html) - DIの基本概念を理解する
 2. [Ray.Diの基礎](/manuals/1.0/ja/tutorial/01-foundations/raydi-fundamentals.html) - Ray.Diフレームワークの使い方を学ぶ
 3. [リンク束縛](/manuals/1.0/ja/tutorial/02-basic-bindings/linked-binding.html) - 基本的な束縛方法を実践する
+4. [DIを使ったデザインパターン](/manuals/1.0/ja/tutorial/08-best-practices/design-patterns-with-di.html) - 実践的なパターンとベストプラクティス
 
 **注記**: 追加のコンテンツは現在準備中です。完成次第、段階的に公開されます。
 
