@@ -58,6 +58,7 @@ composer require ray/di
 ```php
 <?php
 use Ray\Di\Injector;
+use Ray\Di\AbstractModule;
 
 interface GreetingServiceInterface
 {
@@ -184,6 +185,8 @@ class DatabaseConnectionProvider implements ProviderInterface
 
 ### 4. 注釈付きバインディング
 ```php
+use Ray\Di\Di\Named;
+
 // 同じインターフェースの複数実装を区別
 $this->bind(LoggerInterface::class)->annotatedWith('file')->to(FileLogger::class);
 $this->bind(LoggerInterface::class)->annotatedWith('email')->to(EmailLogger::class);
