@@ -154,17 +154,9 @@ permalink: /manuals/1.0/ja/tutorial.html
 4. **練習する**: パターンを使って独自の例を構築する
 5. **復習する**: 経験を積みながら概念に戻る
 
-## フィードバック
+## リンク
 
-エラーを発見したり、改善提案がある場合は：
-- [GitHubでイシューを開く](https://github.com/ray-di/Ray.Di/issues)
-- [プルリクエストを提出する](https://github.com/ray-di/Ray.Di/pulls)
-
-## 追加リソース
-
-- [Ray.Diドキュメント](/manuals/1.0/ja/)
-- [Ray.Di APIリファレンス](https://github.com/ray-di/Ray.Di)
-- [PHPでの依存注入](https://www.php-di.org/doc/)
+- [Ray.Di GitHub](https://github.com/ray-di/Ray.Di)
 - [PHPでのデザインパターン](https://designpatternsphp.readthedocs.io/)
 
 ---
