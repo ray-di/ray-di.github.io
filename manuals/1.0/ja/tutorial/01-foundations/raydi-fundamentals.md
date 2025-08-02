@@ -85,8 +85,12 @@ class HelloWorld
 }
 
 // DIコンテナの設定
-$injector = new Injector();
-$injector->bind(GreetingServiceInterface::class)->to(EnglishGreetingService::class);
+$injector = new Injector(new class extends AbstractModule {
+    protected function configure(): void
+    {
+        $this->bind(GreetingServiceInterface::class)->to(EnglishGreetingService::class);
+    }
+});
 
 // オブジェクトの取得
 $helloWorld = $injector->getInstance(HelloWorld::class);
