@@ -25,44 +25,53 @@ permalink: /manuals/1.0/ja/tutorial.html
 
 ### Part 1: 基礎
 - [依存注入の原則](/manuals/1.0/ja/tutorial/01-foundations/dependency-injection-principles.html)
-- [SOLID原則の実践](/manuals/1.0/ja/tutorial/01-foundations/solid-principles.html)
 - [Ray.Diの基礎](/manuals/1.0/ja/tutorial/01-foundations/raydi-fundamentals.html)
 
 ### Part 2: 基本的な束縛
-- [インスタンス束縛](/manuals/1.0/ja/tutorial/02-basic-bindings/instance-binding.html)
 - [リンク束縛](/manuals/1.0/ja/tutorial/02-basic-bindings/linked-binding.html)
-- [プロバイダー束縛](/manuals/1.0/ja/tutorial/02-basic-bindings/provider-binding.html)
-- [モジュールの分割と結合](/manuals/1.0/ja/tutorial/02-basic-bindings/module-composition.html)
-- [束縛DSL](/manuals/1.0/ja/tutorial/02-basic-bindings/binding-dsl.html)
 
-### Part 3: 高度な束縛
-- [マルチ束縛](/manuals/1.0/ja/tutorial/03-advanced-bindings/multi-binding.html)
-- [アシスト束縛](/manuals/1.0/ja/tutorial/03-advanced-bindings/assisted-injection.html)
-- [インジェクションポイントの利用](/manuals/1.0/ja/tutorial/03-advanced-bindings/injection-point.html)
+<!--
+### 準備中のコンテンツ（Coming Soon）
 
-### Part 4: スコープとライフサイクル
-- [シングルトンスコープとオブジェクトライフサイクル](/manuals/1.0/ja/tutorial/04-scopes-lifecycle/singleton-scope.html)
-- [プロトタイプスコープとインスタンス管理](/manuals/1.0/ja/tutorial/04-scopes-lifecycle/prototype-scope.html)
+#### Part 1: 基礎（続き）
+- SOLID原則の実践
 
-### Part 5: AOP & インターセプター
-- [アスペクト指向プログラミング](/manuals/1.0/ja/tutorial/05-aop-interceptors/aspect-oriented-programming.html)
-- [横断的関心事](/manuals/1.0/ja/tutorial/05-aop-interceptors/cross-cutting-concerns.html)
-- [メソッドインターセプター](/manuals/1.0/ja/tutorial/05-aop-interceptors/method-interceptors.html)
+#### Part 2: 基本的な束縛（続き）
+- インスタンス束縛
+- プロバイダー束縛
+- モジュールの分割と結合
+- 束縛DSL
 
-### Part 6: 実世界の例
-- [Webアプリケーション アーキテクチャ](/manuals/1.0/ja/tutorial/06-real-world-examples/web-application-architecture.html)
-- [データアクセス層](/manuals/1.0/ja/tutorial/06-real-world-examples/data-access-layer.html)
-- [認証・認可](/manuals/1.0/ja/tutorial/06-real-world-examples/authentication-authorization.html)
-- [ロギング・監査システム](/manuals/1.0/ja/tutorial/06-real-world-examples/logging-audit-system.html)
-### Part 7: テスト戦略
-- [DIを使った単体テスト](/manuals/1.0/ja/tutorial/07-testing-strategies/unit-testing-with-di.html)
-- [依存関係のモッキング](/manuals/1.0/ja/tutorial/07-testing-strategies/dependency-mocking.html)
-- [統合テスト](/manuals/1.0/ja/tutorial/07-testing-strategies/integration-testing.html)
+#### Part 3: 高度な束縛
+- マルチ束縛
+- アシスト束縛
+- インジェクションポイントの利用
 
-### Part 8: ベストプラクティス
-- [DIを使ったデザインパターン](/manuals/1.0/ja/tutorial/08-best-practices/design-patterns-with-di.html)
-- [パフォーマンス考慮事項](/manuals/1.0/ja/tutorial/08-best-practices/performance-considerations.html)
-- [トラブルシューティングガイド](/manuals/1.0/ja/tutorial/08-best-practices/troubleshooting-guide.html)
+#### Part 4: スコープとライフサイクル
+- シングルトンスコープとオブジェクトライフサイクル
+- プロトタイプスコープとインスタンス管理
+
+#### Part 5: AOP & インターセプター
+- アスペクト指向プログラミング
+- 横断的関心事
+- メソッドインターセプター
+
+#### Part 6: 実世界の例
+- Webアプリケーション アーキテクチャ
+- データアクセス層
+- 認証・認可
+- ロギング・監査システム
+
+#### Part 7: テスト戦略
+- DIを使った単体テスト
+- 依存関係のモッキング
+- 統合テスト
+
+#### Part 8: ベストプラクティス
+- DIを使ったデザインパターン
+- パフォーマンス考慮事項
+- トラブルシューティングガイド
+-->
 ## ケーススタディ: E-commerceプラットフォーム
 
 このスタディでは、**"ShopSmart"** というE-commerceプラットフォームを題材に、Ray.Diの実践的な活用方法を学びます。
@@ -84,23 +93,12 @@ permalink: /manuals/1.0/ja/tutorial.html
 
 ## 学習パス
 
-### 初心者向け
-1. [依存注入の原則](/manuals/1.0/ja/tutorial/01-foundations/dependency-injection-principles.html)から始める
-2. [Ray.Diの基礎](/manuals/1.0/ja/tutorial/01-foundations/raydi-fundamentals.html)を学ぶ
-3. [基本的なバインディング](/manuals/1.0/ja/tutorial/02-basic-bindings/instance-binding.html)で練習する
-4. [実世界の例](/manuals/1.0/ja/tutorial/06-real-world-examples/web-application-architecture.html)を探索する
+### 推奨学習パス
+1. [依存注入の原則](/manuals/1.0/ja/tutorial/01-foundations/dependency-injection-principles.html) - DIの基本概念を理解する
+2. [Ray.Diの基礎](/manuals/1.0/ja/tutorial/01-foundations/raydi-fundamentals.html) - Ray.Diフレームワークの使い方を学ぶ
+3. [リンク束縛](/manuals/1.0/ja/tutorial/02-basic-bindings/linked-binding.html) - 基本的な束縛方法を実践する
 
-### 経験豊富な開発者向け
-1. [高度なバインディング](/manuals/1.0/ja/tutorial/03-advanced-bindings/multi-binding.html)にジャンプする
-2. [AOP & インターセプター](/manuals/1.0/ja/tutorial/05-aop-interceptors/aspect-oriented-programming.html)をマスターする
-3. [デザインパターン](/manuals/1.0/ja/tutorial/08-best-practices/design-patterns-with-di.html)を学ぶ
-4. [ベストプラクティス](/manuals/1.0/ja/tutorial/08-best-practices/performance-considerations.html)を確認する
-
-### アーキテクト向け
-1. [SOLID原則](/manuals/1.0/ja/tutorial/01-foundations/solid-principles.html)に焦点を当てる
-2. [スコープとライフサイクル](/manuals/1.0/ja/tutorial/04-scopes-lifecycle/singleton-scope.html)を学ぶ
-3. [Webアプリケーション アーキテクチャ](/manuals/1.0/ja/tutorial/06-real-world-examples/web-application-architecture.html)を調べる
-4. [パフォーマンス考慮事項](/manuals/1.0/ja/tutorial/08-best-practices/performance-considerations.html)を確認する
+**注記**: 追加のコンテンツは現在準備中です。完成次第、段階的に公開されます。
 
 ## 前提条件
 
@@ -111,17 +109,11 @@ permalink: /manuals/1.0/ja/tutorial.html
 
 ## クイックスタート
 
-```bash
-# スタディの例をクローン
-git clone https://github.com/ray-di/tutorial-examples.git
-cd tutorial-examples
+Ray.Diスタディを始めるには：
 
-# 依存関係をインストール
-composer install
-
-# 最初の例を実行
-php examples/01-basics/hello-world.php
-```
+1. [依存注入の原則](/manuals/1.0/ja/tutorial/01-foundations/dependency-injection-principles.html)でDIの基本概念を理解する
+2. [Ray.Diの基礎](/manuals/1.0/ja/tutorial/01-foundations/raydi-fundamentals.html)でフレームワークの使い方を学ぶ
+3. [リンク束縛](/manuals/1.0/ja/tutorial/02-basic-bindings/linked-binding.html)で実践的な束縛方法を試す
 
 ## コード例
 
