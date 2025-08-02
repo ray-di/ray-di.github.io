@@ -91,29 +91,20 @@ permalink: /manuals/1.0/ja/tutorial.html
 - **拡張性**: 適切なスコープ管理とパフォーマンス
 - **拡張可能性**: プラグインアーキテクチャとインターセプター
 
-## 学習パス
+## はじめに
 
-### 推奨学習パス
-1. [依存注入の原則](/manuals/1.0/ja/tutorial/01-foundations/dependency-injection-principles.html) - DIの基本概念を理解する
-2. [Ray.Diの基礎](/manuals/1.0/ja/tutorial/01-foundations/raydi-fundamentals.html) - Ray.Diフレームワークの使い方を学ぶ
-3. [リンク束縛](/manuals/1.0/ja/tutorial/02-basic-bindings/linked-binding.html) - 基本的な束縛方法を実践する
-
-**注記**: 追加のコンテンツは現在準備中です。完成次第、段階的に公開されます。
-
-## 前提条件
-
+### 前提条件
 - PHP 8.1+
 - Composer
 - OOP概念の基本的な理解
 - インターフェースと抽象クラスの知識
 
-## クイックスタート
+### 学習の進め方
+1. [依存注入の原則](/manuals/1.0/ja/tutorial/01-foundations/dependency-injection-principles.html) - DIの基本概念を理解する
+2. [Ray.Diの基礎](/manuals/1.0/ja/tutorial/01-foundations/raydi-fundamentals.html) - Ray.Diフレームワークの使い方を学ぶ
+3. [リンク束縛](/manuals/1.0/ja/tutorial/02-basic-bindings/linked-binding.html) - 基本的な束縛方法を実践する
 
-Ray.Diスタディを始めるには：
-
-1. [依存注入の原則](/manuals/1.0/ja/tutorial/01-foundations/dependency-injection-principles.html)でDIの基本概念を理解する
-2. [Ray.Diの基礎](/manuals/1.0/ja/tutorial/01-foundations/raydi-fundamentals.html)でフレームワークの使い方を学ぶ
-3. [リンク束縛](/manuals/1.0/ja/tutorial/02-basic-bindings/linked-binding.html)で実践的な束縛方法を試す
+**注記**: 追加のコンテンツは現在準備中です。完成次第、段階的に公開されます。
 
 ## コード例
 
