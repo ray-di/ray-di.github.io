@@ -370,8 +370,8 @@ class MySQLUserRepository implements UserRepositoryInterface
 ### ヘキサゴナルアーキテクチャ（ポート・アンド・アダプター）
 ```
      ┌─────────────────┐
-     │   アプリケーション   │
-     │      コア        │
+     │   Application   │
+     │      Core       │
      └─────────────────┘
             │   │
     ┌───────┘   └───────┐

@@ -362,10 +362,10 @@ class MySQLUserRepository implements UserRepositoryInterface
 
 ### Hexagonal Architecture (Ports and Adapters)
 ```
-     ┌─────────────────┐
-     │   Application   │
-     │      Core       │
-     └─────────────────┘
+       ┌─────────────────┐
+       │   Application   │
+       │      Core       │
+       └─────────────────┘
             │   │
     ┌───────┘   └───────┐
     │                   │
