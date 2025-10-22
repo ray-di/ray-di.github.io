@@ -5,729 +5,263 @@ category: Manual
 permalink: /manuals/1.0/ja/tutorial/01-foundations/solid-principles.html
 ---
 
-# SOLID原則の実践
+# SOLID原則の実践：保守可能なコードへの道
 
-## 学習目標
+## 問題：変更が連鎖する脆弱なコード
 
-このセクションの終わりまでに、以下を理解できるようになります：
-- 5つのSOLID原則の定義と意味
-- 各原則が依存注入とどのように関連するか
-- 実践的なコード例での原則の適用方法
-- 違反の兆候と修正方法
-- Ray.DiがSOLID原則の実装をどのように支援するか
+新機能を追加するたびに、予期しない場所でバグが発生していませんか？「支払い方法にPayPalを追加したら、なぜかメール送信が壊れた」という経験はありませんか？これは、コードが密結合し、責任が混在し、抽象化が不適切なときに起こる典型的な症状です。
 
-## SOLID原則の概要
+SOLID原則は、これらの根本的な設計問題を解決するための5つの指針です。抽象的な理論ではなく、日々の開発で直面する具体的な問題への実践的な解答です。依存性注入と組み合わせることで、変更に強く、拡張しやすく、テスト可能なコードを実現します。
 
-SOLID原則は、保守可能で拡張可能なオブジェクト指向ソフトウェアを設計するための5つの基本原則です：
+## 単一責任原則（SRP）- 変更理由を1つに
 
-| 原則 | 名前 | 説明 |
-|------|------|------|
-| **S** | 単一責任原則 | クラスは変更する理由を一つだけ持つべき |
-| **O** | オープン・クローズド原則 | 拡張に対してオープン、変更に対してクローズド |
-| **L** | リスコフの置換原則 | 派生クラスは基底クラスと置換可能でなければならない |
-| **I** | インターフェース分離原則 | 使用しないインターフェースへの依存を強制しない |
-| **D** | 依存性逆転原則 | 抽象に依存し、具象に依存しない |
+ユーザー登録を処理するクラスを考えてみましょう。このクラスがデータベース保存、メール送信、ログ記録をすべて直接処理していたらどうなるでしょうか？
 
-## S - 単一責任原則（SRP）
-
-**「クラスは変更する理由を一つだけ持つべき」**
-
-### 違反例
 ```php
+// ❌ 問題：すべてを自分でやろうとするクラス
 class UserManager
 {
     public function createUser(string $email, string $password): User
     {
-        // ユーザー作成のビジネスロジック
-        if (!$this->isValidEmail($email)) {
-            throw new InvalidEmailException();
-        }
-        
         $user = new User($email, $this->hashPassword($password));
-        
-        // データベースへの保存
+
+        // データベース処理、メール送信、ログ記録が混在
         $pdo = new PDO('mysql:host=localhost;dbname=app', 'user', 'pass');
-        $stmt = $pdo->prepare('INSERT INTO users (email, password) VALUES (?, ?)');
-        $stmt->execute([$user->getEmail(), $user->getPassword()]);
-        
-        // メール送信
+        $stmt = $pdo->prepare('INSERT INTO users...');
+        $stmt->execute([...]);
+
         $mailer = new PHPMailer();
-        $mailer->setFrom('noreply@example.com');
-        $mailer->addAddress($user->getEmail());
-        $mailer->Subject = 'Welcome!';
-        $mailer->Body = 'Welcome to our platform!';
         $mailer->send();
-        
-        // ログ記録
-        error_log("User created: " . $user->getEmail());
-        
+
+        error_log("User created: " . $email);
+
         return $user;
     }
-    
-    private function isValidEmail(string $email): bool { /* ... */ }
-    private function hashPassword(string $password): string { /* ... */ }
 }
 ```
 
-### 修正例（DI使用）
+これは保守性に関する根本的な問題を生み出します。メールサービスをSendGridに変更する際、なぜユーザー作成ロジックに触れる必要があるのでしょうか？データベースをPostgreSQLに変更する際、ビジネスロジックのテストが壊れるべきでしょうか？
+
+単一責任原則は、各クラスに1つの明確な責任を与えることで、この問題を解決します：
+
 ```php
-interface UserRepositoryInterface
-{
-    public function save(User $user): void;
-}
-
-interface EmailServiceInterface
-{
-    public function sendWelcomeEmail(User $user): void;
-}
-
-interface LoggerInterface
-{
-    public function info(string $message): void;
-}
-
+// ✅ 解決：責任を分離し、依存性を注入
 class UserService
 {
     public function __construct(
-        private UserRepositoryInterface $userRepository,
+        private UserRepositoryInterface $repository,
         private EmailServiceInterface $emailService,
         private LoggerInterface $logger
     ) {}
-    
+
     public function createUser(string $email, string $password): User
     {
-        // 単一責任：ユーザー作成のビジネスロジックのみ
-        if (!$this->isValidEmail($email)) {
-            throw new InvalidEmailException();
-        }
-        
         $user = new User($email, $this->hashPassword($password));
-        
-        // 依存関係に委譲
-        $this->userRepository->save($user);
-        $this->emailService->sendWelcomeEmail($user);
-        $this->logger->info("User created: " . $user->getEmail());
-        
+
+        $this->repository->save($user);
+        $this->emailService->sendWelcome($user);
+        $this->logger->info("User created: {$email}");
+
         return $user;
     }
-    
-    private function isValidEmail(string $email): bool { /* ... */ }
-    private function hashPassword(string $password): string { /* ... */ }
 }
 ```
 
-### 利点
-- **保守性**: 各クラスが単一の関心事に集中
-- **テスト可能性**: 小さく、焦点を絞った単体テスト
-- **再利用性**: 専門化されたクラスは他の場所で再利用可能
-- **理解しやすさ**: コードの意図が明確
+なぜこれが重要なのでしょうか？メール送信の実装を変更しても、UserServiceには一切触れません。データベースを変更しても、ビジネスロジックは影響を受けません。各クラスが1つの責任に集中することで、変更の影響範囲が明確になり、予期しないバグを防げます。
 
-## O - オープン・クローズド原則（OCP）
+## オープン・クローズド原則（OCP）- 拡張に開き、変更に閉じる
 
-**「拡張に対してオープン、変更に対してクローズド」**
+ECサイトの割引計算を考えてみましょう。新しい割引タイプを追加するたびに、既存のコードを修正していませんか？
 
-### 違反例
 ```php
+// ❌ 問題：新機能のたびに既存コードを修正
 class OrderCalculator
 {
-    public function calculateTotal(Order $order): float
+    public function calculateDiscount(Order $order): float
     {
-        $total = 0;
-        
-        foreach ($order->getItems() as $item) {
-            $total += $item->getPrice() * $item->getQuantity();
+        switch ($order->getCustomerType()) {
+            case 'student': return $order->getTotal() * 0.1;
+            case 'senior': return $order->getTotal() * 0.15;
+            case 'employee': return $order->getTotal() * 0.2;
+            // 新しい割引タイプのたびにここを修正...
         }
-        
-        // 新しい割引タイプを追加するたびに修正が必要
-        switch ($order->getDiscountType()) {
-            case 'STUDENT':
-                $total *= 0.9; // 10%割引
-                break;
-            case 'SENIOR':
-                $total *= 0.85; // 15%割引
-                break;
-            case 'EMPLOYEE':
-                $total *= 0.8; // 20%割引
-                break;
-                // 新しい割引タイプのために修正が必要
-        }
-        
-        return $total;
     }
 }
 ```
 
-### 修正例（DI使用）
+これは機能追加と既存機能の安定性の間に根本的な緊張関係を生み出します。ブラックフライデー割引を追加したら、なぜか学生割引が壊れた—こんな経験はありませんか？
+
+オープン・クローズド原則は、既存コードを変更せずに新機能を追加できるようにします：
+
 ```php
-interface DiscountStrategyInterface
-{
-    public function applyDiscount(float $amount): float;
-    public function canApply(Order $order): bool;
+// ✅ 解決：Strategyパターンで拡張可能に
+interface DiscountStrategy {
+    public function calculate(Order $order): float;
+    public function supports(string $customerType): bool;
 }
 
-class StudentDiscountStrategy implements DiscountStrategyInterface
-{
-    public function applyDiscount(float $amount): float
-    {
-        return $amount * 0.9;
-    }
-    
-    public function canApply(Order $order): bool
-    {
-        return $order->getCustomer()->isStudent();
-    }
-}
+class OrderCalculator {
+    public function __construct(private array $strategies) {}
 
-class SeniorDiscountStrategy implements DiscountStrategyInterface
-{
-    public function applyDiscount(float $amount): float
-    {
-        return $amount * 0.85;
-    }
-    
-    public function canApply(Order $order): bool
-    {
-        return $order->getCustomer()->isSenior();
-    }
-}
-
-class EmployeeDiscountStrategy implements DiscountStrategyInterface
-{
-    public function applyDiscount(float $amount): float
-    {
-        return $amount * 0.8;
-    }
-    
-    public function canApply(Order $order): bool
-    {
-        return $order->getCustomer()->isEmployee();
-    }
-}
-
-class OrderCalculator
-{
-    public function __construct(
-        private array $discountStrategies // DI で注入
-    ) {}
-    
-    public function calculateTotal(Order $order): float
-    {
-        $total = 0;
-        
-        foreach ($order->getItems() as $item) {
-            $total += $item->getPrice() * $item->getQuantity();
-        }
-        
-        // 新しい割引戦略を追加してもこのコードは変更不要
-        foreach ($this->discountStrategies as $strategy) {
-            if ($strategy->canApply($order)) {
-                $total = $strategy->applyDiscount($total);
-                break;
+    public function calculateDiscount(Order $order): float {
+        foreach ($this->strategies as $strategy) {
+            if ($strategy->supports($order->getCustomerType())) {
+                return $strategy->calculate($order);
             }
         }
-        
-        return $total;
+        return 0;
     }
 }
 ```
 
-### 利点
-- **拡張性**: 新機能を既存コードを修正せずに追加
-- **安定性**: 既存の動作が変更されない
-- **リスク軽減**: 回帰バグの可能性を減らす
+新しい割引タイプ？新しいStrategyクラスを追加するだけです。既存のコードには一切触れません。これにより、既存機能の安定性を保ちながら、新機能を安全に追加できます。
 
-## L - リスコフの置換原則（LSP）
+## リスコフの置換原則（LSP）- 期待通りに動く置換可能性
 
-**「派生クラスは基底クラスと置換可能でなければならない」**
+基底クラスを期待するコードに派生クラスを渡したとき、プログラムが正しく動作しなくなったことはありませんか？「ShapeインターフェースにはgetArea()があるはずなのに、なぜエラーになるんだ」という経験はありませんか？これは派生クラスが基底クラスの契約を守っていないときに起こる典型的な症状です。
 
-### 違反例
 ```php
-interface BirdInterface
+// ✅ 正しいLSP：すべての派生クラスが基底クラスの契約を守る
+abstract class Shape
 {
-    public function fly(): void;
+    abstract public function getArea(): float;
 }
 
-class Sparrow implements BirdInterface
+class Circle extends Shape
 {
-    public function fly(): void
+    public function __construct(private float $radius) {}
+
+    public function getArea(): float
     {
-        echo "Sparrow is flying";
+        return pi() * $this->radius ** 2;
     }
 }
 
-class Penguin implements BirdInterface
-{
-    public function fly(): void
-    {
-        // ペンギンは飛べません
-        throw new Exception("Penguins cannot fly");
-    }
-}
-
-// 違反：すべてのBirdInterface実装が同じように動作しない
-function makeBirdFly(BirdInterface $bird): void
-{
-    $bird->fly(); // Penguinでは例外が発生
-}
-```
-
-### 修正例（DI使用）
-```php
-interface BirdInterface
-{
-    public function eat(): void;
-    public function sleep(): void;
-}
-
-interface FlyableBirdInterface extends BirdInterface
-{
-    public function fly(): void;
-}
-
-interface SwimmableBirdInterface extends BirdInterface
-{
-    public function swim(): void;
-}
-
-class Sparrow implements FlyableBirdInterface
-{
-    public function eat(): void { echo "Sparrow is eating"; }
-    public function sleep(): void { echo "Sparrow is sleeping"; }
-    public function fly(): void { echo "Sparrow is flying"; }
-}
-
-class Penguin implements SwimmableBirdInterface
-{
-    public function eat(): void { echo "Penguin is eating"; }
-    public function sleep(): void { echo "Penguin is sleeping"; }
-    public function swim(): void { echo "Penguin is swimming"; }
-}
-
-class BirdService
+class Rectangle extends Shape
 {
     public function __construct(
-        private array $flyableBirds,
-        private array $swimmableBirds
+        private float $width,
+        private float $height
     ) {}
-    
-    public function makeFlyableBirdsFly(): void
+
+    public function getArea(): float
     {
-        foreach ($this->flyableBirds as $bird) {
-            $bird->fly(); // 安全に飛行可能
-        }
+        return $this->width * $this->height;
     }
-    
-    public function makeSwimmableBirdsSwim(): void
-    {
-        foreach ($this->swimmableBirds as $bird) {
-            $bird->swim(); // 安全に泳げる
-        }
+}
+
+// Shapeを期待するコードはどの派生クラスでも動作する
+function calculateTotalArea(array $shapes): float
+{
+    $total = 0;
+    foreach ($shapes as $shape) {
+        $total += $shape->getArea(); // CircleでもRectangleでも動作
     }
+    return $total;
 }
 ```
 
-### 利点
-- **予測可能性**: 実装の置換が期待通りに動作
-- **信頼性**: 契約に基づく安全な多態性
-- **保守性**: 新しい実装の追加が既存コードを破壊しない
+この例では、`Circle`も`Rectangle`も`Shape`の契約（getArea()メソッドを持つ）を完全に守っています。どちらのクラスも`Shape`として扱えます。
 
-## I - インターフェース分離原則（ISP）
+リスコフの置換原則は、派生クラスが基底クラスの契約を完全に守ることを要求します。契約には、メソッドシグネチャだけでなく、事前条件（メソッドが呼ばれる前提）、事後条件（メソッドが保証する結果）、不変条件（クラスが常に満たす条件）が含まれます。派生クラスは、事前条件を強めてはいけません。事後条件を弱めてはいけません。基底クラスで確立された振る舞いを維持しなければなりません。
 
-**「使用しないインターフェースへの依存を強制しない」**
+なぜこれが重要なのでしょうか？型で約束された振る舞いが確実に守られます。置換してもコードが壊れません。予期しない副作用のない、信頼できるシステムを構築できます。
 
-### 違反例
+## インターフェース分離原則（ISP）- 必要なものだけに依存
+
+CRUDインターフェースを実装するとき、読み取り専用のレポートサービスに削除メソッドの実装を強制されたことはありませんか？使わないメソッドに「throw new Exception("読み取り専用です")」を書く—これは不必要な複雑性という根本的な設計問題を生み出します。
+
 ```php
-interface WorkerInterface
-{
-    public function work(): void;
-    public function eat(): void;
-    public function sleep(): void;
-}
-
-class HumanWorker implements WorkerInterface
-{
-    public function work(): void { echo "Human working"; }
-    public function eat(): void { echo "Human eating"; }
-    public function sleep(): void { echo "Human sleeping"; }
-}
-
-class RobotWorker implements WorkerInterface
-{
-    public function work(): void { echo "Robot working"; }
-    
-    public function eat(): void 
-    {
-        // ロボットは食べません
-        throw new Exception("Robots don't eat");
-    }
-    
-    public function sleep(): void 
-    {
-        // ロボットは寝ません
-        throw new Exception("Robots don't sleep");
-    }
-}
-```
-
-### 修正例（DI使用）
-```php
-interface WorkableInterface
-{
-    public function work(): void;
-}
-
-interface EatableInterface
-{
-    public function eat(): void;
-}
-
-interface SleepableInterface
-{
-    public function sleep(): void;
-}
-
-class HumanWorker implements WorkableInterface, EatableInterface, SleepableInterface
-{
-    public function work(): void { echo "Human working"; }
-    public function eat(): void { echo "Human eating"; }
-    public function sleep(): void { echo "Human sleeping"; }
-}
-
-class RobotWorker implements WorkableInterface
-{
-    public function work(): void { echo "Robot working"; }
-}
-
-class WorkManager
-{
-    public function __construct(
-        private array $workers,
-        private array $eaters,
-        private array $sleepers
-    ) {}
-    
-    public function makeWorkersWork(): void
-    {
-        foreach ($this->workers as $worker) {
-            $worker->work();
-        }
-    }
-    
-    public function makeEatersEat(): void
-    {
-        foreach ($this->eaters as $eater) {
-            $eater->eat();
-        }
-    }
-    
-    public function makeSleepersRest(): void
-    {
-        foreach ($this->sleepers as $sleeper) {
-            $sleeper->sleep();
-        }
-    }
-}
-```
-
-### 利点
-- **柔軟性**: 実装は必要なインターフェースのみに依存
-- **可読性**: インターフェースの意図が明確
-- **実装の簡素化**: 不要なメソッドの実装不要
-
-## D - 依存性逆転原則（DIP）
-
-**「抽象に依存し、具象に依存しない」**
-
-### 違反例
-```php
-class EmailService
-{
-    public function sendEmail(string $to, string $subject, string $body): void
-    {
-        // 具象実装に直接依存
-        $mailer = new PHPMailer();
-        $mailer->setFrom('noreply@example.com');
-        $mailer->addAddress($to);
-        $mailer->Subject = $subject;
-        $mailer->Body = $body;
-        $mailer->send();
-    }
-}
-
-class UserService
-{
-    public function __construct()
-    {
-        // 高レベルモジュールが低レベルモジュールに依存
-        $this->emailService = new EmailService();
-    }
-    
-    public function registerUser(string $email, string $password): void
-    {
-        // ユーザー作成...
-        $this->emailService->sendEmail($email, 'Welcome!', 'Welcome to our platform!');
-    }
-}
-```
-
-### 修正例（DI使用）
-```php
-// 抽象化の定義
-interface EmailServiceInterface
-{
-    public function sendEmail(string $to, string $subject, string $body): void;
-}
-
-interface UserRepositoryInterface
-{
+// ❌ 問題：巨大なインターフェース
+interface UserRepositoryInterface {
+    public function find(int $id): User;
+    public function findAll(): array;
     public function save(User $user): void;
+    public function delete(int $id): void;  // レポートには不要
+    public function update(User $user): void; // 監査ログには不要
 }
 
-// 低レベルモジュール（抽象化に依存）
-class PHPMailerEmailService implements EmailServiceInterface
-{
-    public function sendEmail(string $to, string $subject, string $body): void
-    {
-        $mailer = new PHPMailer();
-        $mailer->setFrom('noreply@example.com');
-        $mailer->addAddress($to);
-        $mailer->Subject = $subject;
-        $mailer->Body = $body;
-        $mailer->send();
-    }
+// ✅ 解決：目的別に分離
+interface UserReaderInterface {
+    public function find(int $id): User;
+    public function findAll(): array;
 }
 
-class SendGridEmailService implements EmailServiceInterface
-{
-    public function sendEmail(string $to, string $subject, string $body): void
-    {
-        // SendGrid API を使用
-        $email = new \SendGrid\Mail\Mail();
-        $email->setFrom('noreply@example.com');
-        $email->addTo($to);
-        $email->setSubject($subject);
-        $email->addContent('text/plain', $body);
-        
-        $sendgrid = new \SendGrid('API_KEY');
-        $sendgrid->send($email);
-    }
+interface UserWriterInterface {
+    public function save(User $user): void;
+    public function update(User $user): void;
+    public function delete(int $id): void;
 }
 
-class MySQLUserRepository implements UserRepositoryInterface
-{
-    public function save(User $user): void
-    {
-        // MySQL実装
-    }
-}
-
-// 高レベルモジュール（抽象化に依存）
-class UserService
-{
-    public function __construct(
-        private UserRepositoryInterface $userRepository,
-        private EmailServiceInterface $emailService
-    ) {}
-    
-    public function registerUser(string $email, string $password): void
-    {
-        $user = new User($email, $password);
-        $this->userRepository->save($user);
-        $this->emailService->sendEmail($email, 'Welcome!', 'Welcome to our platform!');
-    }
+// レポートは読み取りだけ
+class ReportService {
+    public function __construct(private UserReaderInterface $reader) {}
 }
 ```
 
-### 利点
-- **柔軟性**: 実装を簡単に変更可能
-- **テスト可能性**: モック実装を注入可能
-- **拡張性**: 新しい実装を追加しやすい
-- **保守性**: 依存関係の変更が局所化
+この原則は、巨大なインターフェースを目的別の小さなインターフェースに分割します。レポートサービスは`UserReaderInterface`だけを実装し、フルアクセスが必要なサービスは両方のインターフェースを実装できます。
 
-## Ray.DiでのSOLID原則実装
+なぜこれが重要なのでしょうか？各サービスは本当に必要な機能だけに依存します。レポートサービスが誤って削除を呼び出すことはありません。監査ログが間違って更新することもありません。インターフェースが小さいほど、実装も使用も簡単になり、テストも書きやすくなります。
 
-### バインディング設定
+## 依存性逆転原則（DIP）- 抽象に依存する
+
+高レベルのビジネスロジックが低レベルの実装詳細に依存するとき、変更の波及が起こります：
+
 ```php
-use Ray\Di\AbstractModule;
+// ❌ 問題：具象クラスへの直接依存
+class UserService {
+    public function __construct() {
+        $this->mailer = new PHPMailer(); // 具象に依存
+    }
+}
 
+// ✅ 解決：インターフェースへの依存
+class UserService {
+    public function __construct(
+        private EmailServiceInterface $emailService // 抽象に依存
+    ) {}
+}
+```
+
+なぜこれが重要なのでしょうか？PHPMailerからSendGridに変更する際、UserServiceのコードは変更不要です。テスト時にはモック実装を注入できます。環境ごとに異なる実装を使い分けられます。
+
+## Ray.DiでSOLID原則を実現
+
+Ray.Diは、これらの原則を自然に実現するための強力なツールです：
+
+```php
 class AppModule extends AbstractModule
 {
     protected function configure(): void
     {
-        // 依存性逆転原則の実装
-        $this->bind(UserRepositoryInterface::class)->to(MySQLUserRepository::class);
-        $this->bind(EmailServiceInterface::class)->to(PHPMailerEmailService::class);
-        $this->bind(LoggerInterface::class)->to(FileLogger::class);
-        
-        // インターフェース分離の実装
-        $this->bind(WorkableInterface::class)->to(HumanWorker::class);
-        $this->bind(EatableInterface::class)->to(HumanWorker::class);
-        $this->bind(SleepableInterface::class)->to(HumanWorker::class);
-        
-        // オープン・クローズド原則の実装
-        $this->bind()->annotatedWith('discount_strategies')->toInstance([
-            new StudentDiscountStrategy(),
-            new SeniorDiscountStrategy(),
-            new EmployeeDiscountStrategy()
+        // DIP: インターフェースと実装のバインディング
+        $this->bind(EmailServiceInterface::class)
+             ->to(SendGridEmailService::class);
+
+        // OCP: Strategyパターンの設定
+        $this->bind('discount_strategies')->toInstance([
+            new StudentDiscount(),
+            new SeniorDiscount(),
+            // 新しい割引戦略を追加してもコード変更なし
         ]);
     }
 }
 ```
 
-### 環境固有のモジュール
-```php
-// 開発環境用モジュール
-class DevelopmentModule extends AbstractModule
-{
-    protected function configure(): void
-    {
-        $this->bind(EmailServiceInterface::class)->to(MockEmailService::class);
-    }
-}
+## なぜSOLID原則が重要なのか
 
-// 本番環境用モジュール
-class ProductionModule extends AbstractModule
-{
-    protected function configure(): void
-    {
-        $this->bind(EmailServiceInterface::class)->to(SendGridEmailService::class);
-    }
-}
+SOLID原則に従ったコードは、変更に対して予測可能に振る舞います。新機能を追加しても既存機能が壊れません。バグ修正が新たなバグを生みません。テストが書きやすく、保守が容易になります。
 
-// アプリケーションの起動時に適切なモジュールを選択
-$module = getenv('APP_ENV') === 'production' 
-    ? new ProductionModule() 
-    : new DevelopmentModule();
-$injector = new Injector($module);
-```
+これは理想論ではありません。実際のプロジェクトで、リリース前夜に「この変更が他に影響しないか」と不安になった経験はありませんか？SOLID原則は、その不安を設計レベルで解消します。各部品が明確な責任を持ち、適切に分離され、安全に置換可能なとき、変更は局所的で予測可能になります。
 
-## SOLID原則のテスト
+## 実践のポイント
 
-### 単体テスト例
-```php
-class UserServiceTest extends PHPUnit\Framework\TestCase
-{
-    public function testRegisterUser(): void
-    {
-        // 依存性逆転原則により、モックを簡単に注入
-        $userRepository = $this->createMock(UserRepositoryInterface::class);
-        $emailService = $this->createMock(EmailServiceInterface::class);
-        
-        $userRepository->expects($this->once())->method('save');
-        $emailService->expects($this->once())->method('sendEmail');
-        
-        $userService = new UserService($userRepository, $emailService);
-        $userService->registerUser('test@example.com', 'password');
-    }
-}
-```
+SOLID原則は教条的なルールではなく、より良い設計への指針です。すべてを完璧に適用する必要はありません。プロジェクトの規模、チームのスキル、納期を考慮して、適切なバランスを見つけることが重要です。
 
-## 違反の兆候と修正
-
-### SRP違反の兆候
-- クラスが長すぎる（>200行）
-- 多くのimport文
-- 複数のpublic メソッド群
-- 「and」や「or」で説明されるクラス
-
-### OCP違反の兆候
-- 新機能のたびにswitch文を修正
-- 既存のメソッドを頻繁に変更
-- 条件文が複雑で長い
-
-### LSP違反の兆候
-- 派生クラスで例外を投げる
-- 事前条件の強化
-- 事後条件の緩和
-
-### ISP違反の兆候
-- 実装で例外を投げる空のメソッド
-- 使用しないメソッドの実装
-- 巨大なインターフェース
-
-### DIP違反の兆候
-- new演算子の直接使用
-- 具象クラスのtype hint
-- 設定の硬直化
-
-## 実践的な修正ガイド
-
-### 1. 段階的リファクタリング
-```php
-// ステップ1: インターフェースを抽出
-interface PaymentProcessorInterface
-{
-    public function processPayment(float $amount): bool;
-}
-
-// ステップ2: 既存クラスがインターフェースを実装
-class StripePaymentProcessor implements PaymentProcessorInterface
-{
-    // 既存のコード
-}
-
-// ステップ3: 依存注入を導入
-class OrderService
-{
-    public function __construct(
-        private PaymentProcessorInterface $paymentProcessor
-    ) {}
-}
-
-// ステップ4: DIコンテナで設定
-$this->bind(PaymentProcessorInterface::class)->to(StripePaymentProcessor::class);
-```
-
-### 2. レガシーコードの改善
-```php
-// 既存のレガシーコード
-class LegacyOrderService
-{
-    public function processOrder(Order $order): void
-    {
-        // 複雑な処理...
-    }
-}
-
-// SOLID原則を適用したリファクタリング
-class OrderService
-{
-    public function __construct(
-        private OrderValidatorInterface $validator,
-        private PaymentProcessorInterface $paymentProcessor,
-        private InventoryServiceInterface $inventoryService,
-        private NotificationServiceInterface $notificationService
-    ) {}
-    
-    public function processOrder(Order $order): void
-    {
-        $this->validator->validate($order);
-        $this->paymentProcessor->processPayment($order->getTotal());
-        $this->inventoryService->updateInventory($order->getItems());
-        $this->notificationService->sendOrderConfirmation($order);
-    }
-}
-```
-
-## 次のステップ
-
-SOLID原則を理解したので、次に進む準備が整いました。
-
-1. **Ray.Diの基礎の学習**: フレームワークの具体的な使用方法を学ぶ
-2. **実践的な例の探索**: 原則を実際のコードで適用する方法を見る
-3. **デザインパターンの習得**: SOLID原則を使ったパターンの実装
-
-**続きは:** [Ray.Diの基礎](raydi-fundamentals.html)
-
-## 重要なポイント
-
-- **SOLID原則**は保守可能なコードの基盤
-- **依存注入**はSOLID原則を実装するための強力な手段
-- **Ray.Di**は原則の実装を簡素化し、自動化する
-- **段階的リファクタリング**により既存コードを改善できる
-- **テスト可能性**はSOLID原則の自然な結果
-- **設計の判断**は原則を柔軟に適用することが重要
+小さく始めましょう。まず依存性逆転原則から始めて、具象クラスへの直接依存を減らします。次に単一責任原則を適用して、肥大化したクラスを分割します。段階的に改善することで、無理なくSOLID原則を実践できます。
 
 ---
 
-SOLID原則は厳格なルールではなく、より良い設計を導くガイドラインです。コンテキストに応じて適切に適用する必要があります。
+**次へ：** [Ray.Diの基礎](raydi-fundamentals.html) - フレームワークの実践的な使用
+
+**前へ：** [依存性注入の原則](dependency-injection-principles.html)
