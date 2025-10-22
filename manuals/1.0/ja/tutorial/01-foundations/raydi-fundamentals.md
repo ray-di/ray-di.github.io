@@ -5,56 +5,95 @@ category: Manual
 permalink: /manuals/1.0/ja/tutorial/01-foundations/raydi-fundamentals.html
 ---
 
-# Ray.Diの基礎
+# Ray.Diの基礎：Google Guiceの思想をPHPへ
 
-## 学習目標
+## なぜRay.Diなのか
 
-このセクションの終わりまでに、以下を理解できるようになります：
-- Ray.Diの哲学と設計原則
-- 基本的なDIコンテナの使用方法
-- モジュールとバインディングの作成
-- インジェクションの種類と使用場面
-- スコープとオブジェクトライフサイクル
-- 実践的な例での使用方法
+「DIコンテナは設定が複雑で学習コストが高い」という声をよく聞きます。確かに、多くのPHP DIフレームワークは、配列やYAMLでの設定、文字列ベースのサービス定義、実行時まで分からないエラーなど、開発者を悩ませる要素があります。
 
-## Ray.Diの哲学
+Ray.DiはGoogle Guiceの設計哲学をPHPに持ち込み、これらの問題を根本から解決します。型安全性、明示的な設定、コンパイル時の最適化により、大規模アプリケーションでも安心して使えるDIフレームワークを実現しています。
 
-Ray.Diは**Google Guice**にインスパイアされたPHP依存注入フレームワークです。
+## 他のDIフレームワークとの根本的な違い
 
-### 核心原則
-- **明示的な束縛**: 推測に頼らず、どの実装を使うかを明確に指定
-- **コンパイル時の安全性**: 実行時ではなく、可能な限り構築時にエラーを検出
-- **高速なパフォーマンス**: 設定がPHPコードにコンパイルされ、実行時のDIオーバーヘッドが実質ゼロ
-- **テスト可能性**: 簡単にモックやスタブを注入可能
+### サービスロケーターパターンの問題
 
-### 他のDIフレームワークとの違い
+多くのPHP DIコンテナは、実はサービスロケーターパターンの実装です。設定を配列やクロージャで記述し、文字列キーでサービスを取得します：
 
-**従来の手続き的な設定:**
 ```php
-// 文字列ベースの設定（実行時エラーのリスク）
-$container['UserRepository'] = function($c) {
-    return new MySQLUserRepository($c['Database']); // タイポがあっても気づかない
+// 従来のDIコンテナ（Pimpleなど）
+$container['database'] = function($c) {
+    return new PDO($c['db.dsn'], $c['db.user'], $c['db.pass']);
 };
+
+$container['user.repository'] = function($c) {
+    return new UserRepository($c['database']); // 文字列でのアクセス
+};
+
+// 問題：'database'のタイポは実行時まで検出されない
+// 問題：IDEの支援が受けられない
+// 問題：リファクタリングが困難
 ```
 
-**Ray.Diの明示的な束縛:**
+このアプローチには根本的な問題があります。依存関係が文字列で表現されるため、IDEの自動補完が効きません。タイプミスは実行時エラーになります。クラス名を変更してもDI設定は自動で更新されません。
+
+### Ray.Diの宣言的アプローチ
+
+Ray.Diは、Javaの世界で実績のあるGoogle Guiceの思想を採用しています。依存関係をルールとして宣言し、フレームワークが自動的に依存グラフを構築します：
+
 ```php
-// 型安全な束縛（コンパイル時エラー検出）
-$this->bind(UserRepositoryInterface::class)->to(MySQLUserRepository::class);
-// ↑ IDEが自動補完、タイポを即座に検出
+// Ray.Diの宣言的な設定
+class AppModule extends AbstractModule
+{
+    protected function configure(): void
+    {
+        // インターフェースと実装の関係を宣言
+        $this->bind(DatabaseInterface::class)
+             ->to(MySQLDatabase::class)
+             ->in(Singleton::class);
 
-// Ray.Diは設定を最適化されたPHPコードにコンパイル
-// 実行時は高速な直接インスタンス化が行われる
+        $this->bind(UserRepositoryInterface::class)
+             ->to(UserRepository::class);
+    }
+}
+
+// 型安全：IDEが完全サポート、リファクタリング対応
+// 明示的：何がどう結合されるか一目瞭然
+// 検証可能：設定ミスは即座に検出
 ```
 
-## 基本的な使用方法
+この違いは単なる記法の違いではありません。Ray.Diでは、依存関係が型として表現されるため、PHPの型システムとIDEの機能をフルに活用できます。設定ミスはコンパイル時（より正確には、DIコンテナ構築時）に検出されます。
 
-### 1. インストール
+### 実行時の最適化
+
+さらに重要な違いは、Ray.Diが設定を最適化されたPHPコードにコンパイルすることです。他のDIコンテナが実行時に依存解決を行うのに対し、Ray.Diは事前にすべての依存関係を解決し、最適なインスタンス生成コードを生成します：
+
+```php
+// Ray.Diが生成する最適化されたコード（概念的な例）
+class UserService_RayAop
+{
+    public function __construct()
+    {
+        $this->db = new MySQLDatabase('localhost', 'user', 'pass');
+        $this->repository = new UserRepository($this->db);
+        $this->logger = new FileLogger('/var/log/app.log');
+    }
+}
+```
+
+これにより、実行時のオーバーヘッドが実質ゼロになります。アプリケーションは、手動で依存関係を配線した場合と同等の速度で動作します。
+
+## 基本概念：最初の一歩
+
+Ray.Diを理解するには、まず簡単な例から始めましょう。インストールは他のComposerパッケージと同様です：
+
 ```bash
 composer require ray/di
 ```
 
-### 2. 最初の例
+### 依存性注入の基本パターン
+
+挨拶メッセージを生成する簡単なアプリケーションを考えてみましょう。言語によって異なる挨拶を返す必要があります：
+
 ```php
 <?php
 use Ray\Di\Injector;
@@ -78,14 +117,21 @@ class HelloWorld
     public function __construct(
         private GreetingServiceInterface $greetingService
     ) {}
-    
+
     public function sayHello(string $name): string
     {
         return $this->greetingService->greet($name);
     }
 }
+```
 
-// DIコンテナの設定
+ここで重要なのは、`HelloWorld`クラスが`EnglishGreetingService`に直接依存していないことです。インターフェースに依存することで、実装を自由に差し替えられます。
+
+### モジュールによる設定
+
+Ray.Diの設定は「モジュール」という単位で行います。モジュールは、インターフェースと実装の関係を定義する場所です：
+
+```php
 $injector = new Injector(new class extends AbstractModule {
     protected function configure(): void
     {
@@ -93,50 +139,29 @@ $injector = new Injector(new class extends AbstractModule {
     }
 });
 
-// オブジェクトの取得
 $helloWorld = $injector->getInstance(HelloWorld::class);
-echo $helloWorld->sayHello('World'); // "Hello, World"
+echo $helloWorld->sayHello('World'); // "Hello, World!"
 ```
 
-## モジュールシステム
+この設定により、「`GreetingServiceInterface`を要求されたら`EnglishGreetingService`を提供する」というルールが確立されます。日本語の挨拶に変更したければ、モジュールの設定を変更するだけです。ビジネスロジックには一切触れません。
 
-### AbstractModuleの使用
-```php
-use Ray\Di\AbstractModule;
+## モジュール設計の実践
 
-class AppModule extends AbstractModule
-{
-    protected function configure(): void
-    {
-        // 基本的なバインディング
-        $this->bind(GreetingServiceInterface::class)->to(EnglishGreetingService::class);
-        $this->bind(UserRepositoryInterface::class)->to(MySQLUserRepository::class);
-        $this->bind(EmailServiceInterface::class)->to(SMTPEmailService::class);
-    }
-}
+実際のアプリケーションでは、設定が増えてきます。Ray.Diのモジュールシステムは、この複雑性を管理するための強力な仕組みを提供します。
 
-// モジュールの使用
-$injector = new Injector(new AppModule());
-```
+モジュールは関心事ごとに分割できます。データベース関連の設定、メール送信の設定、ビジネスロジックの設定を別々のモジュールに分けることで、各モジュールが単一の責任を持つようになります：
 
-### 複数モジュールの組み合わせ
 ```php
 class DatabaseModule extends AbstractModule
 {
     protected function configure(): void
     {
-        $this->bind(DatabaseConnectionInterface::class)->to(MySQLConnection::class);
-        $this->bind(UserRepositoryInterface::class)->to(MySQLUserRepository::class);
-        $this->bind(ProductRepositoryInterface::class)->to(MySQLProductRepository::class);
-    }
-}
+        $this->bind(DatabaseConnectionInterface::class)
+             ->to(MySQLConnection::class)
+             ->in(Singleton::class);
 
-class EmailModule extends AbstractModule
-{
-    protected function configure(): void
-    {
-        $this->bind(EmailServiceInterface::class)->to(SMTPEmailService::class);
-        $this->bind(EmailTemplateInterface::class)->to(TwigEmailTemplate::class);
+        $this->bind(UserRepositoryInterface::class)
+             ->to(MySQLUserRepository::class);
     }
 }
 
@@ -146,52 +171,32 @@ class AppModule extends AbstractModule
     {
         $this->install(new DatabaseModule());
         $this->install(new EmailModule());
-        
-        // アプリケーション固有のバインディング
         $this->bind(OrderServiceInterface::class)->to(OrderService::class);
     }
 }
 ```
 
-## バインディングの種類
+`install()`メソッドにより、モジュールを組み合わせて使用できます。これは単なる設定の分割ではありません。各モジュールが独立してテスト可能になり、異なるプロジェクト間で再利用できるようになります。
 
-### 1. 基本的なバインディング
-```php
-// インターフェースから実装への基本的なバインディング
-$this->bind(UserRepositoryInterface::class)->to(MySQLUserRepository::class);
-```
+## バインディングパターンの活用
 
-### 2. インスタンスバインディング
+Ray.Diは様々なバインディングパターンを提供し、それぞれが特定の問題を解決します。
+
+最も基本的なパターンは、インターフェースを実装にバインドすることです。しかし、実際のアプリケーションでは、より複雑なニーズが発生します。設定値を注入したい場合はインスタンスバインディングを使用します。オブジェクトの生成に複雑なロジックが必要な場合はプロバイダーを使用します。
+
 ```php
-// 特定のインスタンスをバインド
+// 設定値のインスタンスバインディング
 $config = new AppConfig(['database' => 'mysql://localhost/myapp']);
 $this->bind(AppConfig::class)->toInstance($config);
+
+// 複雑な初期化が必要な場合のプロバイダー
+$this->bind(DatabaseConnectionInterface::class)
+     ->toProvider(DatabaseConnectionProvider::class);
 ```
 
-### 3. プロバイダーバインディング
+特に強力なのが注釈付きバインディングです。同じインターフェースに対して複数の実装が必要な場合、`@Named`アトリビュートで区別できます：
+
 ```php
-// 複雑な作成ロジックにプロバイダーを使用
-$this->bind(DatabaseConnectionInterface::class)->toProvider(DatabaseConnectionProvider::class);
-
-class DatabaseConnectionProvider implements ProviderInterface
-{
-    public function get(): DatabaseConnectionInterface
-    {
-        $config = $_ENV['DATABASE_URL'] ?? 'sqlite::memory:';
-        return new DatabaseConnection($config);
-    }
-}
-```
-
-### 4. 注釈付きバインディング
-```php
-use Ray\Di\Di\Named;
-
-// 同じインターフェースの複数実装を区別
-$this->bind(LoggerInterface::class)->annotatedWith('file')->to(FileLogger::class);
-$this->bind(LoggerInterface::class)->annotatedWith('email')->to(EmailLogger::class);
-
-// 使用側
 class OrderService
 {
     public function __construct(
@@ -201,122 +206,59 @@ class OrderService
 }
 ```
 
-## インジェクションの種類
+この機能により、「ファイルログ」と「メールログ」という異なる目的のロガーを明確に区別できます。文字列ベースのサービスロケーターとは異なり、型安全性は維持されます。
 
-### 1. コンストラクタインジェクション（推奨）
+## インジェクション方式の選択
+
+Ray.Diは主にコンストラクタインジェクションを推奨しています。これには明確な理由があります。コンストラクタインジェクションは、オブジェクトが生成された時点ですべての依存関係が満たされることを保証します。不完全な状態のオブジェクトが存在することがありません。
+
 ```php
 class OrderService
 {
     public function __construct(
         private UserRepositoryInterface $userRepository,
-        private PaymentServiceInterface $paymentService,
-        private LoggerInterface $logger
+        private PaymentServiceInterface $paymentService
     ) {}
 }
 ```
 
-### 2. メソッドインジェクション
-```php
-class OrderService
-{
-    private LoggerInterface $logger;
-    
-    #[Inject]
-    public function setLogger(LoggerInterface $logger): void
-    {
-        $this->logger = $logger;
-    }
-}
-```
+メソッドインジェクションは、オプショナルな依存関係や循環依存を解決する場合に使用できます。しかし、Ray.Diではプロパティインジェクションを意図的にサポートしていません。これは、プロパティインジェクションがカプセル化を破壊し、オブジェクトの不完全な状態を許容してしまうためです。
 
-### Ray.Diで対応していないインジェクション方法
+## オブジェクトのライフサイクル管理
 
-Ray.Diでは**プロパティインジェクションには対応していません**。これはコンストラクタインジェクションを推奨するRay.Diの設計哲学によるものです。
+オブジェクトをいつ作成し、どのくらいの期間保持するかは、アプリケーションのパフォーマンスとメモリ使用量に大きく影響します。Ray.Diは2つのスコープを提供します。
+
+デフォルトのプロトタイプスコープでは、依存関係が要求されるたびに新しいインスタンスが作成されます。これは状態を持たないサービスやリクエストごとに異なる状態を持つ必要があるオブジェクトに適しています。
+
+一方、シングルトンスコープは、アプリケーション全体で1つのインスタンスを共有します：
 
 ```php
-// ❌ Ray.Diでは動作しません
-class OrderService
-{
-    #[Inject]
-    public LoggerInterface $logger; // サポートされていない
-}
-```
-
-他のDIフレームワークでは可能な場合もありますが、Ray.Diでは意図的にサポートしていません。
-
-## スコープとライフサイクル
-
-### シングルトンスコープ
-```php
-// 常に同じインスタンスを返す
 $this->bind(DatabaseConnectionInterface::class)
     ->to(MySQLConnection::class)
     ->in(Singleton::class);
 ```
 
-### プロトタイプスコープ（デフォルト）
+データベース接続やログ記録器など、作成コストが高く、状態を共有しても安全なオブジェクトにはシングルトンスコープが適しています。ただし、シングルトンは慎重に使用する必要があります。グローバル状態を作り出し、テストを困難にする可能性があるためです。
+
+## 環境に応じた設定の切り替え
+
+実際のアプリケーションでは、開発環境と本番環境で異なる設定が必要です。開発環境ではメモリキャッシュを使い、本番環境ではRedisを使う。開発環境ではメールを実際に送信せず、本番環境では実際に送信する。Ray.Diはこれらの要求をエレガントに解決します。
+
+環境ごとに異なるモジュールを作成し、起動時に適切なモジュールを選択するだけです：
+
 ```php
-// 毎回新しいインスタンスを作成
-$this->bind(OrderServiceInterface::class)->to(OrderService::class);
-```
-
-### スコープの種類
-
-Ray.Diでは2つのスコープを提供しています：
-
-- **プロトタイプスコープ（デフォルト）**: 毎回新しいインスタンスを作成
-- **シングルトンスコープ**: アプリケーション全体で同じインスタンスを共有
-
-## 高度な機能
-
-### 1. 環境固有のモジュール
-```php
-// 開発環境用モジュール
-class DevelopmentModule extends AbstractModule
-{
-    protected function configure(): void
-    {
-        $this->bind(CacheInterface::class)->to(ArrayCache::class);
-    }
-}
-
-// 本番環境用モジュール
-class ProductionModule extends AbstractModule
-{
-    protected function configure(): void
-    {
-        $this->bind(CacheInterface::class)->to(RedisCache::class);
-    }
-}
-
-// アプリケーションの起動時に適切なモジュールを選択
-$module = getenv('APP_ENV') === 'production' 
-    ? new ProductionModule() 
+$module = getenv('APP_ENV') === 'production'
+    ? new ProductionModule()
     : new DevelopmentModule();
 $injector = new Injector($module);
 ```
 
-### 2. プロバイダーインジェクション
-```php
-class OrderService
-{
-    public function __construct(
-        private ProviderInterface $userRepositoryProvider
-    ) {}
-    
-    public function processOrder(Order $order): void
-    {
-        // 必要なときだけインスタンスを作成
-        $userRepository = $this->userRepositoryProvider->get();
-        $user = $userRepository->findById($order->getUserId());
-        // ...
-    }
-}
-```
+この方法により、環境固有の設定がコード全体に散らばることを防げます。すべての環境差異が明確にモジュールとして表現されます。
 
-## テストでの使用
+## テスト戦略
 
-### 1. テスト用モジュール
+依存性注入の最大の利点の一つは、テストの容易さです。Ray.Diを使えば、本番用の複雑な依存関係を、テスト用の軽量な実装に簡単に置き換えられます。
+
 ```php
 class TestModule extends AbstractModule
 {
@@ -324,224 +266,75 @@ class TestModule extends AbstractModule
     {
         $this->bind(UserRepositoryInterface::class)->to(InMemoryUserRepository::class);
         $this->bind(EmailServiceInterface::class)->to(MockEmailService::class);
-        $this->bind(LoggerInterface::class)->to(NullLogger::class);
-    }
-}
-
-class OrderServiceTest extends PHPUnit\Framework\TestCase
-{
-    public function testProcessOrder(): void
-    {
-        $injector = new Injector(new TestModule());
-        $orderService = $injector->getInstance(OrderService::class);
-        
-        // テストの実行...
     }
 }
 ```
 
+テストでは、このTestModuleを使用してインジェクターを構築します。データベース接続なし、外部APIなし、副作用なし。純粋にビジネスロジックのテストに集中できます。
 
-## 実践的な例：E-commerce注文システム
 
-### ドメインモデル
+## 実践例：すべてを統合する
+
+ここまでの概念を統合した実践的な例を見てみましょう。注文処理サービスを構築します：
+
 ```php
-class Order
+class OrderService
 {
     public function __construct(
-        private int $id,
-        private int $userId,
-        private array $items,
-        private float $total
-    ) {}
-    
-    // getters...
-}
-
-class OrderItem
-{
-    public function __construct(
-        private int $productId,
-        private int $quantity,
-        private float $price
-    ) {}
-    
-    // getters...
-}
-```
-
-### サービス層
-```php
-interface OrderServiceInterface
-{
-    public function processOrder(Order $order): void;
-}
-
-class OrderService implements OrderServiceInterface
-{
-    public function __construct(
-        private UserRepositoryInterface $userRepository,
         private PaymentServiceInterface $paymentService,
-        private InventoryServiceInterface $inventoryService,
         private EmailServiceInterface $emailService,
-        private LoggerInterface $logger
+        #[Named('audit')] private LoggerInterface $logger
     ) {}
-    
+
     public function processOrder(Order $order): void
     {
-        $this->logger->info("Processing order: {$order->getId()}");
-        
-        // ユーザー検証
-        $user = $this->userRepository->findById($order->getUserId());
-        if (!$user) {
-            throw new UserNotFoundException();
-        }
-        
-        // 在庫確認
-        foreach ($order->getItems() as $item) {
-            if (!$this->inventoryService->isAvailable($item->getProductId(), $item->getQuantity())) {
-                throw new InsufficientInventoryException();
-            }
-        }
-        
-        // 支払い処理
-        $this->paymentService->processPayment($order->getTotal());
-        
-        // 在庫更新
-        $this->inventoryService->updateInventory($order->getItems());
-        
-        // 確認メール送信
-        $this->emailService->sendOrderConfirmation($user, $order);
-        
-        $this->logger->info("Order processed successfully: {$order->getId()}");
+        $this->logger->info("Processing order: {$order->id}");
+        $this->paymentService->charge($order->total);
+        $this->emailService->sendConfirmation($order);
     }
 }
-```
 
-### DIモジュール設定
-```php
-class EcommerceModule extends AbstractModule
+class AppModule extends AbstractModule
 {
     protected function configure(): void
     {
-        // リポジトリ層
-        $this->bind(UserRepositoryInterface::class)->to(MySQLUserRepository::class);
-        $this->bind(ProductRepositoryInterface::class)->to(MySQLProductRepository::class);
-        
-        // サービス層
-        $this->bind(OrderServiceInterface::class)->to(OrderService::class);
-        $this->bind(PaymentServiceInterface::class)->to(StripePaymentService::class);
-        $this->bind(InventoryServiceInterface::class)->to(InventoryService::class);
-        $this->bind(EmailServiceInterface::class)->to(SMTPEmailService::class);
-        
-        // インフラストラクチャ
-        $this->bind(LoggerInterface::class)->to(FileLogger::class)->in(Singleton::class);
-        $this->bind(DatabaseConnectionInterface::class)->to(MySQLConnection::class)->in(Singleton::class);
+        // 環境に応じた支払いサービス
+        $paymentImpl = $_ENV['APP_ENV'] === 'production'
+            ? StripePaymentService::class
+            : MockPaymentService::class;
+
+        $this->bind(PaymentServiceInterface::class)->to($paymentImpl);
+        $this->bind(EmailServiceInterface::class)->to(SendGridEmailService::class);
+        $this->bind(LoggerInterface::class)
+             ->annotatedWith('audit')
+             ->to(FileLogger::class)
+             ->in(Singleton::class);
     }
 }
 ```
 
-### 使用例
-```php
-// アプリケーション起動
-$injector = new Injector(new EcommerceModule());
+この例は、Ray.Diの主要な機能を示しています。インターフェースへの依存により、支払いサービスを環境に応じて切り替えています。名前付きバインディングで監査用ログを区別しています。シングルトンスコープでログインスタンスを共有しています。
 
-// Webコントローラー
-class OrderController
-{
-    public function __construct(
-        private OrderServiceInterface $orderService
-    ) {}
-    
-    public function processOrder(Request $request): Response
-    {
-        $order = new Order(
-            $request->get('id'),
-            $request->get('user_id'),
-            $request->get('items'),
-            $request->get('total')
-        );
-        
-        try {
-            $this->orderService->processOrder($order);
-            return new Response('Order processed successfully', 200);
-        } catch (Exception $e) {
-            return new Response('Order processing failed: ' . $e->getMessage(), 400);
-        }
-    }
-}
+## 設計のベストプラクティス
 
-// DIコンテナから取得
-$orderController = $injector->getInstance(OrderController::class);
-```
+Ray.Diを効果的に使うには、いくつかの重要な原則があります。
 
-## ベストプラクティス
+まず、常にインターフェースに対してプログラムすることです。具象クラスを直接バインドすると、テストが困難になり、実装の切り替えができなくなります。インターフェースを使うことで、実装の詳細から使用側を解放できます。
 
-### 1. モジュールの設計
-```php
-// 良い：関心事ごとにモジュールを分離
-class DatabaseModule extends AbstractModule { /* ... */ }
-class EmailModule extends AbstractModule { /* ... */ }
-class LoggingModule extends AbstractModule { /* ... */ }
+次に、モジュールを適切な粒度で分割することです。すべてを1つの巨大なモジュールに入れるのではなく、関心事ごとにモジュールを分けます。データベース設定、メール設定、ビジネスロジックの設定を別々のモジュールにすることで、各モジュールが単一の責任を持つようになります。
 
-// 悪い：すべてを一つのモジュールに
-class GiantModule extends AbstractModule { /* ... */ }
-```
+最後に、依存関係を最小限に保つことです。クラスが必要とする依存関係だけを注入します。「念のため」という理由で不要な依存関係を追加すると、テストが複雑になり、コードの理解が困難になります。
 
-### 2. インターフェースの使用
-```php
-// 良い：インターフェースを使用
-$this->bind(UserRepositoryInterface::class)->to(MySQLUserRepository::class);
+## まとめ
 
-// 悪い：具象クラスを直接バインド
-$this->bind(MySQLUserRepository::class)->to(MySQLUserRepository::class);
-```
+Ray.DiはGoogle Guiceの設計哲学をPHPに持ち込み、型安全で明示的な依存性注入を実現します。文字列ベースのサービスロケーターとは異なり、IDEの完全なサポートを受けられ、設定ミスは実行前に検出されます。
 
-### 3. 依存関係の最小化
-```php
-// 良い：必要最小限の依存関係
-class OrderService
-{
-    public function __construct(
-        private PaymentServiceInterface $paymentService
-    ) {}
-}
+設定を最適化されたPHPコードにコンパイルすることで、実行時のオーバーヘッドを実質ゼロにします。環境ごとの設定切り替え、テスト用のモック注入、複雑な初期化ロジックの管理など、実際のアプリケーション開発に必要な機能をすべて備えています。
 
-// 悪い：不要な依存関係
-class OrderService
-{
-    public function __construct(
-        private PaymentServiceInterface $paymentService,
-        private DatabaseConnectionInterface $db, // 直接使用しない
-        private ConfigInterface $config // 直接使用しない
-    ) {}
-}
-```
-
-## 次のステップ
-
-Ray.Diの基礎を理解したので、次に進む準備が整いました。
-
-### 学習の進路
-
-**基礎を固める:**
-1. **[基本的なバインディング](../02-basic-bindings/linked-binding.html)**: 各バインディングタイプの詳細な使用方法
-2. **スコープとライフサイクル**: オブジェクト管理の詳細
-
-**高度な機能を学ぶ:**
-- **マルチバインディング**: 複数の実装をセットとして注入
-- **AOPとインターセプター**: 横断的関心事の分離
-
-**続きは:** [基本的なバインディング](../02-basic-bindings/linked-binding.html)
-
-## 重要なポイント
-
-- **Ray.Di**は明示的な設定を重視する
-- **モジュールシステム**により設定を整理し、再利用可能にする
-- **バインディングDSL**は型安全で表現力豊か
-- **スコープ**によりオブジェクトライフサイクルを制御
-- **テスト**では専用のモジュールを使用
-- **SOLID原則**がRay.Diの使用を導く
+この明示性と型安全性こそが、大規模なアプリケーションでも保守性とテスト可能性を保証する鍵となります。
 
 ---
 
-Ray.Diは設定が複雑に見えるかもしれませんが、この明示性こそが大規模アプリケーションでの保守性とテスト可能性を保証します。
+**次へ：** [基本的なバインディング](../02-basic-bindings/linked-binding.html)
+
+**前へ：** [SOLID原則の実践](solid-principles.html)
