@@ -178,135 +178,6 @@ Adapterパターンの目的は、**複雑さをクライアントから隠蔽�
 
 なぜこれが重要なのでしょうか？StripeからPayPalに切り替える際、OrderServiceには一切触れません。新しい`PayPalAdapter`を作成し、バインディングを変更するだけです。テスト時は`MockPaymentGateway`を注入します。外部APIの変更は、Adapterクラス内に隔離されます。それぞれの変更に明確な場所があるのです。
 
-## 複数のAdapterの実例
-
-### メール送信サービス
-
-```php
-// Target
-interface EmailServiceInterface
-{
-    public function send(EmailMessage $message): void;
-}
-
-// Adapter for SendGrid (Adaptee: \SendGrid)
-class SendGridAdapter implements EmailServiceInterface
-{
-    public function __construct(private \SendGrid $client) {}
-
-    public function send(EmailMessage $message): void
-    {
-        // SendGrid固有のAPI呼び出しに変換
-        $email = new \SendGrid\Mail\Mail();
-        $email->setFrom($message->getFrom());
-        $email->setSubject($message->getSubject());
-        $email->addTo($message->getTo());
-        $email->addContent("text/html", $message->getHtmlBody());
-
-        $this->client->send($email);
-    }
-}
-
-// Adapter for AWS SES (Adaptee: \Aws\Ses\SesClient)
-class SesAdapter implements EmailServiceInterface
-{
-    public function __construct(private \Aws\Ses\SesClient $client) {}
-
-    public function send(EmailMessage $message): void
-    {
-        // AWS SES固有のAPI呼び出しに変換
-        $this->client->sendEmail([
-            'Source' => $message->getFrom(),
-            'Destination' => ['ToAddresses' => [$message->getTo()]],
-            'Message' => [
-                'Subject' => ['Data' => $message->getSubject()],
-                'Body' => ['Html' => ['Data' => $message->getHtmlBody()]]
-            ]
-        ]);
-    }
-}
-```
-
-同じ`EmailServiceInterface`（Target）を実装することで、SendGridとAWS SESという異なるサービス（Adaptee）を透過的に切り替えられます。クライアントコードは変更不要です。
-
-### ファイルストレージ
-
-```php
-// Target
-interface FileStorageInterface
-{
-    public function store(string $path, string $contents): void;
-    public function retrieve(string $path): string;
-    public function delete(string $path): void;
-}
-
-// Adapter for AWS S3
-class S3Adapter implements FileStorageInterface
-{
-    public function __construct(private \Aws\S3\S3Client $client) {}
-
-    public function store(string $path, string $contents): void
-    {
-        // S3固有の複雑なパラメータに変換
-        $this->client->putObject([
-            'Bucket' => $_ENV['S3_BUCKET'],
-            'Key' => $path,
-            'Body' => $contents,
-            'ACL' => 'private',
-            'ServerSideEncryption' => 'AES256'
-        ]);
-    }
-
-    public function retrieve(string $path): string
-    {
-        $result = $this->client->getObject([
-            'Bucket' => $_ENV['S3_BUCKET'],
-            'Key' => $path
-        ]);
-
-        return $result['Body']->getContents();
-    }
-
-    public function delete(string $path): void
-    {
-        $this->client->deleteObject([
-            'Bucket' => $_ENV['S3_BUCKET'],
-            'Key' => $path
-        ]);
-    }
-}
-
-// Adapter for Local File System
-class LocalFileAdapter implements FileStorageInterface
-{
-    public function __construct(private string $basePath) {}
-
-    public function store(string $path, string $contents): void
-    {
-        $fullPath = $this->basePath . '/' . $path;
-        $directory = dirname($fullPath);
-
-        if (!is_dir($directory)) {
-            mkdir($directory, 0755, true);
-        }
-
-        file_put_contents($fullPath, $contents);
-    }
-
-    public function retrieve(string $path): string
-    {
-        return file_get_contents($this->basePath . '/' . $path);
-    }
-
-    public function delete(string $path): void
-    {
-        unlink($this->basePath . '/' . $path);
-    }
-}
-```
-
-`LocalFileAdapter`は、開発環境やテスト環境で実際のクラウドストレージを使わずにすむため、特に有用です。Adapterパターンにより、環境に応じた実装の切り替えが容易になります。
-
 ## Adapterパターンをいつ使うか
 
 外部サービスやサードパーティAPIを統合する際にAdapterパターンを使用します。これには決済ゲートウェイ、メールサービス、クラウドストレージ、SNS投稿、地図サービスなど、アプリケーションが制御できない外部システムが含まれます。
@@ -355,62 +226,7 @@ Adapterは**実際の変換作業が必要な場合にのみ**作成します。
 
 ## RepositoryパターンもAdapterの一種
 
-実は、Repositoryパターンは特殊なAdapterパターンと見なすことができます：
-
-```php
-// Target - アプリケーションが期待するコレクション的インターフェイス
-interface OrderRepositoryInterface
-{
-    public function findById(int $id): ?Order;
-    public function save(Order $order): void;
-}
-
-// Adapter - データベースAPIをドメインモデルに適合
-class MySQLOrderRepository implements OrderRepositoryInterface
-{
-    public function __construct(private PDO $pdo) {} // Adaptee
-
-    public function findById(int $id): ?Order
-    {
-        // PDO API（外部）の複雑さをカプセル化
-        $stmt = $this->pdo->prepare('SELECT * FROM orders WHERE id = ?');
-        $stmt->execute([$id]);
-        $data = $stmt->fetch();
-
-        // データベースの行をドメインモデルに変換
-        return $data ? $this->hydrate($data) : null;
-    }
-
-    public function save(Order $order): void
-    {
-        // ドメインモデルをデータベースAPIに適合
-        if ($order->getId() === null) {
-            $this->insert($order);
-        } else {
-            $this->update($order);
-        }
-    }
-
-    private function hydrate(array $data): Order
-    {
-        // 配列からオブジェクトへの複雑な変換をカプセル化
-        return new Order(
-            id: $data['id'],
-            customerId: $data['customer_id'],
-            total: Money::fromMinorUnits($data['total']),
-            status: OrderStatus::from($data['status'])
-        );
-    }
-}
-```
-
-Repositoryは次のように外部システム（データベース）をアプリケーションのドメインモデルに適合させます：
-
-- **Target**: `OrderRepositoryInterface` - コレクション的な抽象
-- **Adapter**: `MySQLOrderRepository` - データベースとドメインを橋渡し
-- **Adaptee**: `PDO`, `Eloquent`, `Doctrine` - データベースAPI
-
-この観点から、Repositoryを理解すると、Adapterパターンの威力がより明確になります。Repositoryは「データベースをオブジェクトコレクションのように見せる」Adapterなのです。
+実は、Repositoryパターンは特殊なAdapterパターンと見なすことができます。**Target**（コレクション的なインターフェイス）、**Adapter**（MySQLRepositoryなど）、**Adaptee**（PDO、Eloquentなど）という構造で、データベースAPIをドメインモデルに適合させます。Repositoryは「データベースをオブジェクトコレクションのように見せる」Adapterなのです。この観点から理解すると、Adapterパターンの威力がより明確になります。
 
 ## SOLID原則
 
@@ -422,31 +238,9 @@ Adapterパターンは**単一責任原則**を実施します。外部APIの統
 
 ## テスト
 
-Adapterはテストを劇的に簡素化します。Adapterなしでは、OrderServiceのテストに実際のStripe APIキーが必要になり、テストごとに実際の請求が発生し、ネットワークの問題でテストが失敗する可能性があります。外部サービスのダウンタイムでCI/CDパイプライン全体が停止します。
+Adapterはテストを劇的に簡素化します。Adapterなしでは、OrderServiceのテストに実際のStripe APIキーが必要になり、ネットワークの問題でテストが失敗し、外部サービスのダウンタイムでCI/CDパイプライン全体が停止します。
 
-Adapterを使用すれば、`PaymentGatewayInterface`をモックするだけです。テスト用の`FakePaymentGateway`を作成し、成功や失敗を簡単にシミュレートできます：
-
-```php
-class FakePaymentGateway implements PaymentGatewayInterface
-{
-    private bool $shouldSucceed = true;
-
-    public function charge(Money $amount, PaymentToken $token): PaymentResult
-    {
-        if ($this->shouldSucceed) {
-            return new PaymentResult('fake-txn-123', true);
-        }
-        return new PaymentResult('', false, 'Card declined');
-    }
-
-    public function simulateFailure(): void
-    {
-        $this->shouldSucceed = false;
-    }
-}
-```
-
-Adapter自体も独立してテストできます。Stripe SDKをモックし、Adapterが正しく変換することを確認します。テスト対象は外部APIの複雑さからドメインインターフェイスの簡潔さへと縮小します。
+Adapterを使用すれば、`PaymentGatewayInterface`をモックするだけです。テスト用の`FakePaymentGateway`を作成し、成功や失敗を簡単にシミュレートできます。Adapter自体も独立してテストできます。テスト対象は外部APIの複雑さからドメインインターフェイスの簡潔さへと縮小します。
 
 ## 重要なポイント
 
