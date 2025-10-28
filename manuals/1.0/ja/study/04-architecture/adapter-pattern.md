@@ -140,11 +140,11 @@ class OrderService
             $order->getPaymentToken()
         );
 
-        if ($result->successful) {
-            $order->markAsPaid($result->transactionId);
-        } else {
+        if (!$result->successful) {
             throw new PaymentFailedException($result->errorMessage);
         }
+
+        $order->markAsPaid($result->transactionId);
 
         $this->orderRepository->save($order);
     }
