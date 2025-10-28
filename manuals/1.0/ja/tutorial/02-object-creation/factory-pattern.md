@@ -2,7 +2,7 @@
 layout: docs-ja
 title: Factory Pattern
 category: Manual
-permalink: /manuals/1.0/ja/tutorial/factory-pattern.html
+permalink: /manuals/1.0/ja/tutorial/02-object-creation/factory-pattern.html
 ---
 # Factoryパターン：実行時パラメータと依存性注入の融合
 
@@ -155,4 +155,4 @@ Factoryパターンは実行時パラメータと依存性注入の間のギャ�
 
 **次へ：** [Provider Pattern](provider-pattern.html) - 初期化が複雑な場合
 
-**前へ：** [SOLID原則の実践](../01-foundations/solid-principles.html)
+**前へ：** [Ray.Diの基礎](../01-foundations/raydi-fundamentals.html)

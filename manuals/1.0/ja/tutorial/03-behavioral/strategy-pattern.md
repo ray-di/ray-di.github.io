@@ -2,7 +2,7 @@
 layout: docs-ja
 title: Strategyパターン
 category: Manual
-permalink: /manuals/1.0/ja/tutorial/strategy-pattern.html
+permalink: /manuals/1.0/ja/tutorial/03-behavioral/strategy-pattern.html
 ---
 # 依存性注入によるStrategyパターン
 
@@ -160,4 +160,4 @@ Strategyパターンは条件分岐をポリモーフィズムに置き換えま
 
 **次へ：** [Decoratorパターン & AOP](decorator-aop.html) - 横断的関心事の分離
 
-**前へ：** [Providerパターン](../provider-pattern.html)
+**前へ：** [Providerパターン](../02-object-creation/provider-pattern.html)

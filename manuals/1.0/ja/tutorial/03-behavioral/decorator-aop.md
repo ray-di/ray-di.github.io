@@ -2,7 +2,7 @@
 layout: docs-ja
 title: Decoratorパターン & AOP
 category: Manual
-permalink: /manuals/1.0/ja/tutorial/decorator-aop.html
+permalink: /manuals/1.0/ja/tutorial/03-behavioral/decorator-aop.html
 ---
 # 依存性注入によるDecoratorパターンとAOP
 
@@ -196,6 +196,6 @@ Decoratorパターンはオブジェクトを変更せずに動作を追加す�
 
 ---
 
-**次へ：** [Repositoryパターン](../repository-pattern.html) - データアクセスの分離
+**次へ：** [Repositoryパターン](../04-architecture/repository-pattern.html) - データアクセスの分離
 
 **前へ：** [Strategyパターン](strategy-pattern.html)

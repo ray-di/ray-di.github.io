@@ -33,25 +33,25 @@ permalink: /manuals/1.0/ja/tutorial.html
 **問題:** 肥大化したコンストラクタ、実行時パラメータの扱い
 **学習内容:** オブジェクト生成責任を分離する判断基準
 
-- [Factoryパターン](tutorial/factory-pattern.html) - 使用時期: 実行時パラメータが必要な場合
-- [Providerパターン](tutorial/provider-pattern.html) - 使用時期: 複雑な初期化が必要な場合
+- [Factoryパターン](tutorial/02-object-creation/factory-pattern.html) - 使用時期: 実行時パラメータが必要な場合
+- [Providerパターン](tutorial/02-object-creation/provider-pattern.html) - 使用時期: 複雑な初期化が必要な場合
 
 ### Part 3: 振る舞いパターン
 
 **問題:** 条件分岐の増殖、横断的関心事の散在
 **学習内容:** 振る舞いを切り替え可能にし、関心事を分離する方法
 
-- [Strategyパターン](tutorial/strategy-pattern.html) - 使用時期: 実行時にアルゴリズムを切り替える場合
-- [Decoratorパターン & AOP](tutorial/decorator-aop.html) - 使用時期: ログ、トランザクションなどを分離する場合
+- [Strategyパターン](tutorial/03-behavioral/strategy-pattern.html) - 使用時期: 実行時にアルゴリズムを切り替える場合
+- [Decoratorパターン & AOP](tutorial/03-behavioral/decorator-aop.html) - 使用時期: ログ、トランザクションなどを分離する場合
 
 ### Part 4: アーキテクチャパターン
 
 **問題:** データアクセスの混在、肥大化したコントローラー、肥大化したDI設定
 **学習内容:** レイヤーを分離し責任を明確化するアーキテクチャ設計
 
-- [Repositoryパターン](tutorial/repository-pattern.html) - 使用時期: データアクセスをビジネスロジックから分離する場合
-- [Service Layer](tutorial/service-layer.html) - 使用時期: ビジネスロジックを調整する場合
-- [モジュール設計](tutorial/module-design.html) - 使用時期: DI設定が100行を超える場合
+- [Repositoryパターン](tutorial/04-architecture/repository-pattern.html) - 使用時期: データアクセスをビジネスロジックから分離する場合
+- [Service Layer](tutorial/04-architecture/service-layer.html) - 使用時期: ビジネスロジックを調整する場合
+- [モジュール設計](tutorial/04-architecture/module-design.html) - 使用時期: DI設定が100行を超える場合
 
 ## 学習アプローチ
 
@@ -68,13 +68,13 @@ permalink: /manuals/1.0/ja/tutorial.html
 ## どこから始めるか
 
 **OOP初心者の方**
-推奨順序: [依存性注入の原則](tutorial/01-foundations/dependency-injection-principles.html) → [SOLID原則](tutorial/01-foundations/solid-principles.html) → [Factoryパターン](tutorial/factory-pattern.html)
+推奨順序: [依存性注入の原則](tutorial/01-foundations/dependency-injection-principles.html) → [SOLID原則](tutorial/01-foundations/solid-principles.html) → [Factoryパターン](tutorial/02-object-creation/factory-pattern.html)
 
 **経験豊富な開発者の方**
 どこからでも開始できます！各セクションは独立しています。
 
 **アーキテクト向け**
-推奨: [SOLID原則](tutorial/01-foundations/solid-principles.html) → [アーキテクチャパターン](tutorial/repository-pattern.html)
+推奨: [SOLID原則](tutorial/01-foundations/solid-principles.html) → [アーキテクチャパターン](tutorial/04-architecture/repository-pattern.html)
 
 ## カバーする主要パターン
 

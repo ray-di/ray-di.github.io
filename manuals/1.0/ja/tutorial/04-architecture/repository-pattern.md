@@ -2,7 +2,7 @@
 layout: docs-ja
 title: Repositoryパターン
 category: Manual
-permalink: /manuals/1.0/ja/tutorial/repository-pattern.html
+permalink: /manuals/1.0/ja/tutorial/04-architecture/repository-pattern.html
 ---
 # 依存性注入によるRepositoryパターン
 
@@ -160,4 +160,4 @@ Repositoryパターンはコレクションのようなインターフェース�
 
 **次へ：** [Service Layer](service-layer.html) - ビジネスロジックの調整
 
-**前へ：** [Decoratorパターン & AOP](../decorator-aop.html)
+**前へ：** [Decoratorパターン & AOP](../03-behavioral/decorator-aop.html)

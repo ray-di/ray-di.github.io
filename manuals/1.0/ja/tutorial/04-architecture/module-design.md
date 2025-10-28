@@ -2,7 +2,7 @@
 layout: docs-ja
 title: Module Design
 category: Manual
-permalink: /manuals/1.0/ja/tutorial/module-design.html
+permalink: /manuals/1.0/ja/tutorial/04-architecture/module-design.html
 ---
 # 依存性注入によるModule Design
 
@@ -165,6 +165,19 @@ Module Designは機能別にDI構成を整理します。明確な機能境界�
 
 ---
 
-**次へ：** [統合](../05-integration/) - すべてをまとめる
-
 **前へ：** [Service Layer](service-layer.html)
+
+---
+
+**🎉 おめでとうございます！** Ray.Di Studyチュートリアルを完了しました。
+
+これで以下を理解できました：
+- **いつ**各パターンを使うか（判断基準）
+- **なぜ**パターンが特定の問題を解決するか
+- **どのように**Ray.Diでパターンを実装するか
+- **何を**避けるべきか（アンチパターン）
+
+**次のステップ：**
+- これらのパターンを自分のプロジェクトで実践する
+- [Ray.Diマニュアル](../../)で詳細な機能リファレンスを読む
+- [Ray.Di GitHub](https://github.com/ray-di/Ray.Di)で高度な例を探索する

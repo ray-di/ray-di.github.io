@@ -69,6 +69,78 @@ class UserService
 
 なぜこれが重要なのでしょうか？メール送信の実装を変更しても、UserServiceには一切触れません。データベースを変更しても、ビジネスロジックは影響を受けません。各クラスが1つの責任に集中することで、変更の影響範囲が明確になり、予期しないバグを防げます。
 
+### Constructor Over-Injection（コンストラクタ過剰注入）- 設計の臭い
+
+**重要な警告**: コンストラクタが多くの依存関係（一般的に4つ以上）を受け取る場合、それは**Constructor Over-Injection**という**設計の臭い（Code Smell）**です。これは単一責任原則（SRP）に違反している兆候です：
+
+```php
+// ⚠️ 警告：コンストラクタが多すぎる依存関係を受け取っている
+class OrderService
+{
+    public function __construct(
+        private OrderValidatorInterface $validator,
+        private PriceCalculatorInterface $calculator,
+        private OrderRepositoryInterface $repository,
+        private EmailServiceInterface $emailService,
+        private SMSServiceInterface $smsService,
+        private LoggerInterface $logger,
+        private MetricsCollectorInterface $metrics,
+        private AuditLogInterface $auditLog,
+        private InventoryServiceInterface $inventory
+    ) {} // 9つの依存関係 - これは多すぎる！
+}
+```
+
+**この問題が示唆すること**:
+1. クラスが複数の責任を持っている（SRP違反）
+2. クラスが大きすぎる（リファクタリングが必要）
+3. 抽象化レベルが適切でない
+
+**解決策**:
+1. **責任を分離**: クラスをより小さな、単一責任のクラスに分割する
+2. **ファサードパターン**: 関連する依存関係をファサードとしてグループ化する
+3. **抽象化レベルの見直し**: より高レベルの抽象化を導入する
+
+```php
+// ✅ 改善例：責任を分離
+class OrderValidator
+{
+    public function __construct(
+        private ValidationRulesInterface $rules,
+        private LoggerInterface $logger
+    ) {}
+}
+
+class OrderNotifier
+{
+    public function __construct(
+        private EmailServiceInterface $emailService,
+        private SMSServiceInterface $smsService
+    ) {}
+}
+
+class OrderProcessor
+{
+    public function __construct(
+        private OrderRepositoryInterface $repository,
+        private InventoryServiceInterface $inventory,
+        private MetricsCollectorInterface $metrics
+    ) {}
+}
+
+// OrderServiceは高レベルの調整のみを行う
+class OrderService
+{
+    public function __construct(
+        private OrderValidator $validator,      // 3つのファサード
+        private OrderNotifier $notifier,        // より明確で保守しやすい
+        private OrderProcessor $processor
+    ) {}
+}
+```
+
+依存関係の数が増えたら、それは設計を見直すシグナルです。DIはコードの設計問題を可視化し、より良い設計へと導く道しるべとなります。
+
 ## オープン・クローズド原則（OCP）- 拡張に開き、変更に閉じる
 
 ECサイトの割引計算を考えてみましょう。新しい割引タイプを追加するたびに、既存のコードを修正していませんか？

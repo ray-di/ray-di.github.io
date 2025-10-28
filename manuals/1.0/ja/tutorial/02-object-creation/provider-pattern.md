@@ -2,7 +2,7 @@
 layout: docs-ja
 title: Provider Pattern
 category: Manual
-permalink: /manuals/1.0/ja/tutorial/provider-pattern.html
+permalink: /manuals/1.0/ja/tutorial/02-object-creation/provider-pattern.html
 ---
 # Providerパターン：複雑な初期化の分離
 
