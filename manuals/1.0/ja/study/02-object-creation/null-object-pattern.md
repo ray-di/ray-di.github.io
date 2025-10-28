@@ -147,7 +147,7 @@ class DevelopmentModule extends AbstractModule
 
 `toNull()`を使うと、Ray.Diは：
 1. インターフェースのすべてのメソッドを解析
-2. 各メソッドの戻り値の型に基づいて適切なデフォルト値を返すNull Objectクラスを生成
+2. 何もしない（何も返さない）Null Objectクラスを生成
 3. そのNull Objectインスタンスをバインド
 
 これにより、手動でNull Objectクラスを書く必要がなくなり、インターフェースが変更されてもNull Objectは自動的に更新されます。
