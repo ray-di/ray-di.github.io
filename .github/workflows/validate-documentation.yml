@@ -76,6 +76,9 @@ jobs:
             "ignorePatterns": [
               {
                 "pattern": "^https?://"
+              },
+              {
+                "pattern": "\\.html$"
               }
             ],
             "replacementPatterns": [
