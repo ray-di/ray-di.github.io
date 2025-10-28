@@ -126,9 +126,78 @@ Service Layerパターンは明確な責任の分離を生み出します：コ�
 
 サービスはビジネスロジックをプレゼンテーション層から分離したり、ビジネスルールを独立してテストしたりする必要がある場合に優れています。コントローラーがビジネスロジックで肥大化している場合、サービスレイヤーはコントローラーをシンプルに保ちます。ビジネスロジックが複数のドメインオブジェクトにまたがる場合、サービスはトランザクション境界とワークフロー調整を提供します。
 
-## Service Layerを避けるとき
+## サービスとOOP
 
-ビジネスロジックがないシンプルなCRUD操作にはService Layerを避けてください。単一のリポジトリメソッドを呼び出すだけのエンドポイントは、コントローラーから直接そのリポジトリを呼び出すことができます。読み取り専用のクエリや単純なルックアップにサービスを作成しないでください—コントローラーがリポジトリを直接使用できます。ビジネスルールが成長しない静的なルックアップテーブルにはサービスレイヤーは過剰です。
+Service Layerは、OOPと手続き型プログラミングのハイブリッドです。ドメインオブジェクトは振る舞いを持つ（OOP）一方、サービスは基本的に対象を操作する手続き型のプログラミングです。
+
+### ドメインオブジェクトに振る舞いを持たせる
+
+```php
+// ✅ ドメインオブジェクトが自律的に振る舞う（OOP）
+class Order
+{
+    public function validate(): void
+    {
+        if (empty($this->items)) {
+            throw new InvalidOrderException();
+        }
+    }
+
+    public function markAsConfirmed(): void
+    {
+        if ($this->status !== 'pending') {
+            throw new InvalidStateException();
+        }
+        $this->status = 'confirmed';
+    }
+}
+```
+
+### サービスは手続き型
+
+```php
+// サービスは複数のオブジェクトを順序立てて操作する手続き
+class OrderService
+{
+    public function processOrder(Order $order): void
+    {
+        $order->validate();
+
+        if (!$this->inventoryService->reserve($order->getItems())) {
+            throw new InsufficientInventoryException();
+        }
+
+        $order->markAsConfirmed();
+        $this->orderRepository->save($order);
+    }
+}
+```
+
+Service Layerでは手続き型のアプローチで記述されることが多くあります。
+
+### 貧血ドメインモデルを避ける
+
+```php
+// ❌ 悪い例 - すべてがサービスに
+class Order
+{
+    public function setStatus(string $status): void { }  // 単なるデータ
+}
+
+class OrderService
+{
+    public function confirmOrder(Order $order): void
+    {
+        // すべてのロジックがサービスに
+        if ($order->getStatus() !== 'pending') {
+            throw new InvalidStateException();
+        }
+        $order->setStatus('confirmed');
+    }
+}
+```
+
+**判断基準**: ドメインの概念（検証、状態遷移、計算）はドメインオブジェクトに配置します。複数のドメインオブジェクトやインフラストラクチャの協調はService Layerで記述します。
 
 ## よくある間違い：太ったサービス
 
