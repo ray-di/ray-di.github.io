@@ -49,6 +49,7 @@ permalink: /manuals/1.0/ja/study.html
 **問題:** データアクセスの混在、肥大化したコントローラー、肥大化したDI設定
 **学習内容:** レイヤーを分離し責任を明確化するアーキテクチャ設計
 
+- [Adapterパターン](study/04-architecture/adapter-pattern.html) - 使用時期: 外部APIやライブラリを適合させる場合
 - [Repositoryパターン](study/04-architecture/repository-pattern.html) - 使用時期: データアクセスをビジネスロジックから分離する場合
 - [Service Layer](study/04-architecture/service-layer.html) - 使用時期: ビジネスロジックを調整する場合
 - [モジュール設計](study/04-architecture/module-design.html) - 使用時期: DI設定が100行を超える場合
@@ -84,6 +85,7 @@ permalink: /manuals/1.0/ja/study.html
 | Provider | コンストラクタの肥大化 | 複雑な初期化ロジックが必要な場合 |
 | Strategy | 条件分岐の増殖 | 実行時にアルゴリズムを切り替える場合 |
 | Decorator/AOP | 横断的関心事の散在 | ログ、トランザクションなどを分離する場合 |
+| Adapter | 外部APIとアプリケーションの不一致 | 外部サービスをアプリケーションに適合させる場合 |
 | Repository | データアクセスの混在 | ビジネスロジックからデータアクセスを分離する場合 |
 | Service Layer | 肥大化したコントローラー | ビジネスロジックを調整する場合 |
 | Module Design | 肥大化したDI設定 | 設定が100行を超える場合 |

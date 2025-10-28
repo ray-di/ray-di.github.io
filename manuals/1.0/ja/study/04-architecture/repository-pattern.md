@@ -160,4 +160,4 @@ Repositoryパターンはコレクションのようなインターフェース�
 
 **次へ：** [Service Layer](service-layer.html) - ビジネスロジックの調整
 
-**前へ：** [Decoratorパターン & AOP](../03-behavioral/decorator-aop.html)
+**前へ：** [Adapterパターン](adapter-pattern.html)

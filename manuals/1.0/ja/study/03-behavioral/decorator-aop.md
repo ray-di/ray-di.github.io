@@ -196,6 +196,6 @@ Decoratorパターンはオブジェクトを変更せずに動作を追加す�
 
 ---
 
-**次へ：** [Repositoryパターン](../04-architecture/repository-pattern.html) - データアクセスの分離
+**次へ：** [Adapterパターン](../04-architecture/adapter-pattern.html) - 外部APIの適合
 
 **前へ：** [Strategyパターン](strategy-pattern.html)
