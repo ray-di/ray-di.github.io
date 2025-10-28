@@ -2,7 +2,7 @@
 layout: docs-ja
 title: Factory Pattern
 category: Manual
-permalink: /manuals/1.0/ja/tutorial/02-object-creation/factory-pattern.html
+permalink: /manuals/1.0/ja/study/02-object-creation/factory-pattern.html
 ---
 # Factoryパターン：実行時パラメータと依存性注入の融合
 

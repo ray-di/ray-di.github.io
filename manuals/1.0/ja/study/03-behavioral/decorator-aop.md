@@ -2,7 +2,7 @@
 layout: docs-ja
 title: Decoratorパターン & AOP
 category: Manual
-permalink: /manuals/1.0/ja/tutorial/03-behavioral/decorator-aop.html
+permalink: /manuals/1.0/ja/study/03-behavioral/decorator-aop.html
 ---
 # 依存性注入によるDecoratorパターンとAOP
 

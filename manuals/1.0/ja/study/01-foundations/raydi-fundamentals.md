@@ -2,7 +2,7 @@
 layout: docs-ja
 title: Ray.Diの基礎
 category: Manual
-permalink: /manuals/1.0/ja/tutorial/01-foundations/raydi-fundamentals.html
+permalink: /manuals/1.0/ja/study/01-foundations/raydi-fundamentals.html
 ---
 
 # Ray.Diの基礎：Google Guiceの思想をPHPへ

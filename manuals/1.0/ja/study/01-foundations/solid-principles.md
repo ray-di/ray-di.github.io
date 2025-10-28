@@ -2,7 +2,7 @@
 layout: docs-ja
 title: SOLID原則の実践
 category: Manual
-permalink: /manuals/1.0/ja/tutorial/01-foundations/solid-principles.html
+permalink: /manuals/1.0/ja/study/01-foundations/solid-principles.html
 ---
 
 # SOLID原則の実践：保守可能なコードへの道

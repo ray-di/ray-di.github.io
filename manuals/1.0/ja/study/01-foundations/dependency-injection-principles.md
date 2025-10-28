@@ -2,7 +2,7 @@
 layout: docs-ja
 title: 依存注入の原則
 category: Manual
-permalink: /manuals/1.0/ja/tutorial/01-foundations/dependency-injection-principles.html
+permalink: /manuals/1.0/ja/study/01-foundations/dependency-injection-principles.html
 ---
 
 # 依存注入の原則

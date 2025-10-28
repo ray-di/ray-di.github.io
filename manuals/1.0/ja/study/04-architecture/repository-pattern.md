@@ -2,7 +2,7 @@
 layout: docs-ja
 title: Repositoryパターン
 category: Manual
-permalink: /manuals/1.0/ja/tutorial/04-architecture/repository-pattern.html
+permalink: /manuals/1.0/ja/study/04-architecture/repository-pattern.html
 ---
 # 依存性注入によるRepositoryパターン
 

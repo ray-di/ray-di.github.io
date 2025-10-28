@@ -2,7 +2,7 @@
 layout: docs-ja
 title: Service Layer
 category: Manual
-permalink: /manuals/1.0/ja/tutorial/04-architecture/service-layer.html
+permalink: /manuals/1.0/ja/study/04-architecture/service-layer.html
 ---
 # 依存性注入によるService Layer
 

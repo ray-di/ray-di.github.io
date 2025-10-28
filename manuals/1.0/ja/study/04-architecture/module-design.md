@@ -2,7 +2,7 @@
 layout: docs-ja
 title: Module Design
 category: Manual
-permalink: /manuals/1.0/ja/tutorial/04-architecture/module-design.html
+permalink: /manuals/1.0/ja/study/04-architecture/module-design.html
 ---
 # 依存性注入によるModule Design
 
