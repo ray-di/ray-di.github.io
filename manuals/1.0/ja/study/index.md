@@ -30,11 +30,12 @@ permalink: /manuals/1.0/ja/study.html
 
 ### Part 2: オブジェクト生成パターン
 
-**問題:** 肥大化したコンストラクタ、実行時パラメータの扱い
+**問題:** 肥大化したコンストラクタ、実行時パラメータの扱い、オプショナルな依存関係
 **学習内容:** オブジェクト生成責任を分離する判断基準
 
 - [Factoryパターン](study/02-object-creation/factory-pattern.html) - 使用時期: 実行時パラメータが必要な場合
 - [Providerパターン](study/02-object-creation/provider-pattern.html) - 使用時期: 複雑な初期化が必要な場合
+- [Null Object Pattern](study/02-object-creation/null-object-pattern.html) - 使用時期: オプショナルな依存関係をnullチェックなしで扱う場合
 
 ### Part 3: 振る舞いパターン
 
@@ -83,6 +84,7 @@ permalink: /manuals/1.0/ja/study.html
 |---------|---------------|-------------|
 | Factory | 実行時パラメータとDI依存関係の混在 | オブジェクト生成に実行時の値が必要な場合 |
 | Provider | コンストラクタの肥大化 | 複雑な初期化ロジックが必要な場合 |
+| Null Object | nullチェックと環境チェックの散在 | オプショナルな依存関係を環境別に切り替える場合 |
 | Strategy | 条件分岐の増殖 | 実行時にアルゴリズムを切り替える場合 |
 | Decorator/AOP | 横断的関心事の散在 | ログ、トランザクションなどを分離する場合 |
 | Adapter | 外部APIとアプリケーションの不一致 | 外部サービスをアプリケーションに適合させる場合 |

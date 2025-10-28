@@ -160,4 +160,4 @@ Strategyパターンは条件分岐をポリモーフィズムに置き換えま
 
 **次へ：** [Decoratorパターン & AOP](decorator-aop.html) - 横断的関心事の分離
 
-**前へ：** [Providerパターン](../02-object-creation/provider-pattern.html)
+**前へ：** [Null Object Pattern](../02-object-creation/null-object-pattern.html)

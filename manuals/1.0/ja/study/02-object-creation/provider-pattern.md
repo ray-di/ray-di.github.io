@@ -178,6 +178,6 @@ Providerパターンは複雑なオブジェクト初期化をコンストラク
 
 ---
 
-**次へ：** [Strategy Pattern](../03-behavioral/strategy-pattern.html) - 切り替え可能な振る舞い
+**次へ：** [Null Object Pattern](null-object-pattern.html) - オプショナルな依存関係の扱い
 
 **前へ：** [Factory Pattern](factory-pattern.html)
