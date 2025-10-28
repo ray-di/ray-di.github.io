@@ -4,7 +4,7 @@ title: Adapter Pattern
 category: Manual
 permalink: /manuals/1.0/ja/study/04-architecture/adapter-pattern.html
 ---
-# 依存性注入によるAdapterパターン
+# Adapterパターン：外部APIの適合
 
 ## 問題
 

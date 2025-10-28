@@ -4,7 +4,7 @@ title: Strategyパターン
 category: Manual
 permalink: /manuals/1.0/ja/study/03-behavioral/strategy-pattern.html
 ---
-# 依存性注入によるStrategyパターン
+# Strategyパターン：切り替え可能な振る舞い
 
 ## 問題
 

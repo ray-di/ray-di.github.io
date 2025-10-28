@@ -4,7 +4,7 @@ title: Module Design
 category: Manual
 permalink: /manuals/1.0/ja/study/04-architecture/module-design.html
 ---
-# 依存性注入によるModule Design
+# Module Design：DI設定の整理
 
 ## 問題
 
