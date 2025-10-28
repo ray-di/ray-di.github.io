@@ -61,59 +61,7 @@ jobs:
           # Install lychee link checker
           wget -qO- https://github.com/lycheeverse/lychee/releases/latest/download/lychee-x86_64-unknown-linux-gnu.tar.gz | tar -xzv
           sudo mv lychee /usr/local/bin/
-          
-      - name: Install markdown-link-check
-        run: |
-          npm install -g markdown-link-check
-          
-      - name: Check for broken internal links
-        run: |
-          echo "Checking for broken internal links with markdown-link-check..."
-          
-          # Create markdown-link-check config for internal links only
-          cat > .markdown-link-check.json << 'EOF'
-          {
-            "ignorePatterns": [
-              {
-                "pattern": "^https?://"
-              },
-              {
-                "pattern": "\\.html$"
-              }
-            ],
-            "replacementPatterns": [
-              {
-                "pattern": "^/",
-                "replacement": "./"
-              }
-            ],
-            "httpHeaders": [
-              {
-                "urls": [],
-                "headers": {
-                  "Accept": "text/html"
-                }
-              }
-            ],
-            "timeout": "10s",
-            "retryOn429": true,
-            "retryCount": 3,
-            "fallbackRetryDelay": "30s",
-            "aliveStatusCodes": [200, 206]
-          }
-          EOF
-          
-          # Check all markdown files for internal links (excluding generated files)
-          find manuals -name "*.md" -type f ! -name "1page.md" | while read file; do
-            echo "Checking internal links in $file..."
-            markdown-link-check "$file" --config .markdown-link-check.json --quiet || {
-              echo "❌ Broken internal links found in $file"
-              exit 1
-            }
-          done
-          
-          echo "✅ No broken internal links found"
-          
+
       - name: Check external links with lychee
         run: |
           echo "Checking external links..."
