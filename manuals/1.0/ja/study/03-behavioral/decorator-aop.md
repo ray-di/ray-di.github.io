@@ -4,7 +4,7 @@ title: Decoratorパターン & AOP
 category: Manual
 permalink: /manuals/1.0/ja/study/03-behavioral/decorator-aop.html
 ---
-# 依存性注入によるDecoratorパターンとAOP
+# DecoratorパターンとAOP：横断的関心事の分離
 
 ## 問題
 

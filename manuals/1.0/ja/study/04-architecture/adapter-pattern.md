@@ -4,7 +4,7 @@ title: Adapter Pattern
 category: Manual
 permalink: /manuals/1.0/ja/study/04-architecture/adapter-pattern.html
 ---
-# 依存性注入によるAdapterパターン
+# Adapterパターン：外部APIの適合
 
 ## 問題
 
@@ -140,11 +140,11 @@ class OrderService
             $order->getPaymentToken()
         );
 
-        if ($result->successful) {
-            $order->markAsPaid($result->transactionId);
-        } else {
+        if (!$result->successful) {
             throw new PaymentFailedException($result->errorMessage);
         }
+
+        $order->markAsPaid($result->transactionId);
 
         $this->orderRepository->save($order);
     }
@@ -159,11 +159,25 @@ $this->bind(PaymentGatewayInterface::class)->to(StripeAdapter::class);
 
 ## パターンの本質
 
+### 現実世界のアナロジー：USBアダプター
+
+USB Type-CポートしかないノートPCで、USB Type-Aのマウスを使いたい場合を考えてみましょう：
+
+- **Target（対象）**: USB Type-Cポート（PCが期待するインターフェイス）
+- **Adaptee（適合対象）**: USB Type-Aマウス（互換性のない既存デバイス）
+- **Adapter（適合器）**: USB Type-C to Type-A変換アダプター
+
+アダプターは両者の違いを吸収します。PCはType-Cとしか通信しませんし、マウスはType-Aしか理解しません。アダプターが間に入ることで、両者は互いの存在を知らないまま連携できます。
+
+これがまさにAdapterパターンの役割です：互換性のないインターフェイス同士を橋渡しし、**複雑さをクライアントから隠蔽する**のです。
+
+### パターンの目的
+
 Adapterパターンの目的は、**複雑さをクライアントから隠蔽する**ことにあります。外部APIとの統合には、多くの場合、複雑な変換作業が伴います：
 
 - データ形式の変換（円→銭、配列→オブジェクト）
 - エラーハンドリングの統一化（例外→結果オブジェクト）
-- プロトコルの違いの吸収（REST→SOAP、同期→非同期）
+- 通信方式の違いの吸収（同期→非同期、REST→GraphQL）
 - 認証・認可の処理
 
 これらの複雑さをAdapterクラスがカプセル化することで、クライアントコードはシンプルになり、外部APIの詳細に依存する必要がなくなります。
@@ -187,42 +201,6 @@ Adapterは、レガシーコードと新しいコードの橋渡しにも有効�
 環境ごとに異なる実装が必要な場合にも価値があります。開発環境では`LocalFileAdapter`、本番環境では`S3Adapter`を使用します。テストでは`InMemoryAdapter`を使用し、外部サービスへの実際の呼び出しを避けます。
 
 複雑な変換や統合ロジックが必要な場合、Adapterはその複雑さをカプセル化する最適な場所です。クライアントコードをシンプルに保ちながら、必要な変換作業を一箇所に集約できます。
-
-## Adapterパターンを避けるべき時
-
-自分が制御できるコードにはAdapterを使用しないでください。アプリケーション内部のクラスであれば、直接インターフェイスを実装すればよいのです。自分のコードを自分のインターフェイスに「適合」させるためにAdapterを作成する必要はありません。
-
-外部APIが既にアプリケーションのニーズに完全に一致している場合も、Adapterは不要な間接化となります。ただし、これは稀です。ほとんどの外部APIは、何らかの適合作業を必要とします。
-
-## よくある間違い：過度な抽象化
-
-頻繁なアンチパターンは、すべての外部依存関係を「念のため」Adapterでラップすることです：
-
-```php
-// ❌ 悪い例 - 不要な抽象化
-interface LoggerAdapterInterface {
-    public function log(string $message): void;
-}
-
-class MonologAdapter implements LoggerAdapterInterface {
-    public function __construct(private \Monolog\Logger $logger) {}
-
-    public function log(string $message): void {
-        $this->logger->info($message); // 単なる転送、変換なし
-    }
-}
-
-// ✅ 良い例 - PSR-3を直接使用
-class OrderService {
-    public function __construct(
-        private \Psr\Log\LoggerInterface $logger // 標準インターフェイス
-    ) {}
-}
-```
-
-外部ライブラリが既に標準インターフェイス（PSR-3の`LoggerInterface`、PSR-6の`CacheInterface`など）を実装している場合、追加のAdapterは不要です。標準インターフェイスを直接使用してください。
-
-Adapterは**実際の変換作業が必要な場合にのみ**作成します。単なる転送であれば、それは無駄な間接化です。Adapterの目的は複雑さのカプセル化であり、単なるラッピングではありません。
 
 ## RepositoryパターンもAdapterの一種
 
@@ -250,7 +228,7 @@ Adapterパターンは、互換性のないインターフェイス同士を橋�
 
 サードパーティAPI、レガシーコード、環境固有の実装に使用します。Adapterは複雑な変換作業をカプセル化する最適な場所です。仮に複雑な変換が求められても驚かないでください。それこそがAdapterの存在理由だからです。
 
-実際の変換作業が必要な場合にのみ作成してください。単なる転送は不要な間接化です。Repositoryも実質的にAdapterです—データベースAPIをドメインモデルに適合させる特殊なAdapterと見なせます。
+Repositoryも実質的にAdapterです—データベースAPIをドメインモデルに適合させる特殊なAdapterと見なせます。
 
 ---
 

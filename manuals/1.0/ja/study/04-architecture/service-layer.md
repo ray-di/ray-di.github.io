@@ -4,7 +4,7 @@ title: Service Layer
 category: Manual
 permalink: /manuals/1.0/ja/study/04-architecture/service-layer.html
 ---
-# 依存性注入によるService Layer
+# Service Layer：ビジネスロジックの調整
 
 ## 問題
 
@@ -126,9 +126,87 @@ Service Layerパターンは明確な責任の分離を生み出します：コ�
 
 サービスはビジネスロジックをプレゼンテーション層から分離したり、ビジネスルールを独立してテストしたりする必要がある場合に優れています。コントローラーがビジネスロジックで肥大化している場合、サービスレイヤーはコントローラーをシンプルに保ちます。ビジネスロジックが複数のドメインオブジェクトにまたがる場合、サービスはトランザクション境界とワークフロー調整を提供します。
 
-## Service Layerを避けるとき
+## サービスとオブジェクト指向
 
-ビジネスロジックがないシンプルなCRUD操作にはService Layerを避けてください。単一のリポジトリメソッドを呼び出すだけのエンドポイントは、コントローラーから直接そのリポジトリを呼び出すことができます。読み取り専用のクエリや単純なルックアップにサービスを作成しないでください—コントローラーがリポジトリを直接使用できます。ビジネスルールが成長しない静的なルックアップテーブルにはサービスレイヤーは過剰です。
+Service Layerは、オブジェクト指向と手続き型プログラミングのハイブリッドです。ドメインオブジェクトは振る舞いを持つ（オブジェクト指向）一方、サービスは基本的に対象を操作する手続き型のプログラミングです。
+
+### ドメインオブジェクトに振る舞いを持たせる
+
+```php
+// ✅ ドメインオブジェクトが自律的に振る舞う（オブジェクト指向）
+class Order
+{
+    public function validate(): void
+    {
+        if (empty($this->items)) {
+            throw new InvalidOrderException();
+        }
+    }
+
+    public function markAsConfirmed(): void
+    {
+        if ($this->status !== 'pending') {
+            throw new InvalidStateException();
+        }
+        $this->status = 'confirmed';
+    }
+}
+```
+
+ドメインの概念（検証、状態遷移、計算）はドメインオブジェクトのメソッドとして実装します。`Order`は単なるデータの入れ物ではなく、自分自身の状態を管理する責任を持ちます。
+
+### サービスは調整に徹する
+
+```php
+// サービスはドメインオブジェクト同士を調整する
+class OrderService
+{
+    public function processOrder(Order $order): void
+    {
+        // ドメインロジックはOrderに委譲
+        $order->validate();
+
+        // 在庫サービスとの調整
+        if (!$this->inventoryService->reserve($order->getItems())) {
+            throw new InsufficientInventoryException();
+        }
+
+        // ドメインロジックはOrderに委譲
+        $order->markAsConfirmed();
+
+        // リポジトリとの調整
+        $this->orderRepository->save($order);
+    }
+}
+```
+
+サービスはビジネスロジックを持たず、ドメインオブジェクト同士やインフラストラクチャとの調整に徹します。検証ロジックは`Order.validate()`に、状態遷移ロジックは`Order.markAsConfirmed()`に委譲されています。サービスは「どう検証するか」「どう状態遷移するか」を知りません。ただ「いつ検証するか」「いつ状態遷移するか」という手順だけを知っています。
+
+### 貧血ドメインモデルを避ける
+
+```php
+// ❌ 悪い例 - ビジネスロジックがサービスに
+class Order
+{
+    public function setStatus(string $status): void { }  // 単なるデータ
+}
+
+class OrderService
+{
+    public function confirmOrder(Order $order): void
+    {
+        // ビジネスロジック（状態遷移のルール）がサービスに
+        if ($order->getStatus() !== 'pending') {
+            throw new InvalidStateException();
+        }
+        $order->setStatus('confirmed');
+    }
+}
+```
+
+ドメインオブジェクトが単なるgetter/setterだけを持つ状態を「貧血ドメインモデル」と呼びます。状態遷移のルール（pending状態でなければ確定できない）というビジネスロジックがサービスに漏れ出しています。このルールは`Order`クラスの`markAsConfirmed()`メソッドに属するべきです。
+
+**原則**: ドメインのロジックはドメインオブジェクトに書きます。サービスにはビジネスロジックを持たせず、ドメインオブジェクト同士の調整に徹します。
 
 ## よくある間違い：太ったサービス
 

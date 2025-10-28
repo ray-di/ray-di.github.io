@@ -4,7 +4,7 @@ title: Repositoryパターン
 category: Manual
 permalink: /manuals/1.0/ja/study/04-architecture/repository-pattern.html
 ---
-# 依存性注入によるRepositoryパターン
+# Repositoryパターン：データアクセスの分離
 
 ## 問題
 
@@ -117,32 +117,43 @@ Repositoryパターンは明確な分離を生み出します：サービスは�
 
 データアクセスロジックが再利用可能な場合、リポジトリは価値を提供します。3つのサービスが顧客別に注文を検索する必要がある場合、1つのリポジトリメソッドがすべてに対応します。テストにデータベースの抽象化が必要な場合、リポジトリはフィクスチャなしでビジネスロジックをテスト可能にします。
 
-## Repositoryを避けるとき
+## Repositoryインターフェイスの粒度
 
-ビジネスロジックがないシンプルなCRUD操作にはリポジトリを避けてください。データアクセスが1つの場所でしか発生せず、再利用されない場合、シンプルなデータアクセスクラスで十分です。DoctrineやEloquentのようにすでにリポジトリパターンを提供するORMを使用している場合、冗長な抽象化を作成しないでください。静的なルックアップテーブルや読み取り専用の参照データにリポジトリを作成しないでください—シンプルなクエリメソッドの方が適しています。
+Repositoryインターフェイスの設計には2つのアプローチがあります。
 
-## よくある間違い：汎用リポジトリ
-
-頻繁に見られるアンチパターンは、すべてのエンティティに対して1つの汎用リポジトリを作成することです：
+### 一般的なアプローチ - インフラとロジックを分ける
 
 ```php
-// ❌ 悪い例 - 汎用リポジトリは型安全性を失う
-interface GenericRepositoryInterface
-{
-    public function find(int $id): mixed;
-    public function save(mixed $entity): void;
-}
-
-// ✅ 良い例 - 型固有のリポジトリ
 interface OrderRepositoryInterface
 {
     public function findById(int $id): ?Order;
-    public function save(Order $order): void;
     public function findByCustomer(int $customerId): array;
+    public function save(Order $order): void;
+    public function delete(Order $order): void;
 }
 ```
 
-汎用リポジトリは型安全性とドメイン固有のクエリメソッドを失います。汎用リポジトリに`findByCustomer()`を持つことはできません—各エンティティには異なるクエリがあります。型ヒントは`mixed`になり、静的解析の利点が失われます。リポジトリはエンティティ固有であるべきで、そのエンティティの永続化操作への型安全なアクセスを提供します。
+Repositoryパターンの基本目的は、ビジネスロジックからデータアクセスを分離することです。1つのインターフェイスにCRUD操作をまとめることで、この分離を実現します。多くのアプリケーションではこのアプローチが採用されています。
+
+### ISPアプローチ - より意図の明確なコードへ
+
+```php
+interface OrderReaderInterface
+{
+    public function findById(int $id): ?Order;
+    public function findByCustomer(int $customerId): array;
+}
+
+interface OrderWriterInterface
+{
+    public function save(Order $order): void;
+    public function delete(Order $order): void;
+}
+```
+
+インターフェイス分離の原則（ISP）に従い、読み書きを分離します。`OrderReaderInterface`に依存するクラスは、読み取りしかしないことが依存レベルで理解できます。実装を見なくても、依存関係から意図が明確になります。また、読み取り専用のクラスはimmutable（不変）なクラスとして設計できるため、より予測可能で安全なコードになります。
+
+**判断基準**: まずは一般的なアプローチから始めます。クライアントが依存するインターフェイスの能力を必要最小限に狭めたい場合に、ISPアプローチを検討します。レポートサービスは読み取り操作のみに依存し、バッチ処理は書き込み操作のみに依存するという形で、依存の幅を狭めます。
 
 ## SOLID原則
 
