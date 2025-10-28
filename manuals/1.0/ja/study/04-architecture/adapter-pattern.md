@@ -202,42 +202,6 @@ Adapterは、レガシーコードと新しいコードの橋渡しにも有効�
 
 複雑な変換や統合ロジックが必要な場合、Adapterはその複雑さをカプセル化する最適な場所です。クライアントコードをシンプルに保ちながら、必要な変換作業を一箇所に集約できます。
 
-## Adapterパターンを避けるべき時
-
-自分が制御できるコードにはAdapterを使用しないでください。アプリケーション内部のクラスであれば、直接インターフェイスを実装すればよいのです。自分のコードを自分のインターフェイスに「適合」させるためにAdapterを作成する必要はありません。
-
-外部APIが既にアプリケーションのニーズに完全に一致している場合も、Adapterは不要な間接化となります。ただし、これは稀です。ほとんどの外部APIは、何らかの適合作業を必要とします。
-
-## よくある間違い：過度な抽象化
-
-頻繁なアンチパターンは、すべての外部依存関係を「念のため」Adapterでラップすることです：
-
-```php
-// ❌ 悪い例 - 不要な抽象化
-interface LoggerAdapterInterface {
-    public function log(string $message): void;
-}
-
-class MonologAdapter implements LoggerAdapterInterface {
-    public function __construct(private \Monolog\Logger $logger) {}
-
-    public function log(string $message): void {
-        $this->logger->info($message); // 単なる転送、変換なし
-    }
-}
-
-// ✅ 良い例 - PSR-3を直接使用
-class OrderService {
-    public function __construct(
-        private \Psr\Log\LoggerInterface $logger // 標準インターフェイス
-    ) {}
-}
-```
-
-外部ライブラリが既に標準インターフェイス（PSR-3の`LoggerInterface`、PSR-6の`CacheInterface`など）を実装している場合、追加のAdapterは不要です。標準インターフェイスを直接使用してください。
-
-Adapterは**実際の変換作業が必要な場合にのみ**作成します。単なる転送であれば、それは無駄な間接化です。Adapterの目的は複雑さのカプセル化であり、単なるラッピングではありません。
-
 ## RepositoryパターンもAdapterの一種
 
 実は、Repositoryパターンは特殊なAdapterパターンと見なすことができます。**Target**（コレクション的なインターフェイス）、**Adapter**（MySQLRepositoryなど）、**Adaptee**（PDO、Eloquentなど）という構造で、データベースAPIをドメインモデルに適合させます。Repositoryは「データベースをオブジェクトコレクションのように見せる」Adapterなのです。この観点から理解すると、Adapterパターンの威力がより明確になります。
