@@ -117,6 +117,44 @@ Repositoryパターンは明確な分離を生み出します：サービスは�
 
 データアクセスロジックが再利用可能な場合、リポジトリは価値を提供します。3つのサービスが顧客別に注文を検索する必要がある場合、1つのリポジトリメソッドがすべてに対応します。テストにデータベースの抽象化が必要な場合、リポジトリはフィクスチャなしでビジネスロジックをテスト可能にします。
 
+## Repositoryインターフェイスの粒度
+
+Repositoryインターフェイスの設計には2つのアプローチがあります。
+
+### 一般的なアプローチ - インフラとロジックを分ける
+
+```php
+interface OrderRepositoryInterface
+{
+    public function findById(int $id): ?Order;
+    public function findByCustomer(int $customerId): array;
+    public function save(Order $order): void;
+    public function delete(Order $order): void;
+}
+```
+
+Repositoryパターンの基本目的は、ビジネスロジックからデータアクセスを分離することです。1つのインターフェイスにCRUD操作をまとめることで、この分離を実現します。ほとんどのアプリケーションではこのアプローチで十分です。
+
+### ISPアプローチ - インターフェイスを使用目的で分ける
+
+```php
+interface OrderReaderInterface
+{
+    public function findById(int $id): ?Order;
+    public function findByCustomer(int $customerId): array;
+}
+
+interface OrderWriterInterface
+{
+    public function save(Order $order): void;
+    public function delete(Order $order): void;
+}
+```
+
+インターフェイス分離の原則（ISP）に従い、さらに細かく分離します。読み取り専用のサービス（レポート生成など）が不要な書き込み操作に依存しないため、依存関係がより明確になります。
+
+**判断基準**: まずは一般的なアプローチから始めます。クライアントが依存するインターフェイスの能力を必要最小限に狭めたい場合に、ISPアプローチを検討します。レポートサービスは読み取り操作のみに依存し、バッチ処理は書き込み操作のみに依存するという形で、依存の幅を狭めます。
+
 ## SOLID原則
 
 Repositoryパターンはデータアクセスをビジネスロジックから分離することで**単一責任原則**を強制します。**開放/閉鎖原則**をサポートします—ビジネスサービスではなく、リポジトリバインディングだけを変更することでMySQLからMongoDBに切り替えます。すべてのリポジトリ実装がインターフェースを通じて交換可能であるため、**リスコフの置換原則**を支持します。具体的なPDO、MongoDB、キャッシュ実装ではなく、リポジトリインターフェースに依存することで**依存性逆転の原則**を例示します。
