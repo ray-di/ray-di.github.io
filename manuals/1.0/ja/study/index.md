@@ -95,8 +95,6 @@ permalink: /manuals/1.0/ja/study.html
 
 ## 前提条件
 
-- PHP 8.1+
-- Composer
 - OOPの基本的な理解
 - インターフェースに関する知識
 
