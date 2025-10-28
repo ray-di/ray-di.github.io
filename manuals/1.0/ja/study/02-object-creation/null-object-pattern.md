@@ -193,6 +193,51 @@ Null Objectパターンは**nullよりNullオブジェクト**という設計判
 
 Ray.Diの`toNull()`メソッドはNull Objectクラスを自動生成し、手動実装の必要性を排除します。このパターンはDIバインディングを通じて環境固有の振る舞いを可能にします—開発環境ではNullオブジェクト、本番環境では実装を注入します。少ないコードパスはより安定したプログラムを意味します。
 
+## 興味深い組み合わせ：より高度な使い方
+
+Null ObjectとAOPを組み合わせると、さらに興味深いパターンが生まれます。**これは高度な例です**が、パターンを組み合わせることで何ができるかを示しています：
+
+```php
+// 1. インターフェイスだけを定義（実装クラスは書かない）
+interface TodoQueryInterface
+{
+    #[DbQuery('todo_item')]
+    public function item(string $id): Todo;
+}
+
+// 2. Null Objectをバインド + インターセプターを適用
+class AppModule extends AbstractModule
+{
+    protected function configure(): void
+    {
+        $this->bind(TodoQueryInterface::class)->toNull();
+        $this->bindInterceptor(
+            $this->matcher->any(),
+            $this->matcher->annotatedWith(DbQuery::class),
+            [DbQueryInterceptor::class]
+        );
+    }
+}
+
+// 3. インターセプターがメソッド呼び出しを横取りしてSQL実行
+class DbQueryInterceptor implements MethodInterceptor
+{
+    public function invoke(MethodInvocation $invocation): mixed
+    {
+        $attr = $invocation->getMethod()->getAttributes(DbQuery::class)[0];
+        $sql = "SELECT * FROM {$attr->table} WHERE id = ?";
+        return $this->pdo->execute($sql, $invocation->getArguments());
+    }
+}
+
+// 使用 - 普通のメソッド呼び出しだが、実際にはSQLが実行される
+$todo = $todoQuery->item('123');
+```
+
+Null Objectは「何もしない」だけでなく、インターセプターと組み合わせることで「実装を動的に提供する器」にもなります。メソッドシグネチャがAPI契約となり、属性がメタデータを提供し、インターセプターが実際のロジックを実行します。
+
+このパターンは[Ray.MediaQuery](https://github.com/ray-di/Ray.MediaQuery)で使われています。詳細に興味がある方は、基礎パターン（Null Object、AOP、Repository）をすべて学んだ後に探求してみてください。パターンの組み合わせが生み出す可能性を感じられるはずです。
+
 ---
 
 **次へ：** [Strategy Pattern](../03-behavioral/strategy-pattern.html) - 切り替え可能な振る舞い
