@@ -35,6 +35,12 @@ ruby bin/merge_md_files.rb
 ```
 This script combines all manual markdown files into single-page versions for both languages.
 
+### Generating Comprehensive AI Documentation
+```bash
+php bin/generate_llms_full.php
+```
+This script generates `llms-full.txt` by expanding linked markdown files from `llms.txt` for comprehensive AI assistant documentation.
+
 ## Site Architecture
 
 ### Directory Structure
@@ -93,9 +99,43 @@ This script combines all manual markdown files into single-page versions for bot
 - Supports llms.txt standard for AI assistants to access clean markdown content
 - `llms-full.txt` provides comprehensive framework documentation for AI consumption
 
+### PHP Dependencies
+The project includes Ray.Di framework as a Composer dependency for documentation examples and AI documentation generation:
+```bash
+composer install  # Install Ray.Di framework dependency
+```
+
 ### Manual Build Process
 If building manually without the scripts:
 ```bash
 bundle exec jekyll build
 ./bin/copy_markdown_files.sh
 ```
+
+## Tutorial System Architecture
+
+### Tutorial Structure
+The site includes a comprehensive tutorial system with a hierarchical structure:
+- `manuals/1.0/{lang}/tutorial/` - Main tutorial directory
+- Numbered directories (01-foundations, 02-basic-bindings, etc.) organize content progressively
+- Each tutorial section has both complete implementations and incremental examples
+- Tutorial navigation is automatically generated from directory structure
+
+### Content Synchronization
+- English tutorials serve as the canonical source
+- Japanese tutorials should mirror English structure but may have cultural adaptations
+- New English tutorials require corresponding Japanese translations
+- Use `manuals/1.0/en/tutorial/index.md` to understand the complete tutorial flow
+
+### Working with Existing Content
+When modifying documentation:
+- Always read the corresponding file in both languages before making changes
+- Check `bin/merge_md_files.rb` for file ordering in combined pages
+- Verify that changes maintain Jekyll front matter consistency
+- Test both languages' navigation and linking after modifications
+
+## Important File Patterns
+- Tutorial files follow `{section-number}-{topic-name}/{subtopic}.md` pattern
+- Best practices files use `bp/{DescriptiveName}.md` format
+- All documentation requires Jekyll front matter with `layout`, `title`, `category`, and `permalink`
+- Front matter must be stripped from AI-accessible markdown copies in `_site/`

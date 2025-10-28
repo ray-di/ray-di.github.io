@@ -169,7 +169,7 @@ final class MyWebServer {
 ```
 
 The injector internally holds the dependency graphs described in your application. When you request an instance of a given type, the injector figures out what objects to construct, resolves their dependencies, and wires everything together. To specify how dependencies are resolved, configure your injector with
-[bindings](Bindings).
+[bindings](bindings.html).
 
 [`Injector`]: https://github.com/ray-di/Ray.Di/blob/2.x/src/di/InjectorInterface.php
 
