@@ -294,6 +294,53 @@ $orderService = $injector->getInstance(OrderService::class);
 
 DIコンテナは、Pure DIの原則を保ちながら、実装の変更を一箇所の設定変更で実現し、複雑性を管理し、保守性を劇的に向上させるツールです。
 
+### 環境ごとのモジュール切り替え
+
+DIの重要な原則：**ビジネスロジックは環境のことを知らない。環境はバインディングだけを変える。**
+
+本番環境、ステージング環境、開発環境で異なる実装が必要な場合でも、ビジネスロジックのコードは一切変更しません。環境ごとに異なるモジュールを用意し、エントリーポイントで適切なモジュールを選択するだけです：
+
+```php
+// 本番環境用モジュール
+class ProductionModule extends AbstractModule
+{
+    protected function configure(): void
+    {
+        $this->bind(LoggerInterface::class)->to(CloudLogger::class);
+        $this->bind(CacheInterface::class)->to(RedisCache::class);
+    }
+}
+
+// 開発環境用モジュール
+class DevelopmentModule extends AbstractModule
+{
+    protected function configure(): void
+    {
+        $this->bind(LoggerInterface::class)->to(FileLogger::class);
+        $this->bind(CacheInterface::class)->to(ArrayCache::class);
+    }
+}
+
+// エントリーポイント（index.php）
+$module = $_ENV['APP_ENV'] === 'production'
+    ? new ProductionModule()
+    : new DevelopmentModule();
+
+$injector = new Injector($module);
+$app = $injector->getInstance(Application::class);
+$app->run();
+```
+
+`OrderService`や`UserService`などのビジネスロジックは、`LoggerInterface`や`CacheInterface`に依存するだけで、それが`CloudLogger`なのか`FileLogger`なのかを知りません。環境の違いは、エントリーポイントでのモジュール選択だけで吸収されます。
+
+**重要な原則：環境変数や条件分岐をモジュール・Providerに持ち込まない**
+
+環境変数（`$_ENV`や`getenv()`）の参照や環境に応じた条件分岐は、エントリーポイント（コンポジションルート）でのモジュール選択時のみに限定すべきです。モジュールやProviderの中で環境変数を参照したり、`if ($_ENV['APP_ENV'] === 'production')`のような条件分岐を書いてはいけません。
+
+Google Guiceのドキュメント[Avoid Conditional Logic in Modules](https://github.com/google/guice/wiki/AvoidConditionalLogicInModules)でも、この原則が明確に示されています。環境に応じた条件分岐をモジュールに持ち込むと、循環的複雑度（Cyclomatic Complexity）が上がり、コードパス（実行経路）が増加します。条件分岐が増えるほど、すべてのパスをテストするのが困難になり、「本番環境でのみ実行される条件分岐」や「開発環境でのみ実行される条件分岐」が生まれます。片方の環境でしかテストされないコードが混在すると、それは本番環境でのみ発生するバグの温床となります。
+
+代わりに、環境ごとに専用のモジュールを作成し、エントリーポイントで適切なモジュールを選択します。各モジュールは条件分岐を持たないため、循環的複雑度が低く（理想的には1）、テストカバレッジが自然と100%に近づきます。すべての環境設定が明示的で、完全にテスト可能になります。
+
 ## 依存注入のタイプ
 
 依存関係を注入する方法にはいくつかのパターンがあります。それぞれの特徴を理解し、適切な場面で使い分けることが重要です。

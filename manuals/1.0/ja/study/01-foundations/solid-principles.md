@@ -310,12 +310,11 @@ class AppModule extends AbstractModule
         $this->bind(EmailServiceInterface::class)
              ->to(SendGridEmailService::class);
 
-        // OCP: Strategyパターンの設定
-        $this->bind('discount_strategies')->toInstance([
-            new StudentDiscount(),
-            new SeniorDiscount(),
-            // 新しい割引戦略を追加してもコード変更なし
-        ]);
+        // OCP: 価格計算戦略のバインディング
+        // 新しい戦略（例：PromotionalPricing）に変更する際も
+        // このモジュール設定を変更するだけで、既存コードは変更不要
+        $this->bind(PricingStrategyInterface::class)
+             ->to(StandardPricingStrategy::class);
     }
 }
 ```
