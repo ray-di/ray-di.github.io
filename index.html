@@ -19,7 +19,12 @@ category: Index
             const locales = (navigatorLanguages && navigatorLanguages.length)
                 ? navigatorLanguages
                 : [window.navigator.language ?? ''];
-            const prefersJapanese = locales.some((locale) => locale.toLowerCase().startsWith('ja'));
+            const preferredSupportedLocale = locales.find((locale) => {
+                const lowerLocale = locale.toLowerCase();
+
+                return lowerLocale.startsWith('ja') || lowerLocale.startsWith('en');
+            }) ?? '';
+            const prefersJapanese = preferredSupportedLocale.startsWith('ja');
 
             if (!prefersJapanese) {
                 return;
