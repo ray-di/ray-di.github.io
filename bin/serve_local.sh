@@ -6,6 +6,7 @@
 
 # Copy markdown files for llms.txt compliance after initial build
 echo "Starting Jekyll server with llms.txt compliance..."
+php bin/generate_llms_full.php
 bundle exec jekyll build
 ./bin/copy_markdown_files.sh
 bundle exec jekyll serve --watch
