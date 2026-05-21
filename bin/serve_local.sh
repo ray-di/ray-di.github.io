@@ -1,4 +1,7 @@
 #!/bin/bash
+set -euo pipefail
+trap 'echo "serve_local.sh failed; check generate_llms_full.php, copy_markdown_files.sh, or Jekyll output above." >&2' ERR
+
 # This script is used to serve the Jekyll site locally with automatic rebuilding.
 # 'bundle exec' ensures we're using the correct versions of each gem according to our Gemfile.lock.
 # 'jekyll serve' starts a Jekyll development server.

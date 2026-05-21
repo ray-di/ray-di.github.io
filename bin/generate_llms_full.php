@@ -21,6 +21,9 @@ function generateLlmsFull(): void
 
     echo "Reading llms.txt...\n";
     $content = file_get_contents($llmsFile);
+    if ($content === false) {
+        throw new RuntimeException("Failed to read llms.txt at: $llmsFile");
+    }
 
     // Extract the header section (before first ## section with links)
     $lines = explode("\n", $content);
@@ -100,7 +103,11 @@ function generateLlmsFull(): void
     }
 
     // Write the result
-    file_put_contents($outputFile, $fullContent);
+    $bytesWritten = file_put_contents($outputFile, $fullContent);
+    if ($bytesWritten === false || $bytesWritten !== strlen($fullContent)) {
+        throw new RuntimeException("Failed to write complete llms-full.txt to: $outputFile");
+    }
+
     echo "Generated llms-full.txt successfully!\n";
     echo "File size: " . number_format(strlen($fullContent)) . " characters\n";
 }
@@ -119,9 +126,15 @@ function parseMarkdownPath(string $url, string $baseDir): ?string
 function includeMarkdownFile(string $filePath): string
 {
     $content = file_get_contents($filePath);
+    if ($content === false) {
+        throw new RuntimeException("Failed to read markdown file: $filePath");
+    }
 
     // Remove Jekyll front matter (handles optional whitespace/comments before, and flexible closing '---')
     $content = preg_replace('/\A(?:\s*|<!--.*?-->\s*)*---\s*\n(.*?)\n---\s*(?:\n|$)/s', '', $content);
+    if ($content === null) {
+        throw new RuntimeException("Failed to strip front matter from markdown file: $filePath");
+    }
 
     // Clean up the content
     $content = trim($content);
@@ -165,6 +178,9 @@ function includeMarkdownFile(string $filePath): string
         },
         $content
     );
+    if ($content === null) {
+        throw new RuntimeException("Failed to convert markdown links in: $filePath");
+    }
 
     return $content;
 }
