@@ -53,8 +53,7 @@ An injection-point-dependent singleton would capture whichever consumer construc
 
 ## Cache injector
 
-The injector is serializable.
-It also boosts the performance.
+The injector is serializable, so the container can be preserved across requests.
 
 ```php
 
@@ -68,34 +67,4 @@ $lister = $injector->getInstance(ListerInterface::class);
 
 ```
 
-## CachedInjectorFactory
-
-The `CachedInjectorFactory` can be used in a hybrid of the two injectors to achieve the best performance in both development and production.
-
-The injector is able to inject singleton objects **beyond the request**, greatly increasing the speed of testing. Successive PDO connections also do not run out of connection resources in the test.
-
-See [CachedInjectorFactory](https://github.com/ray-di/Ray.Compiler/issues/75) for more information.
-
-## Attribute Reader
-
-When not using Doctrine annotations, you can improve performance during development by using only PHP8 attribute readers.
-
-Register it as an autoloader in the `composer.json` 
-
-```json
-  "autoload": {
-    "files": [
-      "vendor/ray/aop/attribute_reader.php"
-    ]
-```
-
-Or set in bootstrap script.
-
-```php
-declare(strict_types=1);
-
-use Koriym\Attributes\AttributeReader;
-use Ray\ServiceLocator\ServiceLocator;
-
-ServiceLocator::setReader(new AttributeReader());
-```
+However, `unserialize()` reconstructs the container on every process and the cost scales with the binding set. Production measurements show ~29 ms per process for a serialized injector versus ~5 ms for the compiled injector. See [Performance & OPcache](https://github.com/ray-di/Ray.Compiler/blob/1.x/docs/performance.md) for details.

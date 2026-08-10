@@ -53,7 +53,7 @@ Swoole や OpenSwoole のような長寿命・コルーチンランタイムで�
 
 ## キャッシュインジェクター
 
-インジェクターはシリアライズ可能で、パフォーマンスを向上します。
+インジェクターはシリアライズ可能で、コンテナをリクエストを跨いで保持できます。
 
 ```php
 
@@ -67,35 +67,4 @@ $lister = $injector->getInstance(ListerInterface::class);
 
 ```
 
-## CachedInjectorFactory
-
-`CachedInejctorFactory` は、2つのインジェクターをハイブリッドで使用することで、開発時と運用時の両方で最高のパフォーマンスを発揮することができます。
-
-インジェクターはシングルトンオブジェクトを **リクエストを跨ぎ** 注入することができます。
-その結果テストの速度は大幅に向上します。テスト中に連続したPDO接続によって接続リソースが枯渇することもありません。
-
-詳しくは、[CachedInjectorFactory](https://github.com/ray-di/Ray.Compiler/issues/75)をご覧ください。
-
-## Attribute Reader
-
-Doctrineアノテーションを利用しない時はPHP8のアトリビュートリーダーだけを使用することで開発時のパフォーマンスが改善します。
-
-`composer.json`にオートローダーとして登録するか
-
-```json
-  "autoload": {
-    "files": [
-      "vendor/ray/aop/attribute_reader.php"
-    ]
-```
-
-ブートストラップのスクリプトでセットします。
-
-```php
-declare(strict_types=1);
-
-use Koriym\Attributes\AttributeReader;
-use Ray\ServiceLocator\ServiceLocator;
-
-ServiceLocator::setReader(new AttributeReader());
-```
+ただし `unserialize()` はプロセス毎にコンテナを再構築するため、コストは束縛の数に応じて増加します。プロダクションの計測では、シリアライズしたインジェクターは1プロセスあたり約29ms、コンパイル済みインジェクターは約5msです。詳しくは [Performance & OPcache](https://github.com/ray-di/Ray.Compiler/blob/1.x/docs/performance.md) をご覧ください。
