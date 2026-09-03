@@ -40,7 +40,7 @@ try {
 ```php
 use Ray\Compiler\CompiledInjector;
 
-$injector = new CompiledInjector($scriptDir);
+$injector = new CompiledInjector($tmpDir);
 $injector->warmup(); // ワーカー起動時に一度だけ呼び出します
 ```
 
@@ -49,6 +49,7 @@ Swoole や OpenSwoole のような長寿命・コルーチンランタイムで�
 インジェクションポイントに依存するシングルトンは、最初に構築したコンシューマーのコンテキストを取り込んでしまい、共有インスタンスが順序依存になります。そのような束縛はプロトタイプスコープにするか、インジェクションポイントへの依存を取り除く必要があります。
 
 - インジェクションポイントに依存するシングルトンがあると、コンパイル時に `SingletonRequiresInjectionPoint` がスローされます。
+- `$tmpDir` に `singletons.json` がないと、`warmup()` は `SingletonsFileNotFound` をスローします。いまの Ray.Compiler でコンパイルし直してください。
 
 ## キャッシュインジェクター
 

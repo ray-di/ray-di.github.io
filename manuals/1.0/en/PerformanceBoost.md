@@ -40,7 +40,7 @@ Compilation also generates `singletons.json`, a list of singleton bindings that 
 ```php
 use Ray\Compiler\CompiledInjector;
 
-$injector = new CompiledInjector($scriptDir);
+$injector = new CompiledInjector($tmpDir);
 $injector->warmup(); // call once at worker startup
 ```
 
@@ -49,6 +49,7 @@ In a long-lived or coroutine runtime (Swoole, OpenSwoole), lazy singleton initia
 An injection-point-dependent singleton would capture whichever consumer constructs it first, making the shared instance order-dependent. Such bindings must use prototype scope or remove the injection-point dependency.
 
 - Compilation throws `SingletonRequiresInjectionPoint` for an injection-point-dependent singleton.
+- `warmup()` throws `SingletonsFileNotFound` when `$tmpDir` holds no `singletons.json`. Compile again with the current Ray.Compiler.
 
 ## Cache injector
 
