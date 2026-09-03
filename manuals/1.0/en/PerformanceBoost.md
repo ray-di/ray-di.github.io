@@ -33,6 +33,8 @@ Once an instance has been created, You can view the generated factory files in `
 
 ## Warming up singletons on coroutine runtime servers
 
+The reflective `Injector` keeps its resolution state — the chain of indexes being resolved and the current injection point — for the whole process. When a coroutine suspends inside a provider (waiting for a connection from a pool, say), another coroutine enters that state and a request fails with a `CircularDependency` whose chain is not circular. Coroutine servers run on the compiled injector.
+
 Compilation also generates `singletons.json`, a list of singleton bindings that can be instantiated without caller context. `CompiledInjector::warmup()` instantiates them all eagerly:
 
 ```php
