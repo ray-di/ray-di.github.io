@@ -31,6 +31,26 @@ try {
 ```
 Once an instance has been created, You can view the generated factory files in `$tmpDir`
 
+## Warming up singletons on coroutine runtime servers
+
+The reflective `Injector` keeps its resolution state — the chain of indexes being resolved and the current injection point — for the whole process. When a coroutine suspends inside a provider (waiting for a connection from a pool, say), another coroutine enters that state and a request fails with a `CircularDependency` whose chain is not circular. Coroutine servers run on the compiled injector.
+
+Compilation also generates `singletons.json`, a list of singleton bindings that can be instantiated without caller context. `CompiledInjector::warmup()` instantiates them all eagerly:
+
+```php
+use Ray\Compiler\CompiledInjector;
+
+$injector = new CompiledInjector($tmpDir);
+$injector->warmup(); // call once at worker startup
+```
+
+In a long-lived or coroutine runtime (Swoole, OpenSwoole), lazy singleton initialization can race when construction yields, producing duplicate instances. Calling `warmup()` before concurrent request handling begins removes that window. This is only needed for runtimes that handle requests concurrently within one process. Standard PHP-FPM workers process one request at a time, so no warm-up is required there.
+
+An injection-point-dependent singleton would capture whichever consumer constructs it first, making the shared instance order-dependent. Such bindings must use prototype scope or remove the injection-point dependency.
+
+- Compilation throws `SingletonRequiresInjectionPoint` for an injection-point-dependent singleton.
+- `warmup()` throws `SingletonsFileNotFound` when `$tmpDir` holds no `singletons.json`. Compile again with the current Ray.Compiler.
+
 ## Cache injector
 
 The injector is serializable.
