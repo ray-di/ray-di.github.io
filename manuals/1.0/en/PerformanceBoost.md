@@ -67,4 +67,4 @@ $lister = $injector->getInstance(ListerInterface::class);
 
 ```
 
-However, `unserialize()` reconstructs the container on every process and the cost scales with the binding set. Production measurements show ~29 ms per process for a serialized injector versus ~5 ms for the compiled injector. See [Performance & OPcache](https://github.com/ray-di/Ray.Compiler/blob/1.x/docs/performance.md) for details.
+However, `unserialize()` reconstructs the container on every process, and the cost scales with the binding set. On one production application with ~600 compiled scripts, a cold php-fpm request paid ~29 ms for the serialized injector and ~5 ms for the compiled one (about 6×); in a warm worker the gap shrinks to a few milliseconds. See [Performance & OPcache](https://github.com/ray-di/Ray.Compiler/blob/1.x/docs/performance.md) for the setup.

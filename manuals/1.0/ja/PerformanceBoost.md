@@ -67,4 +67,4 @@ $lister = $injector->getInstance(ListerInterface::class);
 
 ```
 
-ただし `unserialize()` はプロセス毎にコンテナを再構築するため、コストは束縛の数に応じて増加します。プロダクションの計測では、シリアライズしたインジェクターは1プロセスあたり約29ms、コンパイル済みインジェクターは約5msです。詳しくは [Performance & OPcache](https://github.com/ray-di/Ray.Compiler/blob/1.x/docs/performance.md) をご覧ください。
+ただし `unserialize()` はプロセスごとにコンテナを組み立て直すので、コストは束縛の数に比例して増えます。コンパイル済みスクリプト約 600 本の本番アプリでは、php-fpm のコールドな 1 リクエストでシリアライズ版が約 29ms、コンパイル版が約 5ms でした（約 6 倍）。ウォームなワーカーでは差は数 ms に縮みます。計測条件は [Performance & OPcache](https://github.com/ray-di/Ray.Compiler/blob/1.x/docs/performance.md) にあります。
