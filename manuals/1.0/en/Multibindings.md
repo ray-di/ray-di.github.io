@@ -151,6 +151,8 @@ class PrettyTweets
 (new PrettyTweets)();
 ```
 
+If two installed modules contribute a binding for the same key, the first installed module's entry is kept and the later one is discarded.
+
 ### MapBinder
 
 You can name the classes you add in the multibinder.

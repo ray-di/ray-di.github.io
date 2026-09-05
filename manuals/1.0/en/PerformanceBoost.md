@@ -31,10 +31,29 @@ try {
 ```
 Once an instance has been created, You can view the generated factory files in `$tmpDir`
 
+## Warming up singletons on coroutine runtime servers
+
+The reflective `Injector` keeps its resolution state — the chain of indexes being resolved and the current injection point — for the whole process. When a coroutine suspends inside a provider (waiting for a connection from a pool, say), another coroutine enters that state and a request fails with a `CircularDependency` whose chain is not circular. Coroutine servers run on the compiled injector.
+
+Compilation also generates `singletons.json`, a list of singleton bindings that can be instantiated without caller context. `CompiledInjector::warmup()` instantiates them all eagerly:
+
+```php
+use Ray\Compiler\CompiledInjector;
+
+$injector = new CompiledInjector($tmpDir);
+$injector->warmup(); // call once at worker startup
+```
+
+In a long-lived or coroutine runtime (Swoole, OpenSwoole), lazy singleton initialization can race when construction yields, producing duplicate instances. Calling `warmup()` before concurrent request handling begins removes that window. This is only needed for runtimes that handle requests concurrently within one process. Standard PHP-FPM workers process one request at a time, so no warm-up is required there.
+
+An injection-point-dependent singleton would capture whichever consumer constructs it first, making the shared instance order-dependent. Such bindings must use prototype scope or remove the injection-point dependency.
+
+- Compilation throws `SingletonRequiresInjectionPoint` for an injection-point-dependent singleton.
+- `warmup()` throws `SingletonsFileNotFound` when `$tmpDir` holds no `singletons.json`. Compile again with the current Ray.Compiler.
+
 ## Cache injector
 
-The injector is serializable.
-It also boosts the performance.
+The injector is serializable, so the container can be preserved across requests.
 
 ```php
 
@@ -48,34 +67,4 @@ $lister = $injector->getInstance(ListerInterface::class);
 
 ```
 
-## CachedInjectorFactory
-
-The `CachedInjectorFactory` can be used in a hybrid of the two injectors to achieve the best performance in both development and production.
-
-The injector is able to inject singleton objects **beyond the request**, greatly increasing the speed of testing. Successive PDO connections also do not run out of connection resources in the test.
-
-See [CachedInjectorFactory](https://github.com/ray-di/Ray.Compiler/issues/75) for more information.
-
-## Attribute Reader
-
-When not using Doctrine annotations, you can improve performance during development by using only PHP8 attribute readers.
-
-Register it as an autoloader in the `composer.json` 
-
-```json
-  "autoload": {
-    "files": [
-      "vendor/ray/aop/attribute_reader.php"
-    ]
-```
-
-Or set in bootstrap script.
-
-```php
-declare(strict_types=1);
-
-use Koriym\Attributes\AttributeReader;
-use Ray\ServiceLocator\ServiceLocator;
-
-ServiceLocator::setReader(new AttributeReader());
-```
+However, `unserialize()` reconstructs the container on every process, and the cost scales with the binding set. On one production application with ~600 compiled scripts, a cold php-fpm request paid ~29 ms for the serialized injector and ~5 ms for the compiled one (about 6×); in a warm worker the gap shrinks to a few milliseconds. See [Performance & OPcache](https://github.com/ray-di/Ray.Compiler/blob/1.x/docs/performance.md) for the setup.

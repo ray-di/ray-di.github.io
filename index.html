@@ -14,12 +14,27 @@ category: Index
         Overview &raquo;
     </a>
     <script>
-        window.addEventListener('DOMContentLoaded', (event) => {
+        window.addEventListener('DOMContentLoaded', () => {
+            const navigatorLanguages = window.navigator.languages;
+            const locales = (navigatorLanguages && navigatorLanguages.length)
+                ? navigatorLanguages
+                : [window.navigator.language ?? ''];
+            const preferredSupportedLocale = locales.find((locale) => {
+                const lowerLocale = locale.toLowerCase();
+
+                return lowerLocale.startsWith('ja') || lowerLocale.startsWith('en');
+            }) ?? '';
+            const prefersJapanese = preferredSupportedLocale.startsWith('ja');
+
+            if (!prefersJapanese) {
+                return;
+            }
+
             const links = document.getElementsByClassName('intl');
-            const locale = window.navigator.language;
-            if (locale.startsWith('ja')) {
-                for(let i = 0; i < links.length; i++) {
-                    links[i].setAttribute('href', links[i].getAttribute('href').replace('/en/', '/ja/'));
+            for (const link of links) {
+                const href = link.getAttribute('href');
+                if (href && href.includes('/en/')) {
+                    link.setAttribute('href', href.replace('/en/', '/ja/'));
                 }
             }
         });

@@ -129,10 +129,9 @@ jobs:
         bundler-cache: true
     - name: Build Jekyll site
       run: |
+        php bin/generate_llms_full.php
         bundle exec jekyll build
         ./bin/copy_markdown_files.sh
-    - name: Generate llms-full.txt
-      run: php bin/generate_llms_full.php
     - name: Generate single-page documentation
       run: ruby bin/merge_md_files.rb
     - name: Deploy to GitHub Pages
@@ -174,7 +173,7 @@ jobs:
         # Add link checking tool here
 ```
 
-#### 3. Automated Documentation Updates
+#### 3. Automated Single-Page Documentation Updates
 ```yaml
 name: Update Documentation
 on:
@@ -198,14 +197,13 @@ jobs:
         php-version: '8.1'
     - name: Regenerate documentation
       run: |
-        php bin/generate_llms_full.php
         ruby bin/merge_md_files.rb
         ./bin/copy_markdown_files.sh
     - name: Create Pull Request
       uses: peter-evans/create-pull-request@v5
       with:
         title: 'chore: update generated documentation files'
-        body: 'Automated update of llms-full.txt and single-page documentation'
+        body: 'Automated update of single-page documentation'
         branch: automated-doc-updates
 ```
 
