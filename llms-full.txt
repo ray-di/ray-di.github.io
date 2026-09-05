@@ -1,0 +1,937 @@
+# Ray.Di -- Comprehensive LLM Reference
+
+Ray.Di is a PHP dependency injection framework inspired by Google Guice. It resolves dependencies at compile time via code generation, supports AOP method interception, and requires PHP 7.2+. Install with `composer require ray/di ^2.0`.
+
+Key imports used throughout:
+
+```php
+use Ray\Di\AbstractModule;
+use Ray\Di\Injector;
+use Ray\Di\Di\Inject;
+use Ray\Di\Di\Named;
+use Ray\Di\Di\Qualifier;
+use Ray\Di\Di\PostConstruct;
+use Ray\Di\Di\Assisted;
+use Ray\Di\ProviderInterface;
+use Ray\Di\Scope;
+use Ray\Di\InjectionPoints;
+use Ray\Di\Multibinder;
+use Ray\Di\Map;
+use Ray\Di\Di\Set;
+use Ray\Aop\MethodInterceptor;
+use Ray\Aop\MethodInvocation;
+```
+
+## Modules
+
+All bindings are configured in modules. Extend `AbstractModule` and override `configure()`.
+
+```php
+class AppModule extends AbstractModule
+{
+    protected function configure(): void
+    {
+        // Bindings go here
+        $this->bind(LoggerInterface::class)->to(FileLogger::class);
+    }
+}
+```
+
+### Creating an Injector
+
+```php
+$injector = new Injector(new AppModule());
+$logger = $injector->getInstance(LoggerInterface::class);
+```
+
+Pass multiple modules as an array:
+
+```php
+$injector = new Injector([new DbModule(), new CacheModule()]);
+```
+
+### install() -- Composing Modules
+
+```php
+class AppModule extends AbstractModule
+{
+    protected function configure(): void
+    {
+        $this->install(new DatabaseModule());
+        $this->install(new AuthModule());
+        $this->install(new CacheModule());
+    }
+}
+```
+
+Earlier bindings take priority. If `DatabaseModule` and `AuthModule` both bind the same interface, the one installed first wins.
+
+### override() -- Replacing Bindings
+
+```php
+$module = new AppModule();
+$module->override(new TestModule());
+$injector = new Injector($module);
+```
+
+Bindings in `TestModule` replace matching bindings in `AppModule`. Use this for testing or environment-specific configuration.
+
+You can also call `override()` inside `configure()`:
+
+```php
+protected function configure(): void
+{
+    $this->install(new ProductionModule());
+    $this->override(new StagingOverrides());
+}
+```
+
+## Linked Bindings
+
+Map an interface to an implementation class. This is the most common binding type.
+
+```php
+$this->bind(TransactionLogInterface::class)->to(DatabaseTransactionLog::class);
+$this->bind(CreditCardProcessorInterface::class)->to(PaypalProcessor::class);
+```
+
+Ray.Di recursively resolves all constructor dependencies of the target class.
+
+## Instance Bindings
+
+Bind a type to a specific instance. Use for value objects and simple values.
+
+```php
+$this->bind(UserInterface::class)->toInstance(new User());
+$this->bind()->annotatedWith('login_id')->toInstance('bear');
+$this->bind()->annotatedWith('max_retries')->toInstance(3);
+```
+
+Avoid `toInstance()` with complex objects that are expensive to create -- it runs during module initialization.
+
+## Provider Bindings
+
+For complex object construction logic, bind to a provider class.
+
+```php
+$this->bind(TransactionLogInterface::class)->toProvider(DatabaseTransactionLogProvider::class);
+```
+
+Provider class:
+
+```php
+class DatabaseTransactionLogProvider implements ProviderInterface
+{
+    public function __construct(
+        private readonly ConnectionInterface $connection
+    ) {}
+
+    public function get(): DatabaseTransactionLog
+    {
+        $transactionLog = new DatabaseTransactionLog();
+        $transactionLog->setConnection($this->connection);
+
+        return $transactionLog;
+    }
+}
+```
+
+Providers can have their own injected dependencies (like `$connection` above).
+
+### InjectionPoint in Providers
+
+Providers can inspect where they are being injected via `InjectionPointInterface`:
+
+```php
+class Psr3LoggerProvider implements ProviderInterface
+{
+    public function __construct(
+        private readonly InjectionPointInterface $ip
+    ) {}
+
+    public function get(): \Monolog\Logger
+    {
+        $logger = new \Monolog\Logger($this->ip->getClass()->getName());
+        $logger->pushHandler(new StreamHandler('path/to/your.log', Logger::WARNING));
+
+        return $logger;
+    }
+}
+```
+
+Available methods on `InjectionPointInterface`:
+
+```php
+$ip->getClass();      // \ReflectionClass
+$ip->getMethod();     // \ReflectionMethod
+$ip->getParameter();  // \ReflectionParameter
+$ip->getQualifiers(); // array of qualifier attributes
+```
+
+## Constructor Bindings
+
+For third-party classes where you cannot add attributes, use `toConstructor()`.
+
+```php
+$this->bind($interfaceName)->toConstructor(
+    $className,       // string: Class name
+    $name,            // array|string: Parameter-to-qualifier mapping
+    $injectionPoints, // InjectionPoints: Setter injection config
+    $postConstruct    // string: Method name to call after injection
+);
+```
+
+### PDO Example
+
+```php
+$this->bind(\PDO::class)->toConstructor(
+    \PDO::class,
+    [
+        'dsn' => 'pdo_dsn',
+        'username' => 'pdo_username',
+        'password' => 'pdo_password',
+    ]
+)->in(Scope::SINGLETON);
+
+$this->bind()->annotatedWith('pdo_dsn')->toInstance('mysql:host=localhost;dbname=mydb');
+$this->bind()->annotatedWith('pdo_username')->toInstance(getenv('DB_USER'));
+$this->bind()->annotatedWith('pdo_password')->toInstance(getenv('DB_PASSWORD'));
+```
+
+### With Setter Injection and PostConstruct
+
+```php
+$this->bind(ClientInterface::class)->toConstructor(
+    GuzzleClient::class,
+    'base_uri=api_endpoint',
+    (new InjectionPoints())
+        ->addMethod('setLogger')
+        ->addOptionalMethod('setCache'),
+    'initialize'
+);
+```
+
+The `$name` parameter accepts a query-string format: `'param1=qualifier1&param2=qualifier2'`
+
+## Untargeted Bindings
+
+Register a concrete class without a target. Useful for preparing dependencies eagerly or applying scope.
+
+```php
+$this->bind(MyConcreteClass::class);
+$this->bind(AnotherConcreteClass::class)->in(Scope::SINGLETON);
+```
+
+## Null Object Binding
+
+Generate and bind a null implementation of an interface. Methods return null/default values.
+
+```php
+$this->bind(CreditCardProcessorInterface::class)->toNull();
+```
+
+## Scopes
+
+By default, Ray.Di creates a new instance each time. Use `Scope::SINGLETON` for shared instances.
+
+```php
+$this->bind(TransactionLogInterface::class)->to(InMemoryTransactionLog::class)->in(Scope::SINGLETON);
+```
+
+Singleton scope can be combined with any binding type:
+
+```php
+$this->bind(CacheInterface::class)->toProvider(RedisCacheProvider::class)->in(Scope::SINGLETON);
+$this->bind(\PDO::class)->toConstructor(\PDO::class, '...')->in(Scope::SINGLETON);
+```
+
+## Injection Patterns
+
+### Constructor Injection (default)
+
+No attribute required. Ray.Di automatically injects all constructor parameters.
+
+```php
+class BillingService
+{
+    public function __construct(
+        private readonly CreditCardProcessorInterface $processor,
+        private readonly TransactionLogInterface $transactionLog
+    ) {}
+}
+```
+
+### Setter Injection
+
+Use `#[Inject]` on setter methods:
+
+```php
+class BillingService
+{
+    private DbInterface $db;
+
+    #[Inject]
+    public function setDb(DbInterface $db): void
+    {
+        $this->db = $db;
+    }
+}
+```
+
+### Optional Injection
+
+Use `#[Inject(optional: true)]` for dependencies that may not be bound:
+
+```php
+class PayPalProcessor implements CreditCardProcessorInterface
+{
+    private const SANDBOX_API_KEY = 'development-use-only';
+    private string $apiKey = self::SANDBOX_API_KEY;
+
+    #[Inject(optional: true)]
+    public function setApiKey(#[Named('paypal-apikey')] string $apiKey): void
+    {
+        $this->apiKey = $apiKey;
+    }
+}
+```
+
+### Assisted Injection
+
+Inject dependencies into arbitrary method calls at runtime. Add `#[Assisted]` to parameters with `null` defaults:
+
+```php
+class OrderService
+{
+    public function processOrder(string $orderId, #[Assisted] DbInterface $db = null): void
+    {
+        // $db is injected by Ray.Di at call time
+    }
+}
+```
+
+### Property Injection
+
+Ray.Di does NOT support property injection. Use constructor or setter injection.
+
+## Qualifiers -- Distinguishing Same-Type Bindings
+
+### #[Named] -- Built-in String Qualifier
+
+```php
+// In the consumer class:
+public function __construct(
+    #[Named('checkout')] private readonly CreditCardProcessorInterface $processor,
+    #[Named('backup')] private readonly CreditCardProcessorInterface $backup
+) {}
+
+// In the module:
+$this->bind(CreditCardProcessorInterface::class)
+    ->annotatedWith('checkout')
+    ->to(CheckoutProcessor::class);
+$this->bind(CreditCardProcessorInterface::class)
+    ->annotatedWith('backup')
+    ->to(BackupProcessor::class);
+```
+
+### Custom Qualifier Attributes (Type-Safe)
+
+Define a qualifier attribute:
+
+```php
+use Ray\Di\Di\Qualifier;
+
+#[Attribute, Qualifier]
+final class PayPal
+{
+}
+```
+
+Use it on constructor parameters:
+
+```php
+public function __construct(
+    #[PayPal] private readonly CreditCardProcessorInterface $processor
+) {}
+```
+
+Bind it in the module:
+
+```php
+$this->bind(CreditCardProcessorInterface::class)
+    ->annotatedWith(PayPal::class)
+    ->to(PayPalProcessor::class);
+```
+
+### Qualifier with Parameter Name
+
+When a qualifier should only apply to a specific parameter:
+
+```php
+public function __construct(
+    #[PayPal('processor')] private readonly CreditCardProcessorInterface $processor,
+    private readonly OtherInterface $other
+) {}
+```
+
+### Qualifier with Enum Values
+
+Reuse a single qualifier attribute with different values:
+
+```php
+enum PaymentType
+{
+    case CREDIT;
+    case DEBIT;
+    case CRYPTO;
+}
+
+#[Attribute, Qualifier]
+final class Payment
+{
+    public function __construct(
+        public readonly PaymentType $value
+    ) {}
+}
+```
+
+Usage: `#[Payment(PaymentType::CREDIT)]`, `#[Payment(PaymentType::DEBIT)]`, etc.
+
+### Binding Scalar/Untyped Values with Qualifiers
+
+When a parameter has no type hint, use `annotatedWith` with an empty `bind()`:
+
+```php
+// Module:
+$this->bind()->annotatedWith(Message::class)->toInstance('Hello %s!');
+$this->bind()->annotatedWith('api_key')->toInstance('sk-12345');
+
+// Consumer:
+public function __construct(
+    #[Message] private readonly string $message,
+    #[Named('api_key')] private readonly string $apiKey
+) {}
+```
+
+## Object Lifecycle -- #[PostConstruct]
+
+A method annotated with `#[PostConstruct]` is called after all dependencies are injected:
+
+```php
+use Ray\Di\Di\PostConstruct;
+
+class MyService
+{
+    private DbInterface $db;
+
+    public function __construct(DbInterface $db)
+    {
+        $this->db = $db;
+    }
+
+    #[PostConstruct]
+    public function init(): void
+    {
+        // Called after constructor and setter injection complete
+        $this->db->connect();
+    }
+}
+```
+
+## AOP -- Method Interception
+
+Ray.Di supports aspect-oriented programming via method interceptors for cross-cutting concerns (logging, transactions, security, caching).
+
+### Step 1: Define an Attribute
+
+```php
+#[Attribute(Attribute::TARGET_METHOD)]
+final class Cacheable
+{
+}
+```
+
+### Step 2: Apply to Methods
+
+```php
+class UserRepository implements UserRepositoryInterface
+{
+    #[Cacheable]
+    public function findById(int $id): User
+    {
+        // expensive database query
+    }
+}
+```
+
+### Step 3: Implement the Interceptor
+
+```php
+use Ray\Aop\MethodInterceptor;
+use Ray\Aop\MethodInvocation;
+
+class CacheInterceptor implements MethodInterceptor
+{
+    public function __construct(
+        private readonly CacheInterface $cache
+    ) {}
+
+    public function invoke(MethodInvocation $invocation): mixed
+    {
+        $key = $invocation->getMethod()->getName() . serialize($invocation->getArguments()->getArrayCopy());
+        $cached = $this->cache->get($key);
+        if ($cached !== null) {
+            return $cached;
+        }
+
+        $result = $invocation->proceed();
+        $this->cache->set($key, $result);
+
+        return $result;
+    }
+}
+```
+
+### Step 4: Bind the Interceptor in a Module
+
+```php
+class CacheModule extends AbstractModule
+{
+    protected function configure(): void
+    {
+        $this->bind(CacheInterface::class)->to(RedisCache::class)->in(Scope::SINGLETON);
+        $this->bindInterceptor(
+            $this->matcher->any(),                          // match any class
+            $this->matcher->annotatedWith('Cacheable'),     // match #[Cacheable] methods
+            [CacheInterceptor::class]                       // interceptor classes
+        );
+    }
+}
+```
+
+### Matcher Methods
+
+- `$this->matcher->any()` -- matches all classes/methods
+- `$this->matcher->annotatedWith('AttributeName')` -- matches classes/methods with the given attribute
+
+### MethodInvocation API
+
+Inside an interceptor:
+
+```php
+$invocation->proceed();              // Call the original method
+$invocation->getMethod();            // \ReflectionMethod
+$invocation->getArguments();         // \ArrayObject of arguments
+$invocation->getThis();              // The target object instance
+$invocation->getMethod()->getName(); // Method name
+```
+
+### Disabling an Interceptor
+
+```php
+use Ray\Aop\NullInterceptor;
+
+$this->bind(SomeInterceptor::class)->to(NullInterceptor::class);
+```
+
+### AOP Limitations
+
+- Classes must be non-final
+- Methods must be public and non-final
+- Instances must be created by Ray.Di (not `new`)
+
+## Injecting Providers -- Lazy/Multiple Instances
+
+When you need lazy loading, multiple instances, or to mix scopes, inject `ProviderInterface` instead of the type directly.
+
+```php
+use Ray\Di\Di\Set;
+
+class BillingService
+{
+    /**
+     * @param ProviderInterface<CreditCardProcessorInterface> $processorProvider
+     */
+    public function __construct(
+        #[Set(CreditCardProcessorInterface::class)] private readonly ProviderInterface $processorProvider
+    ) {}
+
+    public function charge(): void
+    {
+        // A new or cached instance depending on scope
+        $processor = $this->processorProvider->get();
+    }
+}
+```
+
+Use `#[Set(InterfaceName::class)]` to specify which type the provider produces. Add `@param ProviderInterface<T>` phpdoc for static analysis.
+
+### Use Cases
+
+Lazy loading -- defer expensive construction:
+
+```php
+public function logFailure(ChargeResult $result): void
+{
+    if (!$result->wasSuccessful()) {
+        $connection = $this->connectionProvider->get(); // only created when needed
+    }
+}
+```
+
+Multiple instances -- get a fresh instance each call:
+
+```php
+$entry1 = $this->entryProvider->get();
+$entry2 = $this->entryProvider->get(); // different instance (unless singleton)
+```
+
+Mixing scopes -- singleton depends on request-scoped data:
+
+```php
+class SingletonService
+{
+    public function __construct(
+        #[Set(User::class)] private readonly ProviderInterface $userProvider
+    ) {}
+
+    public function handle(): void
+    {
+        $user = $this->userProvider->get(); // fresh per request
+    }
+}
+```
+
+## Contextual Provider Bindings
+
+Same interface, different implementations based on context. Pass a context string as the second argument to `toProvider()`.
+
+```php
+// Module:
+$dbConfig = ['user' => $userDsn, 'job' => $jobDsn, 'log' => $logDsn];
+$this->bind()->annotatedWith('db_config')->toInstance($dbConfig);
+$this->bind(Connection::class)->annotatedWith('usr_db')->toProvider(DbalProvider::class, 'user');
+$this->bind(Connection::class)->annotatedWith('job_db')->toProvider(DbalProvider::class, 'job');
+$this->bind(Connection::class)->annotatedWith('log_db')->toProvider(DbalProvider::class, 'log');
+```
+
+Provider implementing `SetContextInterface`:
+
+```php
+use Ray\Di\SetContextInterface;
+
+class DbalProvider implements ProviderInterface, SetContextInterface
+{
+    private string $context;
+
+    public function __construct(
+        #[Named('db_config')] private readonly array $dbConfigs
+    ) {}
+
+    public function setContext(string $context): void
+    {
+        $this->context = $context;
+    }
+
+    public function get(): Connection
+    {
+        return DriverManager::getConnection($this->dbConfigs[$this->context]);
+    }
+}
+```
+
+Consumer:
+
+```php
+public function __construct(
+    #[Named('usr_db')] private readonly Connection $userDb,
+    #[Named('job_db')] private readonly Connection $jobDb,
+    #[Named('log_db')] private readonly Connection $logDb
+) {}
+```
+
+## Multibindings
+
+Bind multiple implementations of the same interface. Useful for plugin architectures.
+
+### Multibinder (Set)
+
+Register implementations in modules:
+
+```php
+class PluginModule extends AbstractModule
+{
+    protected function configure(): void
+    {
+        $uriBinder = Multibinder::newInstance($this, UriSummarizerInterface::class);
+        $uriBinder->addBinding()->to(FlickrSummarizer::class);
+        $uriBinder->addBinding()->to(GoogleMapsSummarizer::class);
+    }
+}
+```
+
+Inject the set using `#[Set]` and `Map`:
+
+```php
+class TweetPrettifier
+{
+    /**
+     * @param Map<UriSummarizerInterface> $summarizers
+     */
+    public function __construct(
+        #[Set(UriSummarizerInterface::class)] private readonly Map $summarizers
+    ) {}
+
+    public function prettifyUri(Uri $uri): string
+    {
+        foreach ($this->summarizers as $summarizer) {
+            $summary = $summarizer->summarize($uri);
+            if ($summary !== null) {
+                return $summary;
+            }
+        }
+
+        return $uri->toString();
+    }
+}
+```
+
+### MapBinder (Named Set)
+
+Add named entries for key-based lookup:
+
+```php
+$uriBinder = Multibinder::newInstance($this, UriSummarizerInterface::class);
+$uriBinder->addBinding('flickr')->to(FlickrSummarizer::class);
+$uriBinder->addBinding('youtube')->to(YouTubeSummarizer::class);
+```
+
+Access by key:
+
+```php
+$flickr = $this->summarizers['flickr'];
+```
+
+### setBinding() -- Override Previous Binding
+
+```php
+$uriBinder->setBinding('flickr')->to(NewFlickrSummarizer::class);
+```
+
+### Composing Plugin Modules
+
+```php
+class AppModule extends AbstractModule
+{
+    protected function configure(): void
+    {
+        $this->install(new CoreModule());
+        $this->install(new FlickrPluginModule());
+        $this->install(new YouTubePluginModule());
+    }
+}
+```
+
+Multiple modules can contribute to the same `Multibinder` -- `Multibinder::newInstance()` does not override existing bindings.
+
+## Performance -- Production Optimization
+
+### ScriptInjector (Recommended for Production)
+
+Compiles bindings to raw PHP factory code. Fastest option.
+
+```php
+use Ray\Di\ScriptInjector;
+use Ray\Compiler\DiCompiler;
+use Ray\Compiler\Exception\NotCompiled;
+
+try {
+    $injector = new ScriptInjector($tmpDir);
+    $instance = $injector->getInstance(ListerInterface::class);
+} catch (NotCompiled $e) {
+    $compiler = new DiCompiler(new AppModule(), $tmpDir);
+    $compiler->compile();
+    $instance = $injector->getInstance(ListerInterface::class);
+}
+```
+
+### Serialized Injector (Cache)
+
+```php
+// Compile once:
+$injector = new Injector(new AppModule());
+$cached = serialize($injector);
+file_put_contents('injector.cache', $cached);
+
+// Load from cache:
+$injector = unserialize(file_get_contents('injector.cache'));
+$service = $injector->getInstance(ServiceInterface::class);
+```
+
+### PHP 8 Attribute Reader (Development Performance)
+
+In `composer.json`:
+
+```json
+{
+    "autoload": {
+        "files": [
+            "vendor/ray/aop/attribute_reader.php"
+        ]
+    }
+}
+```
+
+Or in bootstrap:
+
+```php
+use Koriym\Attributes\AttributeReader;
+use Ray\ServiceLocator\ServiceLocator;
+
+ServiceLocator::setReader(new AttributeReader());
+```
+
+## Dependency Graph Visualization
+
+Generate a GraphViz `.dot` file for your object graph:
+
+```php
+use Ray\ObjectGrapher\ObjectGrapher;
+
+$dot = (new ObjectGrapher())(new AppModule());
+file_put_contents('graph.dot', $dot);
+```
+
+Render with `dot -T png graph.dot > graph.png` or paste into [GraphvizOnline](https://dreampuf.github.io/GraphvizOnline/).
+
+## Complete Example -- Putting It All Together
+
+```php
+<?php
+require __DIR__ . '/vendor/autoload.php';
+
+use Ray\Di\AbstractModule;
+use Ray\Di\Di\Qualifier;
+use Ray\Di\Injector;
+use Ray\Di\ProviderInterface;
+
+// 1. Define qualifier attributes
+#[Attribute, Qualifier]
+class Message {}
+
+#[Attribute, Qualifier]
+class Count {}
+
+// 2. Define providers for scalar values
+class MessageProvider implements ProviderInterface
+{
+    public function get(): string
+    {
+        return 'hello world';
+    }
+}
+
+class CountProvider implements ProviderInterface
+{
+    public function get(): int
+    {
+        return 3;
+    }
+}
+
+// 3. Define the module
+class DemoModule extends AbstractModule
+{
+    protected function configure(): void
+    {
+        $this->bind()->annotatedWith(Message::class)->toProvider(MessageProvider::class);
+        $this->bind()->annotatedWith(Count::class)->toProvider(CountProvider::class);
+    }
+}
+
+// 4. Define the class with injected dependencies
+class Greeter
+{
+    public function __construct(
+        #[Message] private readonly string $message,
+        #[Count] private readonly int $count
+    ) {}
+
+    public function sayHello(): void
+    {
+        for ($i = 0; $i < $this->count; $i++) {
+            echo $this->message . PHP_EOL;
+        }
+    }
+}
+
+// 5. Bootstrap
+$injector = new Injector(new DemoModule());
+$greeter = $injector->getInstance(Greeter::class);
+$greeter->sayHello();
+```
+
+## Best Practices Summary
+
+- Use constructor injection with `readonly` properties for immutable objects
+- Do not inject the Injector itself -- declare dependencies statically
+- Inject only direct dependencies -- use providers to extract indirect ones
+- Organize modules by feature, not by class type
+- Modules should be fast and side-effect free -- no DB connections in `configure()`
+- Avoid conditional logic in modules -- use separate modules for different environments
+- Do not reuse qualifier attributes for unrelated bindings
+- Avoid static state -- inject everything
+- Avoid cyclic dependencies -- extract shared state into a new class, or use providers
+- Use `Injector` as few times as possible (ideally once at bootstrap)
+
+## Framework Integrations
+
+- [BEAR.Sunday](http://bearsunday.github.io/)
+- [Laravel](https://github.com/ray-di/Ray.RayDiForLaravel)
+- [CakePHP PipingBag](https://github.com/lorenzo/piping-bag)
+- [Yii 1](https://github.com/koriym/Ray.Dyii)
+
+## Binding DSL Quick Reference
+
+| DSL | Effect |
+|-----|--------|
+| `bind(I::class)->to(C::class)` | Linked binding: I resolves to C |
+| `bind(I::class)->toProvider(P::class)` | Provider binding: I created by P |
+| `bind(I::class)->toInstance($obj)` | Instance binding: I returns $obj |
+| `bind(I::class)->toConstructor(C::class, [...])` | Constructor binding for third-party classes |
+| `bind(I::class)->toNull()` | Null object binding |
+| `bind(C::class)` | Untargeted binding (concrete class) |
+| `bind(I::class)->to(C::class)->in(Scope::SINGLETON)` | Singleton scope |
+| `bind(I::class)->annotatedWith(Q::class)->to(C::class)` | Qualified with custom attribute |
+| `bind(I::class)->annotatedWith('name')->to(C::class)` | Qualified with #[Named('name')] |
+| `bind()->annotatedWith('key')->toInstance($val)` | Bind scalar/untyped value by name |
+| `bind()->annotatedWith(Q::class)->toInstance($val)` | Bind scalar/untyped value by qualifier |
+| `install(new M())` | Install another module |
+| `override(new M())` | Override bindings with another module |
+| `bindInterceptor($classMatcher, $methodMatcher, [...])` | Bind AOP interceptor |
+
+## Documentation Links
+
+- [GitHub: ray-di/Ray.Di](https://github.com/ray-di/Ray.Di)
+- [Overview](https://ray-di.github.io/manuals/1.0/en/index.html)
+- [Getting Started](https://ray-di.github.io/manuals/1.0/en/getting_started.html)
+- [Bindings](https://ray-di.github.io/manuals/1.0/en/bindings.html)
+- [Linked Bindings](https://ray-di.github.io/manuals/1.0/en/linked_bindings.html)
+- [Provider Bindings](https://ray-di.github.io/manuals/1.0/en/provider_bindings.html)
+- [Instance Bindings](https://ray-di.github.io/manuals/1.0/en/instance_bindings.html)
+- [Constructor Bindings](https://ray-di.github.io/manuals/1.0/en/constructor_bindings.html)
+- [Untargeted Bindings](https://ray-di.github.io/manuals/1.0/en/untargeted_bindings.html)
+- [Scopes](https://ray-di.github.io/manuals/1.0/en/scopes.html)
+- [Injections](https://ray-di.github.io/manuals/1.0/en/injections.html)
+- [Binding Attributes](https://ray-di.github.io/manuals/1.0/en/binding_attributes.html)
+- [AOP](https://ray-di.github.io/manuals/1.0/en/aop.html)
+- [Injecting Providers](https://ray-di.github.io/manuals/1.0/en/injecting_providers.html)
+- [Contextual Bindings](https://ray-di.github.io/manuals/1.0/en/contextual_bindings.html)
+- [Multibindings](https://ray-di.github.io/manuals/1.0/en/multibindings.html)
+- [Object Lifecycle](https://ray-di.github.io/manuals/1.0/en/object_life_cycle.html)
+- [Null Object Binding](https://ray-di.github.io/manuals/1.0/en/null_object_binding.html)
+- [Performance Boost](https://ray-di.github.io/manuals/1.0/en/performance_boost.html)
+- [Best Practices](https://ray-di.github.io/manuals/1.0/en/best_practices.html)
+- [Mental Model](https://ray-di.github.io/manuals/1.0/en/mental_model.html)
+- [Grapher](https://ray-di.github.io/manuals/1.0/en/grapher.html)
+- [Integration](https://ray-di.github.io/manuals/1.0/en/integration.html)
