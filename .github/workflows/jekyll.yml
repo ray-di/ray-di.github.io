@@ -52,7 +52,6 @@ jobs:
 
       - name: Run custom scripts
         run: |
-          ruby bin/merge_md_files.rb
           php bin/generate_llms_full.php
 
 
