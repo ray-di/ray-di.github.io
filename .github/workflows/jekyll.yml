@@ -52,7 +52,6 @@ jobs:
 
       - name: Run custom scripts
         run: |
-          ruby bin/merge_md_files.rb
           php bin/generate_llms_full.php
 
 
@@ -61,6 +60,15 @@ jobs:
         run: bundle exec jekyll build --baseurl "${{ steps.pages.outputs.base_path }}"
         env:
           JEKYLL_ENV: production
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Build search index
+        run: npx --yes pagefind@latest --site _site
+
       - name: Upload artifact
         # Automatically uploads an artifact from the './_site' directory by default
         uses: actions/upload-pages-artifact@v3

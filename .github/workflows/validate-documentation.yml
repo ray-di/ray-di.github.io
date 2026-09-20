@@ -43,19 +43,6 @@ jobs:
           fi
           echo "✅ llms-full.txt generated successfully"
           
-      - name: Validate single-page merge
-        run: |
-          ruby bin/merge_md_files.rb
-          if [ ! -f "manuals/1.0/en/1page.md" ]; then
-            echo "❌ English single-page documentation was not generated"
-            exit 1
-          fi
-          if [ ! -f "manuals/1.0/ja/1page.md" ]; then
-            echo "❌ Japanese single-page documentation was not generated"
-            exit 1
-          fi
-          echo "✅ Single-page documentation generated successfully"
-          
       - name: Install link checker
         run: |
           # Install lychee link checker
@@ -160,16 +147,3 @@ jobs:
             fi
             echo "✅ llms-full.txt size: $size bytes"
           fi
-          
-          # Check single-page files
-          for lang in en ja; do
-            file="manuals/1.0/$lang/1page.md"
-            if [ -f "$file" ]; then
-              size=$(wc -c < "$file")
-              if [ "$size" -lt 10000 ]; then
-                echo "❌ $file seems too small: $size bytes"
-                exit 1
-              fi
-              echo "✅ $file size: $size bytes"
-            fi
-          done
