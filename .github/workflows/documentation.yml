@@ -59,7 +59,18 @@ jobs:
           mkdir -p _site/manuals/1.0/en
           mkdir -p _site/manuals/1.0/ja
           cp llms-full.txt _site/
-          
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      # Generate client-side search index (Pagefind) from the built site.
+      # Indexes <article data-pagefind-body> content, split per language via
+      # the <html lang> attribute (en / ja).
+      - name: Build search index
+        run: npx --yes pagefind@latest --site _site
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
