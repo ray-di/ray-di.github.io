@@ -198,6 +198,13 @@ Ray.Diの`toNull()`メソッドはNull Objectクラスを自動生成し、手�
 Null ObjectとAOPを組み合わせると、さらに興味深いパターンが生まれます。以下は高度な使い方の例です：
 
 ```php
+// 0. 属性クラス（テーブル名を保持）
+#[Attribute(Attribute::TARGET_METHOD)]
+class DbQuery
+{
+    public function __construct(public readonly string $table) {}
+}
+
 // 1. インターフェイスだけを定義（実装クラスは書かない）
 interface TodoQueryInterface
 {
@@ -222,11 +229,15 @@ class AppModule extends AbstractModule
 // 3. インターセプターがメソッド呼び出しを横取りしてSQL実行
 class DbQueryInterceptor implements MethodInterceptor
 {
+    public function __construct(private readonly PDO $pdo) {}
+
     public function invoke(MethodInvocation $invocation): mixed
     {
-        $attr = $invocation->getMethod()->getAttributes(DbQuery::class)[0];
+        $attr = $invocation->getMethod()->getAttributes(DbQuery::class)[0]->newInstance();
         $sql = "SELECT * FROM {$attr->table} WHERE id = ?";
-        return $this->pdo->execute($sql, $invocation->getArguments());
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($invocation->getArguments());
+        return $stmt->fetch();
     }
 }
 

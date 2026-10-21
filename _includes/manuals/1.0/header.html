@@ -10,6 +10,8 @@
     {% if page.category == 'Manual' %}
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/github-markdown-css/2.10.0/github-markdown.css">
     <link rel="stylesheet" href="/css/syntax.css">
+    <link href="/pagefind/pagefind-component-ui.css" rel="stylesheet">
+    <script src="/pagefind/pagefind-component-ui.js" type="module"></script>
     {% endif %}
     <link rel="stylesheet" href="/css/manual-skeleton.css">
     <link rel="manifest" href="/site.webmanifest">
@@ -35,6 +37,9 @@
         </div>
         {% if page.category == 'Manual' %}
         <ul class="navbar-nav ml-md-auto d-none d-md-flex language-list">
+            <li class="nav-item">
+                <pagefind-modal-trigger></pagefind-modal-trigger>
+            </li>
             <li>
                 <a class="{% if page.layout == 'docs-en' %}active{% endif %}" href="{{ page.permalink | replace: '/ja/', '/en/' }}">En</a>
             </li>
@@ -42,6 +47,7 @@
                 <a class="{% if page.layout == 'docs-ja' %}active{% endif %}" href="{{ page.permalink | replace: '/en/', '/ja/' }}">Ja</a>
             </li>
         </ul>
+        <pagefind-modal></pagefind-modal>
         {% endif %}
     </nav>
 </header>

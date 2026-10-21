@@ -121,7 +121,7 @@ Repositoryパターンは明確な分離を生み出します：サービスは�
 
 Repositoryインターフェイスの設計には2つのアプローチがあります。
 
-### 一般的なアプローチ - インフラとロジックを分ける
+### 一般的なアプローチ - CRUDをまとめた単一インターフェイス
 
 ```php
 interface OrderRepositoryInterface
