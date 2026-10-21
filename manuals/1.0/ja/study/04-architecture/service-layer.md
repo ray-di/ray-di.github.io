@@ -86,7 +86,12 @@ class OrderService
         }
     }
 
-    private function validateInventory(int $productId, int $quantity): void;
+    private function validateInventory(int $productId, int $quantity): void
+    {
+        if (!$this->inventoryService->isAvailable($productId, $quantity)) {
+            throw new InvalidArgumentException('Insufficient inventory');
+        }
+    }
 }
 
 // Thin Controller - HTTPマッピングのみ

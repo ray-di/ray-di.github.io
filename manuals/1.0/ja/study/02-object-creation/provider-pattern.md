@@ -95,9 +95,11 @@ class DatabaseConnection
 
 Providerバインディングの設定：
 ```php
+use Ray\Di\Scope;
+
 $this->bind(DatabaseConnection::class)
      ->toProvider(DatabaseConnectionProvider::class)
-     ->in(Singleton::class);
+     ->in(Scope::SINGLETON);
 ```
 
 ## パターンの本質
@@ -138,9 +140,11 @@ class CacheProvider implements ProviderInterface
 }
 
 // ✅ 良い例 - ライフサイクル管理にスコープを使用
+use Ray\Di\Scope;
+
 $this->bind(CacheInterface::class)
      ->toProvider(CacheProvider::class)
-     ->in(Singleton::class); // DIがライフサイクルを処理
+     ->in(Scope::SINGLETON); // DIがライフサイクルを処理
 ```
 
 オブジェクトのライフサイクルはスコープを通じてDIコンテナに管理させましょう。DIコンテナは並行性とキャッシングを正しく処理します。各Provider呼び出しは新しいオブジェクトを作成するか、キャッシュされたインスタンスを返します—スコープが決定し、あなたのコードではありません。Providerは構築と初期化だけに集中すべきです。
@@ -160,7 +164,7 @@ Providerはパラメータを持ちません。DIコンテナがオブジェク�
 
 ## SOLID原則
 
-Providerパターンは初期化をドメインロジックから分離することで**単一責任原則**を実施します。Providerだけを修正し、ドメインクラスには触れないことで**開放/閉鎖原則**をサポートします。具体的な初期化ロジックではなくProviderインターフェースに依存することで**依存性逆転原則**を支持します。
+Providerパターンは初期化をドメインロジックから分離することで**単一責任原則**を実施します。Providerだけを修正し、ドメインクラスには触れないことで**開放/閉鎖原則**をサポートします。具体的な初期化ロジックではなくProviderインターフェースに依存することで**依存性逆転の原則**を支持します。
 
 ## テスト
 

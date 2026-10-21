@@ -72,23 +72,6 @@ php bin/generate_llms_full.php
 - Creates `llms-full.txt` in the root directory
 - Typical file size: ~80,000 characters
 
-#### `merge_md_files.rb`
-Merges all manual markdown files into single-page versions for each language.
-
-```bash
-ruby bin/merge_md_files.rb
-```
-
-**What it does:**
-- Reads navigation order from `_includes/manuals/1.0/{lang}/contents.html`
-- Merges all documentation files in proper order
-- Removes Jekyll front matter from merged content
-- Generates single-page documentation files
-
-**Output:**
-- `manuals/1.0/en/1page.md` (English single-page version)
-- `manuals/1.0/ja/1page.md` (Japanese single-page version)
-
 #### `copy_markdown_files.sh`
 Copies markdown files to `_site` directory for llms.txt standard compliance.
 
@@ -132,8 +115,6 @@ jobs:
         php bin/generate_llms_full.php
         bundle exec jekyll build
         ./bin/copy_markdown_files.sh
-    - name: Generate single-page documentation
-      run: ruby bin/merge_md_files.rb
     - name: Deploy to GitHub Pages
       uses: actions/deploy-pages@v3
       with:
@@ -165,46 +146,10 @@ jobs:
         bundler-cache: true
     - name: Validate llms-full.txt generation
       run: php bin/generate_llms_full.php
-    - name: Validate single-page merge
-      run: ruby bin/merge_md_files.rb
     - name: Check for broken links
       run: |
         bundle exec jekyll build
         # Add link checking tool here
-```
-
-#### 3. Automated Single-Page Documentation Updates
-```yaml
-name: Update Documentation
-on:
-  schedule:
-    - cron: '0 2 * * *'  # Daily at 2 AM
-  workflow_dispatch:
-
-jobs:
-  update:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v4
-    - name: Setup Ruby
-      uses: ruby/setup-ruby@v1
-      with:
-        ruby-version: 3.2
-        bundler-cache: true
-    - name: Setup PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: '8.1'
-    - name: Regenerate documentation
-      run: |
-        ruby bin/merge_md_files.rb
-        ./bin/copy_markdown_files.sh
-    - name: Create Pull Request
-      uses: peter-evans/create-pull-request@v5
-      with:
-        title: 'chore: update generated documentation files'
-        body: 'Automated update of single-page documentation'
-        branch: automated-doc-updates
 ```
 
 ## llms.txt Standard Compliance
@@ -238,7 +183,6 @@ This documentation follows the [llms.txt standard](https://llms-txt.org/) for AI
 ```bash
 # After updating manuals, regenerate derived files
 php bin/generate_llms_full.php
-ruby bin/merge_md_files.rb
 ```
 
 ### Production Build
@@ -247,7 +191,6 @@ ruby bin/merge_md_files.rb
 bundle exec jekyll build
 ./bin/copy_markdown_files.sh
 php bin/generate_llms_full.php
-ruby bin/merge_md_files.rb
 ```
 
 ## File Structure
@@ -259,7 +202,6 @@ bin/
 ├── serve_docker.sh           # Docker development server
 ├── entrypoint.sh             # Docker entrypoint
 ├── generate_llms_full.php    # Generate comprehensive AI documentation
-├── merge_md_files.rb         # Generate single-page documentation
 └── copy_markdown_files.sh    # Copy markdown for llms.txt compliance
 ```
 

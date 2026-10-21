@@ -1,16 +1,16 @@
 ---
 layout: docs-ja
-title: 依存注入の原則
+title: 依存性注入の原則
 category: Manual
 permalink: /manuals/1.0/ja/study/01-foundations/dependency-injection-principles.html
 ---
 
-# 依存注入の原則
+# 依存性注入の原則
 
 ## 学習目標
 
 このセクションの終わりまでに、以下を理解できるようになります：
-- 依存注入とは何か、そしてその第一の目的は保守しやすいソフトウェアの構築であること
+- 依存性注入とは何か、そしてその第一の目的は保守しやすいソフトウェアの構築であること
   - テスト容易性はDIの重要な利点だが、それは保守性向上という本来の目的の副次的な効果
 - DIがソフトウェア設計で解決する問題
 - 制御の反転（IoC）の中核原則と、DIがIoCを実現する具体的な手法であること
@@ -59,11 +59,11 @@ class OrderService
 3. **柔軟性の欠如**: MySQLからPostgreSQLに変更したい場合や、SMTPからSendGridに変更したい場合に対応が困難です
 4. **SOLID原則の違反**: クラスが変更される理由が複数ある
 
-## 解決策：依存注入（Dependency Injection）
+## 解決策：依存性注入（Dependency Injection）
 
 これらの問題を解決する鍵は、オブジェクトの作成責任をどこに置くかを見直すことです。
 
-依存注入は、オブジェクトの作成と管理の制御を反転（Inversion of Control）させることで、これらの問題を解決します。先ほどの`OrderService`の例では、オブジェクトが`new`演算子を使って自ら依存関係を作成していました。これは Control Freak（制御魔）アンチパターンと呼ばれます。
+依存性注入は、オブジェクトの作成と管理の制御を反転（Inversion of Control）させることで、これらの問題を解決します。先ほどの`OrderService`の例では、オブジェクトが`new`演算子を使って自ら依存関係を作成していました。これは Control Freak（制御魔）アンチパターンと呼ばれます。
 
 Control Freakとは、オブジェクトが協力者（依存関係）の作成に対して過度な制御を取ろうとする状態です。`OrderService`が「MySQLDatabaseを使う」「SMTPでメールを送る」「ファイルにログを書く」という具体的な実装の詳細まで知り、制御しようとしています。これにより、`OrderService`は本来の責任（注文処理のビジネスロジック）だけでなく、インフラストラクチャの構築責任まで負ってしまいます。
 
@@ -122,13 +122,13 @@ class OrderService
 2. **テスト可能性（Testability）**: テスト用にモックオブジェクトを簡単に注入できる
 3. **柔軟性（Flexibility）**: `OrderService`を変更せずに実装を切り替えられる
 4. **単一責任（Single Responsibility）**: 各クラスが変更される理由は一つ
-5. **オープン・クローズド原則（Open/Closed Principle）**: 拡張に対してオープン、変更に対してクローズド
+5. **開放/閉鎖原則（Open/Closed Principle）**: 拡張に対して開き、変更に対して閉じる
 6. **遅延バインディング（Late Binding）**: どの実装を使用するかの決定を、アプリケーション起動時や設定時まで遅延できる
 7. **拡張容易性（Extensibility）**: 既存のコードを変更せずに新機能を追加できる
 
 ## 制御の反転（Inversion of Control / IoC）
 
-ここまでで、依存注入が「依存関係を外部から注入する」技法であることを見てきました。しかし、なぜこれが有効なのでしょうか？その根底にある原理を理解するために、制御の反転（Inversion of Control、IoC）という概念を見ていきましょう。
+ここまでで、依存性注入が「依存関係を外部から注入する」技法であることを見てきました。しかし、なぜこれが有効なのでしょうか？その根底にある原理を理解するために、制御の反転（Inversion of Control、IoC）という概念を見ていきましょう。
 
 制御の反転とは、「誰がオブジェクトの作成と管理を制御するか」という責任の所在を反転させることを意味します。
 
@@ -268,13 +268,10 @@ DIコンテナ（Ray.Di）は、この手動配線作業を自動化し、さら
 
 ```php
 // Pure DI（手動）- ロガーの実装変更が大変
-$validator = new OrderValidator();
-$calculator = new PriceCalculator();
 $database = new MySQLDatabase('localhost', 'shop', 'user', 'pass');
-$repository = new OrderRepository($database);
 $emailService = new SMTPEmailService('smtp.example.com', 587);
 $logger = new FileLogger('/var/log/orders.log'); // ここを変更すると...
-$orderService = new OrderService($validator, $calculator, $repository, $emailService, $logger);
+$orderService = new OrderService($database, $emailService, $logger);
 // アプリケーション中の全ての箇所を変更する必要がある
 
 // DIコンテナ使用（自動化）- 1箇所の変更で済む
@@ -341,7 +338,7 @@ Google Guiceのドキュメント[Avoid Conditional Logic in Modules](https://gi
 
 代わりに、環境ごとに専用のモジュールを作成し、エントリーポイントで適切なモジュールを選択します。各モジュールは条件分岐を持たないため、循環的複雑度が低く（理想的には1）、テストカバレッジが自然と100%に近づきます。すべての環境設定が明示的で、完全にテスト可能になります。
 
-## 依存注入のタイプ
+## 依存性注入のタイプ
 
 依存関係を注入する方法にはいくつかのパターンがあります。それぞれの特徴を理解し、適切な場面で使い分けることが重要です。
 
@@ -404,24 +401,26 @@ Ray.Diでは代わりにコンストラクタ注入の使用を強く推奨し�
 
 ## DIの設計哲学：変更を前提とした構造設計
 
-ここまで、依存注入の技術的な側面—制御の反転、Pure DI、注入のタイプ—を見てきました。しかし、DIの真の価値は技術的なメカニズムだけにあるのではありません。DIは、ソフトウェア開発に対する根本的な考え方の転換をもたらします。
+ここまで、依存性注入の技術的な側面—制御の反転、Pure DI、注入のタイプ—を見てきました。しかし、DIの真の価値は技術的なメカニズムだけにあるのではありません。DIは、ソフトウェア開発に対する根本的な考え方の転換をもたらします。
 
-依存注入は単なるテスト技法ではありません。それは複雑さと変化を制御するための設計哲学です。
+依存性注入は単なるテスト技法ではありません。それは複雑さと変化を制御するための設計哲学です。
 
 ### プログラムを「オブジェクトグラフ」として捉える
 
 従来のプログラミングでは、コードを「命令の集まり」として見てきました。しかしDIでは、プログラムをオブジェクトグラフ（Object Graph）—オブジェクト間の依存関係のネットワーク—として捉えます。クラスAがクラスBに依存し、クラスBがクラスCに依存する。この依存関係のグラフこそが、ソフトウェアの真の構造です。
 
-```php
+```
 // 命令の集まりとしての視点
-$database = new MySQLDatabase();
-$repository = new OrderRepository($database);
-$service = new OrderService($repository);
+$pool = new ConnectionPool();
+$database = new MySQLDatabase($pool);
+$emailService = new SMTPEmailService();
+$logger = new FileLogger();
+$service = new OrderService($database, $emailService, $logger);
 
 // オブジェクトグラフとしての視点
-OrderService → OrderRepositoryInterface → DatabaseInterface
-    ↓              ↓                        ↓
-  実装詳細      実装詳細                  実装詳細
+OrderService → DatabaseInterface → ConnectionPoolInterface
+            → EmailServiceInterface
+            → LoggerInterface
 ```
 
 重要なのは、このオブジェクトグラフが非循環（ADP: Acyclic Dependencies Principle）を維持しながら、疎結合（Loose Coupling）な構造を持つことです。ソフトウェアとは、この性質を満たすオブジェクトグラフの設計そのものと言えます。循環依存のない有向非巡回グラフ（DAG）により、変更の影響が一方向にのみ伝播し、制御可能になります。

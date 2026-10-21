@@ -68,7 +68,7 @@ jobs:
           mkdir -p link-check-results
           
           # Check external links with detailed reporting (excluding generated files)
-          find manuals -name "*.md" -type f ! -name "1page.md" -exec lychee --config .lycherc.toml \
+          find manuals -name "*.md" -type f -exec lychee --config .lycherc.toml \
             --no-progress \
             --format json \
             --output link-check-results/external-links.json \

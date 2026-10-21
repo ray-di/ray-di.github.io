@@ -49,6 +49,9 @@ $container['user.repository'] = function($c) {
 Ray.Diは、Javaの世界で実績のあるGoogle Guiceの思想を採用しています。依存関係をルールとして宣言し、フレームワークが自動的に依存グラフを構築します：
 
 ```php
+use Ray\Di\AbstractModule;
+use Ray\Di\Scope;
+
 // Ray.Diの宣言的な設定
 class AppModule extends AbstractModule
 {
@@ -57,7 +60,7 @@ class AppModule extends AbstractModule
         // インターフェースと実装の関係を宣言
         $this->bind(DatabaseInterface::class)
              ->to(MySQLDatabase::class)
-             ->in(Singleton::class);
+             ->in(Scope::SINGLETON);
 
         $this->bind(UserRepositoryInterface::class)
              ->to(UserRepository::class);
@@ -166,7 +169,7 @@ class DatabaseModule extends AbstractModule
     {
         $this->bind(DatabaseConnectionInterface::class)
              ->to(MySQLConnection::class)
-             ->in(Singleton::class);
+             ->in(Scope::SINGLETON);
 
         $this->bind(UserRepositoryInterface::class)
              ->to(MySQLUserRepository::class);
@@ -202,9 +205,11 @@ $this->bind(DatabaseConnectionInterface::class)
      ->toProvider(DatabaseConnectionProvider::class);
 ```
 
-特に強力なのが注釈付きバインディングです。同じインターフェースに対して複数の実装が必要な場合、`@Named`アトリビュートで区別できます：
+特に強力なのが注釈付きバインディングです。同じインターフェースに対して複数の実装が必要な場合、`#[Named]`アトリビュートで区別できます：
 
 ```php
+use Ray\Di\Di\Named;
+
 class OrderService
 {
     public function __construct(
@@ -243,7 +248,7 @@ class OrderService
 ```php
 $this->bind(DatabaseConnectionInterface::class)
     ->to(MySQLConnection::class)
-    ->in(Singleton::class);
+    ->in(Scope::SINGLETON);
 ```
 
 データベース接続やログ記録器など、作成コストが高く、状態を共有しても安全なオブジェクトにはシングルトンスコープが適しています。
@@ -298,6 +303,11 @@ class TestModule extends AbstractModule
 ここまでの概念を統合した実践的な例を見てみましょう。注文処理サービスを構築します：
 
 ```php
+use Ray\Di\AbstractModule;
+use Ray\Di\Di\Named;
+use Ray\Di\Injector;
+use Ray\Di\Scope;
+
 class OrderService
 {
     public function __construct(
@@ -314,26 +324,46 @@ class OrderService
     }
 }
 
+// 環境に依存しない共通の束縛
 class AppModule extends AbstractModule
 {
     protected function configure(): void
     {
-        // 環境に応じた支払いサービス
-        $paymentImpl = $_ENV['APP_ENV'] === 'production'
-            ? StripePaymentService::class
-            : MockPaymentService::class;
-
-        $this->bind(PaymentServiceInterface::class)->to($paymentImpl);
         $this->bind(EmailServiceInterface::class)->to(SendGridEmailService::class);
         $this->bind(LoggerInterface::class)
              ->annotatedWith('audit')
              ->to(FileLogger::class)
-             ->in(Singleton::class);
+             ->in(Scope::SINGLETON);
     }
 }
+
+// 環境ごとの束縛は専用モジュールに分ける
+class ProductionModule extends AbstractModule
+{
+    protected function configure(): void
+    {
+        $this->install(new AppModule());
+        $this->bind(PaymentServiceInterface::class)->to(StripePaymentService::class);
+    }
+}
+
+class DevelopmentModule extends AbstractModule
+{
+    protected function configure(): void
+    {
+        $this->install(new AppModule());
+        $this->bind(PaymentServiceInterface::class)->to(MockPaymentService::class);
+    }
+}
+
+// エントリーポイントでのみ環境を判定する
+$module = getenv('APP_ENV') === 'production'
+    ? new ProductionModule()
+    : new DevelopmentModule();
+$orderService = (new Injector($module))->getInstance(OrderService::class);
 ```
 
-この例は、Ray.Diの主要な機能を示しています。インターフェースへの依存により、支払いサービスを環境に応じて切り替えています。名前付きバインディングで監査用ログを区別しています。シングルトンスコープでログインスタンスを共有しています。
+この例は、Ray.Diの主要な機能を示しています。支払いサービスの切り替えは環境別モジュールに分け、モジュールの中には条件分岐を持ち込みません。名前付きバインディングで監査用ログを区別しています。シングルトンスコープでログインスタンスを共有しています。
 
 ## 設計のベストプラクティス
 
