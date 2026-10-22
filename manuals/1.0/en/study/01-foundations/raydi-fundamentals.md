@@ -72,7 +72,7 @@ class AppModule extends AbstractModule
 // Verifiable: configuration mistakes are detected immediately
 ```
 
-This difference is not merely a matter of syntax. In Ray.Di, dependencies are expressed as types, so you can make full use of PHP's type system and IDE features. Configuration mistakes are detected before the code runs—when the DI container resolves the bindings—rather than in production.
+This difference is not merely a matter of syntax. In Ray.Di, dependencies are expressed as types, so you can make full use of PHP's type system and IDE features. Configuration mistakes are detected when the DI container resolves the bindings—at container build time with the compiled injector, or on first resolution with the runtime injector—rather than surfacing later in production.
 
 ### Optional compilation
 
@@ -91,7 +91,7 @@ class UserService_RayAop
 }
 ```
 
-Compiling is an optional step. The plain `Injector` shown below resolves bindings at runtime; the compiled path needs the `ray/compiler` package and `ScriptInjector`, which reads and writes the generated factory code in a cache directory. With it, the application runs as fast as if the dependencies had been wired by hand. See [Performance boost](../../performance_boost.html) for the setup.
+Compiling is an optional step. The plain `Injector` shown below resolves bindings at runtime; the compiled path needs the `ray/compiler` package: `DiCompiler` writes the generated factory code to a cache directory, and `ScriptInjector` loads it. With it, the application runs as fast as if the dependencies had been wired by hand. See [Performance boost](../../performance_boost.html) for the setup.
 
 ## Basic concepts: the first step
 

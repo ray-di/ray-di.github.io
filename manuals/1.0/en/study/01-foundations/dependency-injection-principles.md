@@ -264,7 +264,7 @@ It manages scopes such as singleton and prototype, controlling whether the same 
 
 It detects binding inconsistencies and circular dependencies at application startup, so problems are found before execution. Detecting problems at startup rather than at runtime prevents unexpected errors in production.
 
-It can compile the resolved dependency graph into optimized PHP code. Compilation is optional: the default `Injector` resolves bindings at runtime, and the compiled path uses `ScriptInjector`, provided by the `ray/compiler` package. Ray.Di achieves both flexibility during development and performance in production.
+It can compile the resolved dependency graph into optimized PHP code. Compilation is optional: the default `Injector` resolves bindings at runtime, while the compiled path uses `DiCompiler` to generate factories and `ScriptInjector` to load them (`ray/compiler`). Ray.Di achieves both flexibility during development and performance in production.
 
 ```php
 // Pure DI (manual) - changing the logger implementation is painful

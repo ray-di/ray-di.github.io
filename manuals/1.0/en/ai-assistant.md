@@ -44,6 +44,7 @@ The `llms-full.txt` file follows the `llms.txt` standard. It is a simple way to 
   const button = document.getElementById('copyLlmsText');
   const status = document.getElementById('copyStatus');
   let llmsText = null;
+  let loadFailed = false;
 
   // Load the file once so the click handler can write to the clipboard without awaiting a fetch
   fetch('/llms-full.txt')
@@ -58,6 +59,7 @@ The `llms-full.txt` file follows the `llms.txt` standard. It is a simple way to 
     })
     .catch(error => {
       console.error('Failed to load the file:', error);
+      loadFailed = true;
       status.textContent = 'Failed to load llms-full.txt.';
     });
 
@@ -97,8 +99,12 @@ The `llms-full.txt` file follows the `llms.txt` standard. It is a simple way to 
   }
 
   button.addEventListener('click', function() {
+    if (loadFailed) {
+      status.textContent = 'Failed to load llms-full.txt. Reload the page and try again.';
+      return;
+    }
     if (llmsText === null) {
-      showStatus('Not loaded yet. Please try again in a moment.');
+      showStatus('Still loading. Please try again in a moment.');
       return;
     }
     if (navigator.clipboard && navigator.clipboard.writeText) {

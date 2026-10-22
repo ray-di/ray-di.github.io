@@ -107,16 +107,24 @@ class OrderController
 
     public function createOrder(Request $request): Response
     {
-        $customerId = $request->get('customer_id');
+        $customerId = filter_var($request->get('customer_id'), FILTER_VALIDATE_INT);
         $items = $request->get('items');
 
         // Reject malformed input before the typed service call
-        if (!is_numeric($customerId) || !is_array($items)) {
+        if ($customerId === false || !is_array($items)) {
             return new Response('Invalid request', 400);
         }
 
+        foreach ($items as $item) {
+            if (!is_array($item)
+                || filter_var($item['product_id'] ?? null, FILTER_VALIDATE_INT) === false
+                || filter_var($item['quantity'] ?? null, FILTER_VALIDATE_INT) === false) {
+                return new Response('Invalid request', 400);
+            }
+        }
+
         try {
-            $order = $this->orderService->createOrder((int) $customerId, $items);
+            $order = $this->orderService->createOrder($customerId, $items);
             return new Response('Order created', 201);
         } catch (InvalidArgumentException $e) {
             return new Response($e->getMessage(), 400);

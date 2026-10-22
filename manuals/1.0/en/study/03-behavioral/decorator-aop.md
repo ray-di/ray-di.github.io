@@ -98,6 +98,15 @@ You can create similar decorators for transactions, caching, and other cross-cut
 Wrapping services by hand with decorators is tedious. AOP automates decorator application through attributes. Instead of explicit wrapping, you declare a concern with an attribute and let Ray.Di apply it:
 
 ```php
+use Attribute;
+
+// Marker attributes
+#[Attribute(Attribute::TARGET_METHOD)]
+final class Log {}
+
+#[Attribute(Attribute::TARGET_METHOD)]
+final class Transactional {}
+
 // Define an interceptor (an automated decorator)
 class LoggingInterceptor implements MethodInterceptor
 {
@@ -112,7 +121,25 @@ class LoggingInterceptor implements MethodInterceptor
     }
 }
 
-// Apply it with an attribute
+class TransactionalInterceptor implements MethodInterceptor
+{
+    public function __construct(private TransactionManager $transactions) {}
+
+    public function invoke(MethodInvocation $invocation): mixed
+    {
+        $this->transactions->begin();
+        try {
+            $result = $invocation->proceed();
+            $this->transactions->commit();
+            return $result;
+        } catch (\Throwable $e) {
+            $this->transactions->rollback();
+            throw $e;
+        }
+    }
+}
+
+// Apply them with attributes
 class OrderService
 {
     #[Log]
