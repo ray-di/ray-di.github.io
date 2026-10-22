@@ -226,7 +226,7 @@ $orderService = new OrderService($database, $emailService, $logger);
 
 This manual wiring works well enough for small applications. As the application grows, however, maintainability problems become apparent.
 
-For example, suppose you want to change the `LoggerInterface` implementation used throughout the application from `FileLogger` to `CloudLogger`. With Pure DI, you must find every `new FileLogger()` in every composition root and rewrite it to `new CloudLogger()`. If you have wired things by hand in 100 places, you must modify all 100. Miss even one, and different loggers will be mixed in production.
+For example, suppose you want to change the `LoggerInterface` implementation used throughout the application from `FileLogger` to `CloudLogger`. With Pure DI, you must find every `new FileLogger()` and rewrite it to `new CloudLogger()`. Pure DI still centralizes assembly in a single composition root, so those edits stay in one file—but you must edit each of the 100 wiring lines there. Miss even one, and different loggers will be mixed in production. Scattering the wiring across many places instead—one per feature or framework hook—is the anti-pattern that makes Pure DI painful, and it defeats the purpose of having a composition root.
 
 Furthermore, manually managing objects that should be treated as singletons (such as database connections) is difficult. Developers must always be aware of where to reuse the same instance and where to create a new one, and implement it correctly. This is a breeding ground for human error.
 
@@ -264,7 +264,7 @@ It manages scopes such as singleton and prototype, controlling whether the same 
 
 It detects binding inconsistencies and circular dependencies at application startup, so problems are found before execution. Detecting problems at startup rather than at runtime prevents unexpected errors in production.
 
-It caches the dependency graph and generates it as optimized PHP code, minimizing runtime overhead. Ray.Di achieves both flexibility during development and performance in production.
+It can compile the resolved dependency graph into optimized PHP code. Compilation is optional: the default `Injector` resolves bindings at runtime, and the compiled path uses `ScriptInjector`, provided by the `ray/compiler` package. Ray.Di achieves both flexibility during development and performance in production.
 
 ```php
 // Pure DI (manual) - changing the logger implementation is painful
@@ -362,11 +362,25 @@ class ProductService
 ### 2. Method injection
 
 ```php
+use Ray\Di\Di\Inject;
+
 class ProductService
 {
-    public function findProduct(int $id, LoggerInterface $logger): Product
+    private LoggerInterface $logger;
+
+    public function __construct(
+        private ProductRepositoryInterface $repository
+    ) {}
+
+    #[Inject]
+    public function setLogger(LoggerInterface $logger): void
     {
-        $logger->info("Finding product: $id");
+        $this->logger = $logger;
+    }
+
+    public function findProduct(int $id): Product
+    {
+        $this->logger->info("Finding product: $id");
         return $this->repository->find($id);
     }
 }
@@ -374,7 +388,7 @@ class ProductService
 
 **Use cases:**
 - Optional dependencies
-- Dependencies that differ per method call
+- Dependencies that differ per call (assisted injection with `#[Assisted]`)
 
 ### 3. Property injection (not supported by Ray.Di)
 

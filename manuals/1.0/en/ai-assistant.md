@@ -14,7 +14,7 @@ Explore resources that use the power of AI to support Ray.Di development.
 [Ray.Di Assistant](https://chatgpt.com/g/g-SPAwqfqd4-ray-di-assistant) is a custom GPT trained to answer questions specifically about the Ray.Di framework.
 
 <div class="info-box">
-  <p><strong>Note:</strong> An OpenAI Plus account is required to use GPTs.</p>
+  <p><strong>Note:</strong> You need a ChatGPT account and must be signed in to use GPTs.</p>
 </div>
 
 ## AI support with llms-full.txt
@@ -26,7 +26,7 @@ To give another AI assistant (such as Claude or Gemini) knowledge of Ray.Di, cop
 The `llms-full.txt` file follows the `llms.txt` standard. It is a simple way to share important information with AI models in concise Markdown. This lets an AI assistant quickly understand key details, such as the Ray.Di framework, without extraneous information. See [llmstxt.org](https://llmstxt.org/) for details.
 
 <button id="copyLlmsText" class="copy-button">Copy llms-full.txt</button>
-<span id="copyStatus" class="copy-status"></span>
+<span id="copyStatus" class="copy-status" role="status" aria-live="polite"></span>
 
 <div class="usage-guide">
   <h3>How to use the copied information</h3>
@@ -40,8 +40,12 @@ The `llms-full.txt` file follows the `llms.txt` standard. It is a simple way to 
 ---
 
 <script>
-document.getElementById('copyLlmsText').addEventListener('click', function() {
-  // Fetch the llms-full.txt file from the root
+(function () {
+  const button = document.getElementById('copyLlmsText');
+  const status = document.getElementById('copyStatus');
+  let llmsText = null;
+
+  // Load the file once so the click handler can write to the clipboard without awaiting a fetch
   fetch('/llms-full.txt')
     .then(response => {
       if (!response.ok) {
@@ -50,22 +54,71 @@ document.getElementById('copyLlmsText').addEventListener('click', function() {
       return response.text();
     })
     .then(text => {
-      navigator.clipboard.writeText(text).then(function() {
-        const status = document.getElementById('copyStatus');
-        status.textContent = 'Copied!';
-        setTimeout(function() {
-          status.textContent = '';
-        }, 2000);
-      }).catch(function(err) {
-        console.error('Failed to copy to the clipboard', err);
-        alert('Failed to copy to the clipboard.');
-      });
+      llmsText = text;
     })
     .catch(error => {
       console.error('Failed to load the file:', error);
-      alert('Failed to load llms-full.txt.');
+      status.textContent = 'Failed to load llms-full.txt.';
     });
-});
+
+  function showStatus(message) {
+    status.textContent = message;
+    setTimeout(function() {
+      status.textContent = '';
+    }, 2000);
+  }
+
+  // Fallback for browsers that reject the async Clipboard API
+  function copyWithTextarea(text) {
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.setAttribute('readonly', '');
+    textarea.style.position = 'fixed';
+    textarea.style.top = '-1000px';
+    document.body.appendChild(textarea);
+    textarea.select();
+    let copied = false;
+    try {
+      copied = document.execCommand('copy');
+    } catch (e) {
+      copied = false;
+    }
+    document.body.removeChild(textarea);
+    return copied;
+  }
+
+  function succeeded() {
+    showStatus('Copied!');
+  }
+
+  function failed(error) {
+    console.error('Failed to copy to the clipboard', error);
+    alert('Failed to copy to the clipboard.');
+  }
+
+  button.addEventListener('click', function() {
+    if (llmsText === null) {
+      showStatus('Not loaded yet. Please try again in a moment.');
+      return;
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      // Called synchronously from the click, so transient user activation is still valid
+      navigator.clipboard.writeText(llmsText).then(succeeded, function(error) {
+        if (copyWithTextarea(llmsText)) {
+          succeeded();
+        } else {
+          failed(error);
+        }
+      });
+      return;
+    }
+    if (copyWithTextarea(llmsText)) {
+      succeeded();
+    } else {
+      failed(new Error('Clipboard API not available'));
+    }
+  });
+})();
 </script>
 
 <style>

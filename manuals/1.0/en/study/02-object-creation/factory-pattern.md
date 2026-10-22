@@ -109,7 +109,7 @@ Factories are also valuable when object creation involves complex logic. Multi-s
 Using static factory methods (`Order::create()`) is not uncommon, but you should migrate to DI-managed factories:
 
 ```php
-// ❌ Bad example - static methods cannot use dependency injection
+// ❌ Bad example - the static method constructs its own dependency
 class Order
 {
     public static function create(Customer $customer, array $items): self
@@ -131,7 +131,7 @@ class OrderFactory implements OrderFactoryInterface
 }
 ```
 
-Static methods look convenient, but they create hidden dependencies that cannot be mocked or replaced. They make testing extremely difficult and violate the dependency inversion principle.
+A static method can receive dependencies through its parameters—the problem here is that `Order::create()` constructs `OrderValidator` internally. The dependency stays hidden: the container cannot supply it, and a test cannot replace it. Static dispatch also keeps the object outside the DI-managed graph, so it cannot take part in AOP or scoping. It is the hidden construction, not the `static` keyword, that violates the dependency inversion principle.
 
 ## SOLID principles
 

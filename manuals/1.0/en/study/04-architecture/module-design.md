@@ -149,7 +149,7 @@ Modules by layer destroy feature cohesion. When understanding the order feature,
 
 ## SOLID Principles
 
-The Module Design pattern enforces the **single responsibility principle** by making each module manage the configuration of a single feature. It supports the **open/closed principle**—you can add a feature by creating a new module without changing existing modules. It upholds the **Liskov substitution principle** because module interfaces are consistent—every module extends `AbstractModule` and implements `configure()`. It illustrates the **dependency inversion principle** because the DI container does not depend on the concrete implementations of modules.
+The Module Design pattern enforces the **single responsibility principle** by making each module manage the configuration of a single feature. It supports the **open/closed principle**—you can add a feature by creating a new module without changing existing modules. Feature modules are also uniform in shape: each one is an `AbstractModule` with a `configure()` method, so `AppModule` composes them without knowing their contents.
 
 ## Testing
 

@@ -125,6 +125,30 @@ class OrderService
 }
 ```
 
+The attributes take effect only once the interceptors are bound to them in a module:
+
+```php
+use Ray\Di\AbstractModule;
+
+class OrderModule extends AbstractModule
+{
+    protected function configure(): void
+    {
+        $this->bindInterceptor(
+            $this->matcher->any(),
+            $this->matcher->annotatedWith(Log::class),
+            [LoggingInterceptor::class]
+        );
+
+        $this->bindInterceptor(
+            $this->matcher->any(),
+            $this->matcher->annotatedWith(Transactional::class),
+            [TransactionalInterceptor::class]
+        );
+    }
+}
+```
+
 ## The essence of the pattern
 
 The Decorator pattern creates layers of behavior around a core object. Each decorator implements the same interface and wraps another implementation. AOP automates this by detecting attributes and applying decorators (called interceptors) automatically.

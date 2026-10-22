@@ -102,7 +102,7 @@ class StripeAdapter implements PaymentGatewayInterface
         try {
             // Translate into an Adaptee call (encapsulating the complexity)
             $charge = $this->stripe->charges->create([
-                'amount' => $amount->getMinorUnits(), // convert yen to sen
+                'amount' => $amount->getMinorUnits(), // already the API's smallest currency unit
                 'currency' => strtolower($amount->getCurrency()->getCode()),
                 'source' => $token->getValue(),
                 'description' => $token->getDescription()
@@ -175,7 +175,7 @@ This is exactly the role of the Adapter pattern: bridging incompatible interface
 
 The purpose of the Adapter pattern is to **hide the complexity from the client**. Integrating with an external API often involves a lot of complex translation work:
 
-- Converting data formats (yen to sen, arrays to objects)
+- Converting data formats (decimal amounts to minor units, arrays to objects)
 - Unifying error handling (exceptions to result objects)
 - Absorbing differences in communication style (synchronous to asynchronous, REST to GraphQL)
 - Handling authentication and authorization

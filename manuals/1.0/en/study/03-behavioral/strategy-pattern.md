@@ -134,6 +134,7 @@ class PaymentService
                 return $strategy->process($order);
             }
         }
+        throw new InvalidArgumentException('Unknown payment method');
     }
 }
 ```

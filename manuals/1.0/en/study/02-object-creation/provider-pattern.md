@@ -70,6 +70,7 @@ class DatabaseConnectionProvider implements ProviderInterface
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
         $pdo->exec("SET NAMES utf8mb4");
+        $pdo->exec("SET time_zone = '+00:00'");
 
         if ($this->config->isProfiling()) {
             $pdo->setAttribute(PDO::ATTR_STATEMENT_CLASS, [ProfilingStatement::class]);

@@ -81,6 +81,16 @@ class MySQLOrderRepository implements OrderRepositoryInterface
         return $data ? $this->hydrate($data) : null;
     }
 
+    public function findByCustomer(int $customerId): array
+    {
+        $stmt = $this->database->prepare(
+            'SELECT * FROM orders WHERE customer_id = ? ORDER BY id'
+        );
+        $stmt->execute([$customerId]);
+
+        return array_map(fn (array $data): Order => $this->hydrate($data), $stmt->fetchAll());
+    }
+
     private function insert(Order $order): void { /* SQL INSERT logic */ }
     private function update(Order $order): void { /* SQL UPDATE logic */ }
     private function hydrate(array $data): Order { /* convert the array into an Order */ }

@@ -73,7 +73,13 @@ class OrderService
             $order->addItem($item['product_id'], $item['quantity']);
         }
 
+        // Persist the pending order first: a charge must never succeed without a stored order
+        $this->orderRepository->save($order);
+
         $this->paymentGateway->charge($order->getTotal());
+
+        // Mark the order paid only after the gateway confirms
+        $order->markAsConfirmed();
         $this->orderRepository->save($order);
 
         return $order;
@@ -101,11 +107,16 @@ class OrderController
 
     public function createOrder(Request $request): Response
     {
+        $customerId = $request->get('customer_id');
+        $items = $request->get('items');
+
+        // Reject malformed input before the typed service call
+        if (!is_numeric($customerId) || !is_array($items)) {
+            return new Response('Invalid request', 400);
+        }
+
         try {
-            $order = $this->orderService->createOrder(
-                $request->get('customer_id'),
-                $request->get('items')
-            );
+            $order = $this->orderService->createOrder((int) $customerId, $items);
             return new Response('Order created', 201);
         } catch (InvalidArgumentException $e) {
             return new Response($e->getMessage(), 400);
@@ -113,6 +124,8 @@ class OrderController
     }
 }
 ```
+
+A database transaction cannot undo an external payment, so the pending order is stored before the gateway is called. If the process stops between those two steps, that stored pending order is the record to reconcile: the charge must be idempotent (keyed by the order ID, for example), or the failure must be compensated with a refund.
 
 ## The Essence of the Pattern
 
@@ -257,7 +270,7 @@ A service groups related business logic, but it should not contain everything. S
 
 ## SOLID Principles
 
-The Service Layer pattern enforces the **single responsibility principle** by giving each service a single cohesive responsibility. The controller handles HTTP, the service handles business logic, and the repository handles data access. It supports the **open/closed principle**—you can add new controllers (REST, GraphQL, CLI) without changing the business logic. It upholds the **Liskov substitution principle** because every service is interchangeable through an interface. It illustrates the **dependency inversion principle** by depending on service interfaces rather than concrete implementations.
+The Service Layer pattern enforces the **single responsibility principle** by giving each service a single cohesive responsibility. The controller handles HTTP, the service handles business logic, and the repository handles data access. It supports the **open/closed principle**—you can add new controllers (REST, GraphQL, CLI) without changing the business logic. Finally, the **dependency inversion principle** holds: the service depends on interfaces such as `OrderRepositoryInterface` and `PaymentGatewayInterface`, not on MySQL or Stripe.
 
 ## Testing
 
