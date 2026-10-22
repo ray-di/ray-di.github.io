@@ -98,8 +98,6 @@ You can create similar decorators for transactions, caching, and other cross-cut
 Wrapping services by hand with decorators is tedious. AOP automates decorator application through attributes. Instead of explicit wrapping, you declare a concern with an attribute and let Ray.Di apply it:
 
 ```php
-use Attribute;
-
 // Marker attributes
 #[Attribute(Attribute::TARGET_METHOD)]
 final class Log {}

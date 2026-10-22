@@ -115,16 +115,21 @@ class OrderController
             return new Response('Invalid request', 400);
         }
 
+        $normalized = [];
         foreach ($items as $item) {
-            if (!is_array($item)
-                || filter_var($item['product_id'] ?? null, FILTER_VALIDATE_INT) === false
-                || filter_var($item['quantity'] ?? null, FILTER_VALIDATE_INT) === false) {
+            if (!is_array($item)) {
                 return new Response('Invalid request', 400);
             }
+            $productId = filter_var($item['product_id'] ?? null, FILTER_VALIDATE_INT);
+            $quantity = filter_var($item['quantity'] ?? null, FILTER_VALIDATE_INT);
+            if ($productId === false || $quantity === false) {
+                return new Response('Invalid request', 400);
+            }
+            $normalized[] = ['product_id' => $productId, 'quantity' => $quantity];
         }
 
         try {
-            $order = $this->orderService->createOrder($customerId, $items);
+            $order = $this->orderService->createOrder($customerId, $normalized);
             return new Response('Order created', 201);
         } catch (InvalidArgumentException $e) {
             return new Response($e->getMessage(), 400);
