@@ -13,11 +13,11 @@ permalink: /manuals/1.0/ja/study.html
 
 - **問題からパターンへ**: 密結合、肥大化したコントローラー、混在したデータアクセスなどの問題を適切なパターンで解決
 - **判断基準**: いつFactoryを使い、いつStrategyを使い、いつRepositoryを使うかを学習
-- **実践的なSOLID**: 実際のコードを通じて単一責任、開放閉鎖、依存性逆転の各原則を理解
+- **実践的なSOLID**: 実際のコードを通じて単一責任、開放/閉鎖、依存性逆転の各原則を理解
 - **アーキテクチャ設計**: レイヤー分離、関心の分離、モジュール設計
-- **コンパイルタイムの決定**: ランタイムのif文（`$_ENV`チェック、型チェック）をDIバインディングに置き換え、少ないコードパスと開放閉鎖原則を実現
+- **コンパイルタイムの決定**: ランタイムのif文（`$_ENV`チェック、型チェック）をDIバインディングに置き換え、少ないコードパスと開放/閉鎖原則を実現
 
-> このチュートリアルは設計パターンの学習に焦点を当てています。Ray.Diの機能リファレンスは[マニュアル](../)を参照してください。
+> このチュートリアルは設計パターンの学習に焦点を当てています。Ray.Diの機能リファレンスは[マニュアル](index.html)を参照してください。
 
 ## チュートリアル構成
 
@@ -28,6 +28,7 @@ permalink: /manuals/1.0/ja/study.html
 
 - [依存性注入の原則](study/01-foundations/dependency-injection-principles.html) - 制御の反転、疎結合の実現
 - [SOLID原則の実践](study/01-foundations/solid-principles.html) - 実際のコードを通じた5つの原則の理解
+- [Ray.Diの基礎](study/01-foundations/raydi-fundamentals.html) - Google Guiceの思想をPHPへ
 
 ### Part 2: オブジェクト生成パターン
 
@@ -54,7 +55,7 @@ permalink: /manuals/1.0/ja/study.html
 - [Adapterパターン](study/04-architecture/adapter-pattern.html) - 使用時期: 外部APIやライブラリを適合させる場合
 - [Repositoryパターン](study/04-architecture/repository-pattern.html) - 使用時期: データアクセスをビジネスロジックから分離する場合
 - [Service Layer](study/04-architecture/service-layer.html) - 使用時期: ビジネスロジックを調整する場合
-- [モジュール設計](study/04-architecture/module-design.html) - 使用時期: DI設定が100行を超える場合
+- [モジュール設計](study/04-architecture/module-design.html) - 使用時期: DI設定が50個を超えるバインディングを持つ場合
 
 ## 学習アプローチ
 
@@ -91,7 +92,7 @@ permalink: /manuals/1.0/ja/study.html
 | **Adapter** | 外部APIとアプリケーションの不一致 | 外部サービスをアプリケーションに適合させる場合 |
 | **Repository** | データアクセスの混在 | ビジネスロジックからデータアクセスを分離する場合 |
 | **Service Layer** | 肥大化したコントローラー | ビジネスロジックを調整する場合 |
-| **Module Design** | 肥大化したDI設定 | 設定の可読性に問題があるとき |
+| **Module Design** | 肥大化したDI設定 | 50個を超えるバインディングを持つとき |
 
 ## 前提条件
 
@@ -100,7 +101,7 @@ permalink: /manuals/1.0/ja/study.html
 
 ## 追加リソース
 
-- [Ray.Diマニュアル](../) - 機能リファレンス
+- [Ray.Diマニュアル](index.html) - 機能リファレンス
 - [Ray.Di GitHub](https://github.com/ray-di/Ray.Di)
 - [Design Patterns in PHP](https://designpatternsphp.readthedocs.io/)
 

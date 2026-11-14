@@ -52,7 +52,7 @@ require dirname(__DIR__) . '/vendor/autoload.php';
 
 Let's run it.
 
-```php
+```
 php bin/run.php
 
 Hello DI!
@@ -88,7 +88,7 @@ $users = User::NAMES;
 ```
 
 ```php
-$users = Config::get('users')
+$users = Config::get('users');
 ```
 
 It is getting the necessary dependencies from the outside, It's "dependency pull" and in the end it is the same global as the `$GLOBALS` variable. It makes the coupling between objects tight and difficult to test.

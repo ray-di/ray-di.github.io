@@ -195,14 +195,21 @@ Ray.Diの`toNull()`メソッドはNull Objectクラスを自動生成し、手�
 
 ## 応用例：Null ObjectとAOPの組み合わせ
 
-Null ObjectとAOPを組み合わせると、さらに興味深いパターンが生まれます。以下は高度な使い方の例です：
+Null ObjectとAOPを組み合わせると、さらに興味深いパターンが生まれます。以下は高度な使い方の例です。`toNull()`はインターフェイスのファイルを読んでNullクラスを生成するので、各クラスは別ファイルに置きます（同じファイルに書くと`DbQuery`が二重に宣言されます）：
 
 ```php
+// 0. 属性クラス（テーブル名を保持）
+#[Attribute(Attribute::TARGET_METHOD)]
+class DbQuery
+{
+    public function __construct(public readonly string $table) {}
+}
+
 // 1. インターフェイスだけを定義（実装クラスは書かない）
 interface TodoQueryInterface
 {
     #[DbQuery('todo_item')]
-    public function item(string $id): Todo;
+    public function item(string $id): ?Todo;
 }
 
 // 2. Null Objectをバインド + インターセプターを適用
@@ -211,6 +218,8 @@ class AppModule extends AbstractModule
     protected function configure(): void
     {
         $this->bind(TodoQueryInterface::class)->toNull();
+        $this->bind(PDO::class)->toConstructor(PDO::class, ['dsn' => 'todo_dsn']);
+        $this->bind()->annotatedWith('todo_dsn')->toInstance('sqlite:todo.db');
         $this->bindInterceptor(
             $this->matcher->any(),
             $this->matcher->annotatedWith(DbQuery::class),
@@ -222,11 +231,15 @@ class AppModule extends AbstractModule
 // 3. インターセプターがメソッド呼び出しを横取りしてSQL実行
 class DbQueryInterceptor implements MethodInterceptor
 {
+    public function __construct(private readonly PDO $pdo) {}
+
     public function invoke(MethodInvocation $invocation): mixed
     {
-        $attr = $invocation->getMethod()->getAttributes(DbQuery::class)[0];
+        $attr = $invocation->getMethod()->getAttributes(DbQuery::class)[0]->newInstance();
         $sql = "SELECT * FROM {$attr->table} WHERE id = ?";
-        return $this->pdo->execute($sql, $invocation->getArguments());
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($invocation->getArguments()->getArrayCopy());
+        return $stmt->fetchObject(Todo::class) ?: null;
     }
 }
 

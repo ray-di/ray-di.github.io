@@ -67,8 +67,8 @@ jobs:
           # Create results directory
           mkdir -p link-check-results
           
-          # Check external links with detailed reporting (excluding generated files)
-          find manuals -name "*.md" -type f ! -name "1page.md" -exec lychee --config .lycherc.toml \
+          # Check external links with detailed reporting
+          find manuals -name "*.md" -type f -exec lychee --config .lycherc.toml --root-dir "$PWD" \
             --no-progress \
             --format json \
             --output link-check-results/external-links.json \
@@ -87,7 +87,7 @@ jobs:
               sudo apt-get update && sudo apt-get install -y jq
               
               # Extract broken links from JSON using jq
-              jq -r '.links[] | select(.status.status != "Ok") | .url' \
+              jq -r '((.error_map // {})[], (.timeout_map // {})[])[] | .url' \
                 link-check-results/external-links.json | sort -u \
                 >> link-check-results/broken-links.txt || true
               
@@ -112,7 +112,7 @@ jobs:
           echo "✅ External link check completed"
           
       - name: Upload link check results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: link-check-results

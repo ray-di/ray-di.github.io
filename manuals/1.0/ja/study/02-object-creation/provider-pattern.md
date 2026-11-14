@@ -95,9 +95,11 @@ class DatabaseConnection
 
 Providerバインディングの設定：
 ```php
+use Ray\Di\Scope;
+
 $this->bind(DatabaseConnection::class)
      ->toProvider(DatabaseConnectionProvider::class)
-     ->in(Singleton::class);
+     ->in(Scope::SINGLETON);
 ```
 
 ## パターンの本質
@@ -136,11 +138,23 @@ class CacheProvider implements ProviderInterface
         return $this->instance; // これをやってはいけません！
     }
 }
+```
 
-// ✅ 良い例 - ライフサイクル管理にスコープを使用
+```php
+use Ray\Di\Scope;
+
+// ✅ 良い例 - Providerは生成だけを行い、ライフサイクルはスコープに任せる
+class CacheProvider implements ProviderInterface
+{
+    public function get(): Cache
+    {
+        return new Cache();
+    }
+}
+
 $this->bind(CacheInterface::class)
      ->toProvider(CacheProvider::class)
-     ->in(Singleton::class); // DIがライフサイクルを処理
+     ->in(Scope::SINGLETON); // DIがライフサイクルを処理
 ```
 
 オブジェクトのライフサイクルはスコープを通じてDIコンテナに管理させましょう。DIコンテナは並行性とキャッシングを正しく処理します。各Provider呼び出しは新しいオブジェクトを作成するか、キャッシュされたインスタンスを返します—スコープが決定し、あなたのコードではありません。Providerは構築と初期化だけに集中すべきです。
@@ -160,13 +174,13 @@ Providerはパラメータを持ちません。DIコンテナがオブジェク�
 
 ## SOLID原則
 
-Providerパターンは初期化をドメインロジックから分離することで**単一責任原則**を実施します。Providerだけを修正し、ドメインクラスには触れないことで**開放/閉鎖原則**をサポートします。具体的な初期化ロジックではなくProviderインターフェースに依存することで**依存性逆転原則**を支持します。
+Providerパターンは初期化をドメインロジックから分離することで**単一責任原則**を実施します。Providerだけを修正し、ドメインクラスには触れないことで**開放/閉鎖原則**をサポートします。具体的な初期化ロジックではなくProviderインターフェースに依存することで**依存性逆転の原則**を支持します。
 
 ## テスト
 
-Providerは初期化ロジックの独立したテストを可能にします。Providerなしでは、環境固有のセットアップをテストするには、PDO、データベース接続、設定リーダーをモックする必要があります。Providerを使用すれば、異なる設定オブジェクトだけでテストできます。テスト対象が劇的に縮小します。
+Providerは初期化ロジックの独立したテストを可能にします。Providerなしでは、環境固有のセットアップをテストするには、PDO、データベース接続、設定リーダーをモックする必要があります。Providerを使用すれば、ドメインのクラスはデータベースなしでテストでき、データベースが必要になるのはProvider自体のテストだけです。テスト対象が劇的に縮小します。
 
-本番設定でProviderを作成し、本番設定が適用されることを確認します。開発設定で別のProviderを作成し、開発設定が適用されることを確認します。複雑なモックは不要です。ドメインオブジェクトはシンプルに保たれ、環境固有のテストケースは必要ありません。
+Provider自体は`get()`でPDO接続を開くので、テスト用のデータベースを指す設定で`get()`を呼び、エラーモードや文字セットなどの設定が適用されることを確認します。複雑なモックは不要です。ドメインオブジェクトはシンプルに保たれ、環境固有のテストケースは必要ありません。
 
 ## 重要なポイント
 

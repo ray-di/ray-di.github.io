@@ -139,9 +139,19 @@ class CacheProvider implements ProviderInterface
         return $this->instance; // do not do this!
     }
 }
+```
 
-// ✅ Good example - use scope for lifecycle management
+```php
 use Ray\Di\Scope;
+
+// ✅ Good example - the provider only creates; the scope manages the lifecycle
+class CacheProvider implements ProviderInterface
+{
+    public function get(): Cache
+    {
+        return new Cache();
+    }
+}
 
 $this->bind(CacheInterface::class)
      ->toProvider(CacheProvider::class)
@@ -169,9 +179,9 @@ The Provider pattern enforces the **single responsibility principle** by separat
 
 ## Testing
 
-Providers allow initialization logic to be tested independently. Without a provider, testing environment-specific setup requires mocking PDO, the database connection, and the configuration reader. With a provider, you can test with nothing more than different configuration objects. The surface under test shrinks dramatically.
+Providers allow initialization logic to be tested independently. Without a provider, testing environment-specific setup requires mocking PDO, the database connection, and the configuration reader. With a provider, domain classes can be tested without a database; only the provider's own tests need one. The surface under test shrinks dramatically.
 
-Create a provider with production configuration and verify that the production settings are applied. Create another provider with development configuration and verify that the development settings are applied. No complex mocks are needed. Domain objects stay simple, and no environment-specific test cases are required.
+The provider opens a PDO connection in `get()`, so test it by calling `get()` with configuration that points at a test database and verifying that settings such as the error mode and character set are applied. No complex mocks are needed. Domain objects stay simple, and no environment-specific test cases are required.
 
 ## Key points
 

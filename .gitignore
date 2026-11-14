@@ -1,6 +1,5 @@
 _site/
 watch
 .claude/
-llms-full.txt
 
 /vendor/

@@ -5,6 +5,7 @@ on:
     paths:
       - 'manuals/**'
       - 'llms.txt'
+      - 'llms-full.txt'
       - 'bin/**'
       - '_includes/**'
       - '_layouts/**'
@@ -24,24 +25,10 @@ jobs:
           ruby-version: 3.2
           bundler-cache: true
           
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.1'
-          
       - name: Build Jekyll site
         run: |
           bundle exec jekyll build
           ./bin/copy_markdown_files.sh
-          
-      - name: Validate llms-full.txt generation
-        run: |
-          php bin/generate_llms_full.php
-          if [ ! -f "llms-full.txt" ]; then
-            echo "❌ llms-full.txt was not generated"
-            exit 1
-          fi
-          echo "✅ llms-full.txt generated successfully"
           
       - name: Install link checker
         run: |
@@ -58,8 +45,8 @@ jobs:
           
           # Use shared lychee configuration file
           
-          # Check external links in markdown files (excluding generated files)
-          find manuals -name "*.md" -type f ! -name "1page.md" -exec lychee --config .lycherc.toml \
+          # Check external links in markdown files
+          find manuals -name "*.md" -type f -exec lychee --config .lycherc.toml --root-dir "$PWD" \
             --format json \
             --output link-check-results/external-links.json \
             {} + || {
@@ -79,7 +66,7 @@ jobs:
             sudo apt-get update && sudo apt-get install -y jq
             
             # Extract broken links from JSON
-            broken_links=$(jq -r '.links[] | select(.status.status != "Ok") | .url' \
+            broken_links=$(jq -r '((.error_map // {})[], (.timeout_map // {})[])[] | .url' \
               link-check-results/external-links.json 2>/dev/null | sort -u || echo "")
             
             # Only create summary if there are broken links
@@ -96,7 +83,7 @@ jobs:
                 if [ -n "$link" ]; then
                   # Get status for this link
                   status=$(jq -r --arg url "$link" \
-                    '.links[] | select(.url == $url) | .status.status' \
+                    '((.error_map // {})[], (.timeout_map // {})[])[] | select(.url == $url) | .status.text' \
                     link-check-results/external-links.json 2>/dev/null || echo "Unknown")
                   echo "- ❌ [$link]($link) - $status" >> $GITHUB_STEP_SUMMARY
                 fi
@@ -117,6 +104,7 @@ jobs:
           # Check if required files exist
           required_files=(
             "llms.txt"
+            "llms-full.txt"
             "manuals/1.0/en/Installation.md"
             "manuals/1.0/en/Overview.md"
             "manuals/1.0/en/Tutorial1.md"
@@ -133,17 +121,3 @@ jobs:
           done
           
           echo "✅ All required files present"
-          
-      - name: Check file sizes
-        run: |
-          echo "Checking generated file sizes..."
-          
-          # Check if llms-full.txt is reasonable size (should be substantial)
-          if [ -f "llms-full.txt" ]; then
-            size=$(wc -c < "llms-full.txt")
-            if [ "$size" -lt 50000 ]; then
-              echo "❌ llms-full.txt seems too small: $size bytes"
-              exit 1
-            fi
-            echo "✅ llms-full.txt size: $size bytes"
-          fi
