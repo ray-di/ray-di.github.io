@@ -125,6 +125,8 @@ Providerは環境固有の設定に優れています。開発環境は本番環
 Providerはステートレスであるべきです。頻繁に見られるアンチパターンは、Provider内でインスタンスをキャッシュすることです：
 
 ```php
+use Ray\Di\Scope;
+
 // ❌ 悪い例 - Providerがインスタンスのライフサイクルを管理
 class CacheProvider implements ProviderInterface
 {
@@ -140,8 +142,6 @@ class CacheProvider implements ProviderInterface
 }
 
 // ✅ 良い例 - ライフサイクル管理にスコープを使用
-use Ray\Di\Scope;
-
 $this->bind(CacheInterface::class)
      ->toProvider(CacheProvider::class)
      ->in(Scope::SINGLETON); // DIがライフサイクルを処理

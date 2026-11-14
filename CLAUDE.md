@@ -107,17 +107,17 @@ bundle exec jekyll build
 ## Study (Design Pattern Tutorial)
 
 ### Structure
-- `manuals/1.0/ja/study/` - Japanese only; no English version yet
-- `manuals/1.0/ja/study/index.md` (permalink `/manuals/1.0/ja/study.html`) lists the reading order
+- `manuals/1.0/{en,ja}/study/` - same files in both languages; keep them in sync
+- `index.md` in each (permalink `/manuals/1.0/{lang}/study.html`) lists the reading order; both navs link it
 - Numbered directories (01-foundations, 02-object-creation, 03-behavioral, 04-architecture) organize content progressively
-- Each page ends with 次へ/前へ links; keep them in the same order as `index.md`
+- Each page ends with Next/Previous (次へ/前へ) links; keep them in the same order as `index.md`
 
 ### Tutorial1
 - `manuals/1.0/{en,ja}/Tutorial1.md` is the introductory tutorial; only the JA nav links it (the EN page exists but is not in the nav). Keep both languages in sync
 
 ### Working with Existing Content
 When modifying documentation:
-- Always read the corresponding file in both languages before making changes (except `study/`, which is Japanese only)
+- Always read the corresponding file in both languages before making changes
 - Verify that changes maintain Jekyll front matter consistency
 - Test both languages' navigation and linking after modifications
 

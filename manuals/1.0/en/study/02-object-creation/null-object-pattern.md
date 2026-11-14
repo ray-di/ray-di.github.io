@@ -209,7 +209,7 @@ class DbQuery
 interface TodoQueryInterface
 {
     #[DbQuery('todo_item')]
-    public function item(string $id): Todo;
+    public function item(string $id): ?Todo;
 }
 
 // 2. Bind the Null Object + apply the interceptor
@@ -236,8 +236,8 @@ class DbQueryInterceptor implements MethodInterceptor
         $attr = $invocation->getMethod()->getAttributes(DbQuery::class)[0]->newInstance();
         $sql = "SELECT * FROM {$attr->table} WHERE id = ?";
         $stmt = $this->pdo->prepare($sql);
-        $stmt->execute($invocation->getArguments());
-        return $stmt->fetch();
+        $stmt->execute($invocation->getArguments()->getArrayCopy());
+        return $stmt->fetchObject(Todo::class) ?: null;
     }
 }
 

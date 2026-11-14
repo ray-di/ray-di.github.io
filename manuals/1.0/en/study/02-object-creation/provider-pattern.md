@@ -126,6 +126,8 @@ Providers excel at environment-specific configuration. The development environme
 Providers should be stateless. A frequently seen anti-pattern is caching an instance inside the provider:
 
 ```php
+use Ray\Di\Scope;
+
 // ❌ Bad example - the provider manages the instance lifecycle
 class CacheProvider implements ProviderInterface
 {
@@ -141,8 +143,6 @@ class CacheProvider implements ProviderInterface
 }
 
 // ✅ Good example - use scope for lifecycle management
-use Ray\Di\Scope;
-
 $this->bind(CacheInterface::class)
      ->toProvider(CacheProvider::class)
      ->in(Scope::SINGLETON); // DI handles the lifecycle
