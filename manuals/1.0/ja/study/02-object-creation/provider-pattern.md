@@ -125,8 +125,6 @@ Providerは環境固有の設定に優れています。開発環境は本番環
 Providerはステートレスであるべきです。頻繁に見られるアンチパターンは、Provider内でインスタンスをキャッシュすることです：
 
 ```php
-use Ray\Di\Scope;
-
 // ❌ 悪い例 - Providerがインスタンスのライフサイクルを管理
 class CacheProvider implements ProviderInterface
 {
@@ -140,8 +138,20 @@ class CacheProvider implements ProviderInterface
         return $this->instance; // これをやってはいけません！
     }
 }
+```
 
-// ✅ 良い例 - ライフサイクル管理にスコープを使用
+```php
+use Ray\Di\Scope;
+
+// ✅ 良い例 - Providerは生成だけを行い、ライフサイクルはスコープに任せる
+class CacheProvider implements ProviderInterface
+{
+    public function get(): Cache
+    {
+        return new Cache();
+    }
+}
+
 $this->bind(CacheInterface::class)
      ->toProvider(CacheProvider::class)
      ->in(Scope::SINGLETON); // DIがライフサイクルを処理
@@ -168,9 +178,9 @@ Providerパターンは初期化をドメインロジックから分離するこ
 
 ## テスト
 
-Providerは初期化ロジックの独立したテストを可能にします。Providerなしでは、環境固有のセットアップをテストするには、PDO、データベース接続、設定リーダーをモックする必要があります。Providerを使用すれば、異なる設定オブジェクトだけでテストできます。テスト対象が劇的に縮小します。
+Providerは初期化ロジックの独立したテストを可能にします。Providerなしでは、環境固有のセットアップをテストするには、PDO、データベース接続、設定リーダーをモックする必要があります。Providerを使用すれば、ドメインのクラスはデータベースなしでテストでき、データベースが必要になるのはProvider自体のテストだけです。テスト対象が劇的に縮小します。
 
-本番設定でProviderを作成し、本番設定が適用されることを確認します。開発設定で別のProviderを作成し、開発設定が適用されることを確認します。複雑なモックは不要です。ドメインオブジェクトはシンプルに保たれ、環境固有のテストケースは必要ありません。
+Provider自体は`get()`でPDO接続を開くので、テスト用のデータベースを指す設定で`get()`を呼び、エラーモードや文字セットなどの設定が適用されることを確認します。複雑なモックは不要です。ドメインオブジェクトはシンプルに保たれ、環境固有のテストケースは必要ありません。
 
 ## 重要なポイント
 

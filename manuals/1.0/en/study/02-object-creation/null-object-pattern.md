@@ -195,7 +195,7 @@ Ray.Di's `toNull()` method generates Null Object classes automatically, eliminat
 
 ## Advanced example: combining Null Object with AOP
 
-Combining Null Objects with AOP produces an even more interesting pattern. The following is an advanced example:
+Combining Null Objects with AOP produces an even more interesting pattern. The following is an advanced example. `toNull()` reads the interface's file to generate the Null class, so keep each class in its own file (in a single file, `DbQuery` would be declared twice):
 
 ```php
 // 0. Attribute class (holds the table name)
@@ -218,6 +218,8 @@ class AppModule extends AbstractModule
     protected function configure(): void
     {
         $this->bind(TodoQueryInterface::class)->toNull();
+        $this->bind(PDO::class)->toConstructor(PDO::class, ['dsn' => 'todo_dsn']);
+        $this->bind()->annotatedWith('todo_dsn')->toInstance('sqlite:todo.db');
         $this->bindInterceptor(
             $this->matcher->any(),
             $this->matcher->annotatedWith(DbQuery::class),

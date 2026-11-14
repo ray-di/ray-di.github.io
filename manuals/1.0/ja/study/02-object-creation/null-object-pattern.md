@@ -195,7 +195,7 @@ Ray.Diの`toNull()`メソッドはNull Objectクラスを自動生成し、手�
 
 ## 応用例：Null ObjectとAOPの組み合わせ
 
-Null ObjectとAOPを組み合わせると、さらに興味深いパターンが生まれます。以下は高度な使い方の例です：
+Null ObjectとAOPを組み合わせると、さらに興味深いパターンが生まれます。以下は高度な使い方の例です。`toNull()`はインターフェイスのファイルを読んでNullクラスを生成するので、各クラスは別ファイルに置きます（同じファイルに書くと`DbQuery`が二重に宣言されます）：
 
 ```php
 // 0. 属性クラス（テーブル名を保持）
@@ -218,6 +218,8 @@ class AppModule extends AbstractModule
     protected function configure(): void
     {
         $this->bind(TodoQueryInterface::class)->toNull();
+        $this->bind(PDO::class)->toConstructor(PDO::class, ['dsn' => 'todo_dsn']);
+        $this->bind()->annotatedWith('todo_dsn')->toInstance('sqlite:todo.db');
         $this->bindInterceptor(
             $this->matcher->any(),
             $this->matcher->annotatedWith(DbQuery::class),

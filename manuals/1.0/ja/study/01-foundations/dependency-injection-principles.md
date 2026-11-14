@@ -366,13 +366,13 @@ use Ray\Di\Di\Inject;
 
 class ProductService
 {
-    private LoggerInterface $logger;
+    private ?LoggerInterface $logger = null;
 
     public function __construct(
         private ProductRepositoryInterface $repository
     ) {}
 
-    #[Inject]
+    #[Inject(optional: true)]
     public function setLogger(LoggerInterface $logger): void
     {
         $this->logger = $logger;
@@ -380,7 +380,7 @@ class ProductService
 
     public function findProduct(int $id): Product
     {
-        $this->logger->info("Finding product: $id");
+        $this->logger?->info("Finding product: $id");
         return $this->repository->find($id);
     }
 }
