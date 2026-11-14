@@ -362,11 +362,25 @@ class ProductService
 ### 2. メソッド注入（Method Injection）
 
 ```php
+use Ray\Di\Di\Inject;
+
 class ProductService
 {
-    public function findProduct(int $id, LoggerInterface $logger): Product
+    private LoggerInterface $logger;
+
+    public function __construct(
+        private ProductRepositoryInterface $repository
+    ) {}
+
+    #[Inject]
+    public function setLogger(LoggerInterface $logger): void
     {
-        $logger->info("Finding product: $id");
+        $this->logger = $logger;
+    }
+
+    public function findProduct(int $id): Product
+    {
+        $this->logger->info("Finding product: $id");
         return $this->repository->find($id);
     }
 }
@@ -374,7 +388,7 @@ class ProductService
 
 **用途:**
 - オプショナルな依存関係
-- メソッド呼び出しごとに異なる依存関係
+- メソッド呼び出しごとに異なる依存関係（`#[Assisted]`によるアシステッドインジェクション）
 
 ### 3. プロパティ注入（Property Injection）- Ray.Diでは未対応
 

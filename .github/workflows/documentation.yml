@@ -6,6 +6,7 @@ on:
     paths:
       - 'manuals/**'
       - 'llms.txt'
+      - 'llms-full.txt'
       - 'bin/**'
       - '_includes/**'
       - '_layouts/**'

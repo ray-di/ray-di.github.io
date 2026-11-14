@@ -324,7 +324,7 @@ class OrderService
     }
 }
 
-// 環境に依存しない共通の束縛
+// 環境に依存しない共通のバインディング
 class AppModule extends AbstractModule
 {
     protected function configure(): void
@@ -337,7 +337,7 @@ class AppModule extends AbstractModule
     }
 }
 
-// 環境ごとの束縛は専用モジュールに分ける
+// 環境ごとのバインディングは専用モジュールに分ける
 class ProductionModule extends AbstractModule
 {
     protected function configure(): void

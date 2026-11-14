@@ -14,11 +14,7 @@ max_redirects = 10
 user_agent = "Ray.Di Documentation Link Checker / GitHub Actions"
 
 # Headers to include in requests
-headers = [
-  "accept=text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-  "accept-language=en-US,en;q=0.9,ja;q=0.8",
-  "cache-control=no-cache"
-]
+header = { "accept" = "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8", "accept-language" = "en-US,en;q=0.9,ja;q=0.8", "cache-control" = "no-cache" }
 
 # URL patterns are now handled by .lycheeignore file
 
@@ -33,6 +29,3 @@ include_verbatim = true
 
 # Output format
 format = "detailed"
-
-# Check local files
-include_local = true
