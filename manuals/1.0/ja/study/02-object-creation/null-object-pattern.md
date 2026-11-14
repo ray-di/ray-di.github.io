@@ -236,7 +236,7 @@ class DbQueryInterceptor implements MethodInterceptor
         $attr = $invocation->getMethod()->getAttributes(DbQuery::class)[0]->newInstance();
         $sql = "SELECT * FROM {$attr->table} WHERE id = ?";
         $stmt = $this->pdo->prepare($sql);
-        $stmt->execute($invocation->getArguments());
+        $stmt->execute($invocation->getArguments()->getArrayCopy());
         return $stmt->fetchObject(Todo::class) ?: null;
     }
 }
