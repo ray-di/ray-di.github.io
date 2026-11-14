@@ -24,24 +24,10 @@ jobs:
           ruby-version: 3.2
           bundler-cache: true
           
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.1'
-          
       - name: Build Jekyll site
         run: |
           bundle exec jekyll build
           ./bin/copy_markdown_files.sh
-          
-      - name: Validate llms-full.txt generation
-        run: |
-          php bin/generate_llms_full.php
-          if [ ! -f "llms-full.txt" ]; then
-            echo "❌ llms-full.txt was not generated"
-            exit 1
-          fi
-          echo "✅ llms-full.txt generated successfully"
           
       - name: Install link checker
         run: |
@@ -117,6 +103,7 @@ jobs:
           # Check if required files exist
           required_files=(
             "llms.txt"
+            "llms-full.txt"
             "manuals/1.0/en/Installation.md"
             "manuals/1.0/en/Overview.md"
             "manuals/1.0/en/Tutorial1.md"
@@ -133,17 +120,3 @@ jobs:
           done
           
           echo "✅ All required files present"
-          
-      - name: Check file sizes
-        run: |
-          echo "Checking generated file sizes..."
-          
-          # Check if llms-full.txt is reasonable size (should be substantial)
-          if [ -f "llms-full.txt" ]; then
-            size=$(wc -c < "llms-full.txt")
-            if [ "$size" -lt 50000 ]; then
-              echo "❌ llms-full.txt seems too small: $size bytes"
-              exit 1
-            fi
-            echo "✅ llms-full.txt size: $size bytes"
-          fi

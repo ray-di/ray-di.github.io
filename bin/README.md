@@ -52,25 +52,7 @@ Docker entrypoint script that builds and serves the site.
 - Copies markdown files for llms.txt compliance
 - Starts Jekyll server with host 0.0.0.0 for container access
 
-### Documentation Generation Scripts
-
-#### `generate_llms_full.php`
-Generates a comprehensive `llms-full.txt` file from `llms.txt` by expanding linked markdown files.
-
-```bash
-php bin/generate_llms_full.php
-```
-
-**What it does:**
-- Reads `llms.txt` from the root directory
-- Expands all linked markdown files inline
-- Removes Jekyll front matter from included files
-- Converts relative links to internal anchors
-- Generates `llms-full.txt` for AI assistants
-
-**Output:**
-- Creates `llms-full.txt` in the root directory
-- Typical file size: ~80,000 characters
+### Documentation Scripts
 
 #### `copy_markdown_files.sh`
 Copies markdown files to `_site` directory for llms.txt standard compliance.
@@ -112,7 +94,6 @@ jobs:
         bundler-cache: true
     - name: Build Jekyll site
       run: |
-        php bin/generate_llms_full.php
         bundle exec jekyll build
         ./bin/copy_markdown_files.sh
     - name: Deploy to GitHub Pages
@@ -135,17 +116,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    - name: Setup PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: '8.1'
     - name: Setup Ruby
       uses: ruby/setup-ruby@v1
       with:
         ruby-version: 3.2
         bundler-cache: true
-    - name: Validate llms-full.txt generation
-      run: php bin/generate_llms_full.php
     - name: Check for broken links
       run: |
         bundle exec jekyll build
@@ -157,14 +132,13 @@ jobs:
 This documentation follows the [llms.txt standard](https://llms-txt.org/) for AI-accessible documentation:
 
 - **`llms.txt`**: Index file with links to all documentation
-- **`llms-full.txt`**: Comprehensive single-file documentation (generated)
+- **`llms-full.txt`**: Hand-authored single-file LLM reference (edit it directly; it is not generated)
 - **Raw markdown files**: Available at `/manuals/1.0/{lang}/{file}.md` URLs
 - **Human-readable HTML**: Available at `/manuals/1.0/{lang}/{file}.html` URLs
 
 ## Dependencies
 
 - **Ruby**: 3.2.x (for Jekyll and Ruby scripts)
-- **PHP**: 8.1+ (for llms-full.txt generation)
 - **Bundler**: For Ruby gem management
 - **Docker**: Optional, for containerized development
 
@@ -179,18 +153,11 @@ This documentation follows the [llms.txt standard](https://llms-txt.org/) for AI
 ./bin/serve_docker.sh
 ```
 
-### Documentation Updates
-```bash
-# After updating manuals, regenerate derived files
-php bin/generate_llms_full.php
-```
-
 ### Production Build
 ```bash
 # Build for production
 bundle exec jekyll build
 ./bin/copy_markdown_files.sh
-php bin/generate_llms_full.php
 ```
 
 ## File Structure
@@ -201,7 +168,6 @@ bin/
 ├── serve_local.sh            # Local development server
 ├── serve_docker.sh           # Docker development server
 ├── entrypoint.sh             # Docker entrypoint
-├── generate_llms_full.php    # Generate comprehensive AI documentation
 └── copy_markdown_files.sh    # Copy markdown for llms.txt compliance
 ```
 

@@ -31,7 +31,7 @@ Jekyll automatically builds the site when serving. The built site is output to `
 
 ### LLM Reference
 
-`llms-full.txt` is hand-authored and canonical. Do not run `bin/generate_llms_full.php`; it produces the obsolete concatenated format. (https://github.com/ray-di/ray-di.github.io/pull/98)
+`llms-full.txt` is hand-authored and canonical; edit it directly. Jekyll copies it to `_site/` as a static file. (https://github.com/ray-di/ray-di.github.io/pull/98)
 
 ## Site Architecture
 
@@ -92,7 +92,7 @@ Jekyll automatically builds the site when serving. The built site is output to `
 - `llms-full.txt` provides comprehensive framework documentation for AI consumption
 
 ### PHP Dependencies
-The project includes Ray.Di framework as a Composer dependency for documentation examples and AI documentation generation:
+The project includes Ray.Di framework as a Composer dependency for documentation examples:
 ```bash
 composer install  # Install Ray.Di framework dependency
 ```

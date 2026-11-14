@@ -33,11 +33,6 @@ jobs:
           ruby-version: 3.2
           bundler-cache: true
           
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.1'
-          
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v5
@@ -49,15 +44,6 @@ jobs:
       - name: Copy markdown files for llms.txt compliance
         run: ./bin/copy_markdown_files.sh
         
-      - name: Generate llms-full.txt
-        run: php bin/generate_llms_full.php
-        
-      - name: Copy generated files to _site
-        run: |
-          mkdir -p _site/manuals/1.0/en
-          mkdir -p _site/manuals/1.0/ja
-          cp llms-full.txt _site/
-
       - name: Setup Node
         uses: actions/setup-node@v4
         with:

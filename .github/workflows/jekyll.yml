@@ -36,11 +36,6 @@ jobs:
           ruby-version: '3.2.2'
           bundler-cache: false # Disable automatic bundler cache to control gem versions
           cache-version: 2 # Increment this number if you need to re-download cached gems
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.3'
-      
       - name: Install dependencies with specific Rouge version
         run: |
           bundle install
@@ -49,11 +44,6 @@ jobs:
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v5
-
-      - name: Run custom scripts
-        run: |
-          php bin/generate_llms_full.php
-
 
       - name: Build with Jekyll
         # Outputs to the './_site' directory by default
