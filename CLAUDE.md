@@ -104,20 +104,16 @@ bundle exec jekyll build
 ./bin/copy_markdown_files.sh
 ```
 
-## Tutorial System Architecture
+## Study (Design Pattern Tutorial)
 
-### Tutorial Structure
-The site includes a comprehensive tutorial system with a hierarchical structure:
-- `manuals/1.0/{lang}/tutorial/` - Main tutorial directory
-- Numbered directories (01-foundations, 02-basic-bindings, etc.) organize content progressively
-- Each tutorial section has both complete implementations and incremental examples
-- Tutorial navigation is automatically generated from directory structure
+### Structure
+- `manuals/1.0/ja/study/` - Japanese only; no English version yet
+- `manuals/1.0/ja/study/index.md` (permalink `/manuals/1.0/ja/study.html`) lists the reading order
+- Numbered directories (01-foundations, 02-object-creation, 03-behavioral, 04-architecture) organize content progressively
+- Each page ends with 次へ/前へ links; keep them in the same order as `index.md`
 
-### Content Synchronization
-- English tutorials serve as the canonical source
-- Japanese tutorials should mirror English structure but may have cultural adaptations
-- New English tutorials require corresponding Japanese translations
-- Use `manuals/1.0/en/tutorial/index.md` to understand the complete tutorial flow
+### Tutorial1
+- `manuals/1.0/{en,ja}/Tutorial1.md` is the introductory tutorial linked from the nav; keep both languages in sync
 
 ### Working with Existing Content
 When modifying documentation:
@@ -126,7 +122,7 @@ When modifying documentation:
 - Test both languages' navigation and linking after modifications
 
 ## Important File Patterns
-- Tutorial files follow `{section-number}-{topic-name}/{subtopic}.md` pattern
+- Study files follow `study/{section-number}-{topic-name}/{subtopic}.md` pattern
 - Best practices files use `bp/{DescriptiveName}.md` format
 - All documentation requires Jekyll front matter with `layout`, `title`, `category`, and `permalink`
 - Front matter must be stripped from AI-accessible markdown copies in `_site/`
