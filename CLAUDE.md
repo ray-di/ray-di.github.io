@@ -113,11 +113,11 @@ bundle exec jekyll build
 - Each page ends with 次へ/前へ links; keep them in the same order as `index.md`
 
 ### Tutorial1
-- `manuals/1.0/{en,ja}/Tutorial1.md` is the introductory tutorial linked from the nav; keep both languages in sync
+- `manuals/1.0/{en,ja}/Tutorial1.md` is the introductory tutorial; only the JA nav links it (the EN page exists but is not in the nav). Keep both languages in sync
 
 ### Working with Existing Content
 When modifying documentation:
-- Always read the corresponding file in both languages before making changes
+- Always read the corresponding file in both languages before making changes (except `study/`, which is Japanese only)
 - Verify that changes maintain Jekyll front matter consistency
 - Test both languages' navigation and linking after modifications
 
